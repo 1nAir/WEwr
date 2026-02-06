@@ -1,0 +1,41 @@
+name: Update Wealthrate Data
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run script
+      env:
+        WARERA_API_KEY_MAIN: ${{ secrets.WARERA_API_KEY_MAIN }}
+        WARERA_API_KEY_COMPANY: ${{ secrets.WARERA_API_KEY_COMPANY }}
+      run: python main.py
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        # Add index.html and history.json
+        git add index.html history.json
+        # Commit only if changed
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update data [skip ci]" && git push)
