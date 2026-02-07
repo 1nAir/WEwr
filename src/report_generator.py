@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from src import config, html_templates
@@ -41,7 +41,7 @@ class ReportGenerator:
         metric_labels_json = json.dumps(config.METRIC_LABELS)
         item_colors_json = json.dumps(config.ITEM_COLORS)
         production_lines_json = json.dumps(config.PRODUCTION_LINES)
-        timestamp = int(datetime.now().timestamp())
+        timestamp = int(datetime.now(timezone.utc).timestamp())
 
         full_html = html_templates.get_base_template(
             table_data_json=table_data_json,
