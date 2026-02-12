@@ -55,11 +55,11 @@ ITEM_COLORS = {
     # Petroleum - Purple
     "petroleum": "#44337a",
     "oil": "#805ad5",
-    # Lead - Brown
-    "lead": "#3E2723",
-    "ammo": "#BCAAA4",
-    "heavyAmmo": "#8D6E63",
-    "lightAmmo": "#D7CCC8",
+    # Lead - Olive/Lime
+    "lead": "#556B2F",
+    "ammo": "#9ACD32",
+    "heavyAmmo": "#808000",
+    "lightAmmo": "#D8E49C",
     # Iron - Rust/Orange
     "iron": "#dd6b20",
     "steel": "#f6ad55",
