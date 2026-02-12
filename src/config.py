@@ -57,9 +57,9 @@ ITEM_COLORS = {
     "oil": "#805ad5",
     # Lead - Brown
     "lead": "#3E2723",
-    "ammo": "#8D6E63",
-    "heavyAmmo": "#6D4C41",
-    "lightAmmo": "#BCAAA4",
+    "ammo": "#BCAAA4",
+    "heavyAmmo": "#8D6E63",
+    "lightAmmo": "#D7CCC8",
     # Iron - Rust/Orange
     "iron": "#dd6b20",
     "steel": "#f6ad55",
