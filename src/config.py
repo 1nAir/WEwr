@@ -9,7 +9,6 @@ ASSETS_DIR = "assets"
 # Explicit key separation
 API_KEY_MAIN = os.environ.get("WARERA_API_KEY_MAIN")
 API_KEY_COMPANY = os.environ.get("WARERA_API_KEY_COMPANY")
-
 # --- Data Processing Settings ---
 MAX_HISTORY_POINTS = 2016
 THRESHOLD_MULTIPLIER = 1.4
@@ -56,11 +55,11 @@ ITEM_COLORS = {
     # Petroleum - Purple
     "petroleum": "#44337a",
     "oil": "#805ad5",
-    # Lead - Teal
-    "lead": "#285E61",
-    "ammo": "#319795",
-    "heavyAmmo": "#234E52",
-    "lightAmmo": "#81E6D9",
+    # Lead - Brown
+    "lead": "#3E2723",
+    "ammo": "#8D6E63",
+    "heavyAmmo": "#5D4037",
+    "lightAmmo": "#BCAAA4",
     # Iron - Rust/Orange
     "iron": "#dd6b20",
     "steel": "#f6ad55",
