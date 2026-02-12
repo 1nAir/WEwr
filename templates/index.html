@@ -910,13 +910,6 @@
             <div class="site-title">Wealthrate</div>
             <div class="update-info">Updated: <span id="updateTime" data-timestamp="{{ timestamp }}">just now</span>
             </div>
-            <div class="tooltip"
-                style="color: #e53e3e; font-size: 12px; font-weight: 700; margin-top: 6px; cursor: help;">
-                * Ethics bonus not included
-                <span class="tooltiptext" style="width: 280px; text-align: center;">
-                    (Current public API does not provide info about parties and ethics. Waiting for updates...)
-                </span>
-            </div>
             <a href="https://app.warera.io/user/69635dc2d83cd4e381a66dce" target="_blank" class="warship-link">
                 <img src="assets/ru_warship.webp" alt="Profile" onerror="this.style.display='none'">
             </a>
@@ -1151,7 +1144,7 @@
 
             let html = `<div class="formula-header" style="margin-top:0; font-size:14px; border-bottom: 2px solid var(--border-color); padding-bottom:4px; margin-bottom:6px;">${title}</div>
                         <div class="location-row" style="margin-bottom:4px"><span>${row.region_name}, ${row.country_name}</span></div>
-                        <div class="formula-step"><span>Bonus:</span> <span>${row.region_bonus}% (Deposit) + ${row.country_bonus}% (Country)</span></div>
+                        <div class="formula-step"><span>Bonus:</span> <span>${row.region_bonus}% (Dep) + ${row.country_bonus}% (Country) + ${row.ethic_bonus}% (Ethic)</span></div>
                         <div class="formula-step" style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:2px; margin-top:2px"><span>Total:</span> <span style="color:#fbd38d">${row.total_bonus}% (x${row.bonus_multiplier.toFixed(4)})</span></div>`;
 
             // 2. Base Profit Section (Sell Price - Costs)

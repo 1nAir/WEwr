@@ -67,6 +67,19 @@ class TRPCClient:
             "tradingOrder.getTopOrders", {"itemCode": item_code, "limit": limit}
         )
 
+    def get_recommended_regions(
+        self, item_code: str, include_deposit: bool = True
+    ) -> List[Dict]:
+        resp = self.call(
+            "company.getRecommendedRegionIdsByItemCode",
+            {"itemCode": item_code, "includeDeposit": include_deposit},
+        )
+        if not isinstance(resp, dict):
+            return []
+        data = resp.get("result", {}).get("data", resp)
+        final_data = data.get("json", data) if isinstance(data, dict) else data
+        return final_data if isinstance(final_data, list) else []
+
     # --- Complex Logic Preserved from original script ---
 
     def get_item_stats(

@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Any, Dict
+from datetime import datetime
+from typing import Any, Dict, List
 
 from src.api_client import TRPCClient
 
@@ -13,137 +13,75 @@ class MarketAnalyzer:
     def __init__(self, client: TRPCClient):
         self.client = client
 
-    def _get_best_production_options(self) -> Dict[str, Dict[str, Any]]:
+    def _get_best_production_options(
+        self, items: List[str]
+    ) -> Dict[str, Dict[str, Any]]:
         """
-        Reconstructs the logic to find the best production location (Country + Region/Deposit).
+        Uses company.getRecommendedRegionIdsByItemCode to find best locations.
         Returns a dict of item_code -> {bonus, region_data...}.
         """
         countries = self.client.get_countries()
         regions = self.client.get_regions()
 
-        # 1. Map country bonuses
-        country_info = {}
-        item_to_country = {}
-        country_id_to_name = {}
+        # Map IDs to Names
+        country_id_to_name = {c.get("_id"): c.get("name", "Unknown") for c in countries}
+        region_id_to_obj = regions  # regions is Dict[id, region]
 
-        for c in countries:
-            c_id = c.get("_id")
-            c_name = c.get("name", "Unknown")
-            bonuses = c.get("strategicResources", {}).get("bonuses", {})
-            prod_bonus = bonuses.get("productionPercent", 0)
-            spec_item = c.get("specializedItem")
-
-            country_info[c_id] = {
-                "bonus": prod_bonus,
-                "spec_item": spec_item,
-                "name": c_name,
-            }
-            country_id_to_name[c_id] = c_name
-
-            if spec_item:
-                if spec_item not in item_to_country:
-                    item_to_country[spec_item] = []
-                item_to_country[spec_item].append(
-                    {"c_id": c_id, "bonus": prod_bonus, "c_name": c_name}
-                )
-
-        # 2. Analyze Regions (Deposits)
-        item_options = {}
-
-        for r_id, region in regions.items():
-            deposit = region.get("deposit")
-            if not deposit:
-                continue
-
-            item_type = deposit.get("type")
-            if not item_type:
-                continue
-
-            deposit_ends = None
-            # Check expiration
-            if "endsAt" in deposit:
-                try:
-                    ends_at = deposit["endsAt"].replace("Z", "+00:00")
-                    if datetime.fromisoformat(ends_at) < datetime.now(timezone.utc):
-                        continue
-                    deposit_ends = deposit["endsAt"]
-                except ValueError:
-                    pass
-
-            region_bonus = deposit.get("bonusPercent", 0)
-            region_name = region.get("name", region.get("code", r_id))
-            c_id = region.get("country")
-            c_data = country_info.get(
-                c_id, {"bonus": 0, "spec_item": None, "name": "Unknown"}
-            )
-
-            # Country bonus applies if it specializes in this item
-            c_bonus = c_data["bonus"] if item_type == c_data["spec_item"] else 0
-            total = region_bonus + c_bonus
-
-            if item_type not in item_options:
-                item_options[item_type] = []
-
-            item_options[item_type].append(
-                {
-                    "total_bonus": total,
-                    "region_bonus": region_bonus,
-                    "country_bonus": c_bonus,
-                    "region": region_name,
-                    "country": c_data["name"],
-                    "deposit_ends_at": deposit_ends,
-                }
-            )
-
-        # 3. Add Country Capital options (no deposit, just country bonus)
-        for item, opts in item_to_country.items():
-            best_c = max(opts, key=lambda x: x["bonus"])
-
-            # Try to find capital name
-            capital_name = "Unknown"
-            # Simple search for capital or any region in that country
-            for r in regions.values():
-                if r.get("country") == best_c["c_id"]:
-                    capital_name = r.get("name", r.get("code", "Unknown"))
-                    if r.get("isCapital"):
-                        break
-
-            if item not in item_options:
-                item_options[item] = []
-
-            item_options[item].append(
-                {
-                    "total_bonus": best_c["bonus"],
-                    "region_bonus": 0,
-                    "country_bonus": best_c["bonus"],
-                    "region": capital_name,
-                    "country": best_c["c_name"],
-                    "deposit_ends_at": None,
-                }
-            )
-
-        # 4. Find best option per item
         best_options = {}
-        for item, options in item_options.items():
-            if not options:
+
+        for item in items:
+            try:
+                recs = self.client.get_recommended_regions(item)
+            except Exception:
                 continue
 
-            def sort_key(opt):
-                bonus = opt["total_bonus"]
-                ends_at = opt["deposit_ends_at"]
-                if ends_at is None:
-                    ts = float("inf")
-                else:
+            if not recs:
+                continue
+
+            # Sort logic:
+            # 1. Bonus (desc)
+            # 2. Duration (desc/latest)
+            def sort_key(r):
+                bonus = r.get("bonus", 0)
+                deposit_bonus = r.get("depositBonus", 0)
+                end_at = r.get("depositEndAt")
+                ts = 0.0
+                if deposit_bonus > 0 and end_at:
                     try:
-                        ts = datetime.fromisoformat(
-                            ends_at.replace("Z", "+00:00")
-                        ).timestamp()
+                        dt = datetime.fromisoformat(end_at.replace("Z", "+00:00"))
+                        ts = dt.timestamp()
                     except ValueError:
-                        ts = 0
+                        pass
                 return (bonus, ts)
 
-            best_opt = max(options, key=sort_key)
-            best_options[item] = best_opt
+            best_rec = max(recs, key=sort_key)
+
+            # Resolve names
+            r_id = best_rec.get("regionId")
+            region_obj = region_id_to_obj.get(r_id, {})
+            region_name = region_obj.get("name", region_obj.get("code", r_id))
+            c_id = region_obj.get("country")
+            country_name = country_id_to_name.get(c_id, "Unknown")
+
+            # Calculate components
+            ethic_bonus = best_rec.get("ethicDepositBonus", 0) + best_rec.get(
+                "ethicSpecializationBonus", 0
+            )
+
+            deposit_bonus = best_rec.get("depositBonus", 0)
+            deposit_ends_at = (
+                best_rec.get("depositEndAt") if deposit_bonus > 0 else None
+            )
+
+            best_options[item] = {
+                "total_bonus": best_rec.get("bonus", 0),
+                "region_bonus": deposit_bonus,
+                "country_bonus": best_rec.get("strategicBonus", 0),
+                "ethic_bonus": ethic_bonus,
+                "region": region_name,
+                "country": country_name,
+                "deposit_ends_at": deposit_ends_at,
+            }
 
         return best_options
 
@@ -158,7 +96,7 @@ class MarketAnalyzer:
 
         # Heavy operation: fetch detailed stats for all items
         stats = self.client.get_item_stats(items)
-        best_options = self._get_best_production_options()
+        best_options = self._get_best_production_options(items)
 
         snapshot = {}
 
@@ -227,6 +165,7 @@ class MarketAnalyzer:
                 "country_name": best_opt.get("country", "Unknown"),
                 "region_bonus": best_opt.get("region_bonus", 0),
                 "country_bonus": best_opt.get("country_bonus", 0),
+                "ethic_bonus": best_opt.get("ethic_bonus", 0),
                 "deposit_ends_at": best_opt.get("deposit_ends_at"),
             }
 
