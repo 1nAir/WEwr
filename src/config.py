@@ -9,7 +9,6 @@ ASSETS_DIR = "assets"
 # Explicit key separation
 API_KEY_MAIN = os.environ.get("WARERA_API_KEY_MAIN")
 API_KEY_COMPANY = os.environ.get("WARERA_API_KEY_COMPANY")
-API_KEY_MAIN = "wae_245ba05c67e8ff2350a46b03c63479caccdc4e20a9ab0c84dd9dd4facb0ea375"
 # --- Data Processing Settings ---
 MAX_HISTORY_POINTS = 2016
 THRESHOLD_MULTIPLIER = 1.4
