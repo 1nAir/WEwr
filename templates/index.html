@@ -247,7 +247,9 @@
 
         .guide-box {
             position: relative;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .q-mark {
@@ -270,13 +272,14 @@
             top: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background: white;
-            padding: 10px;
+            background-color: var(--tooltip-bg);
+            color: var(--tooltip-text);
+            border: 1px solid var(--tooltip-border);
+            padding: 12px;
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            transition: 0.2s;
-            border: 1px solid #ddd;
+            box-shadow: 0 8px 24px rgba(28, 37, 51, 0.3);
+            z-index: 20000;
+            transition: opacity 0.2s ease-in-out;
             width: max-content;
             max-width: 90vw;
         }
@@ -293,15 +296,29 @@
         }
 
         .table-top-bar {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            padding: 0 0 15px 0;
+            padding: 0 30px 15px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .table-top-bar>*:first-child {
+            justify-self: start;
+        }
+
+        .table-top-bar>*:nth-child(2) {
+            justify-self: center;
+        }
+
+        .table-top-bar>*:last-child {
+            justify-self: end;
         }
 
         .table-wrapper {
             overflow-x: auto;
-            padding: 0 30px 30px;
+            padding: 0 30px 20px;
         }
 
         table {
@@ -590,7 +607,7 @@
 
         /* Charts Section */
         .charts-container {
-            padding: 20px 30px 30px;
+            padding: 20px 0 30px;
             margin-top: 20px;
             border-top: 1px solid var(--border-color);
         }
@@ -609,7 +626,7 @@
             position: relative;
             background: var(--container-bg);
             border-radius: 8px;
-            padding: 10px;
+            padding: 0;
         }
 
         .chart-header {
@@ -617,7 +634,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-            padding: 0 10px;
+            padding: 10px 15px 0;
         }
 
         .chart-header h3 {
@@ -652,6 +669,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 0 15px;
         }
 
         .custom-legend {
@@ -709,7 +727,7 @@
         }
 
         .chart-canvas-container {
-            height: 400px;
+            height: 500px;
             position: relative;
         }
 
@@ -718,6 +736,12 @@
             justify-content: center;
             gap: 10px;
             position: relative;
+        }
+
+        .controls {
+            /* Add padding to prevent buttons from touching screen edges */
+            padding: 0 15px;
+            box-sizing: border-box;
         }
 
         .controls button {
@@ -742,6 +766,21 @@
             border-color: var(--button-active-bg);
         }
 
+        /* Responsive Text Helpers */
+        .mobile-text {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .desktop-text {
+                display: none;
+            }
+
+            .mobile-text {
+                display: inline;
+            }
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             body {
@@ -759,6 +798,10 @@
             .guide-box {
                 margin-left: 0;
                 margin-top: 5px;
+            }
+
+            .table-top-bar {
+                padding: 0 10px 15px;
             }
 
             .table-wrapper {
@@ -817,7 +860,7 @@
             }
 
             .charts-container {
-                padding: 15px 10px;
+                padding: 15px 0;
             }
 
             .controls {
@@ -839,7 +882,7 @@
             }
 
             .chart-canvas-container {
-                height: 300px;
+                height: 400px;
             }
 
             .guide-img {
@@ -918,28 +961,27 @@
         <!-- Tabs -->
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab('profitability', this)">Profitability</button>
-            <button class="tab-btn" onclick="switchTab('comingsoon', this)">Coming Soon (I hope)</button>
+            <button class="tab-btn" onclick="switchTab('company_basing', this)">Company Basing</button>
         </div>
 
         <!-- Tab 1: Profitability -->
         <div id="profitability" class="tab-content active">
-            <div class="table-wrapper">
-                <div class="table-top-bar">
-                    <label
-                        style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: var(--text-primary); font-weight: 600;">
-                        <input type="checkbox" id="fidelitySort" onchange="toggleFidelitySort()"
-                            style="margin-right: 6px;">
-                        Sort by Fidelity
-                    </label>
-                    <div class="guide-box">
-                        <div class="q-mark">?</div>
-                        <div class="guide-img"><img src="assets/guide.webp" alt="Guide"
-                                onerror="this.style.display='none'"></div>
-                    </div>
-                    <div id="sortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
-                        Sorted by: <span id="currentSortLabel">Min ₿/PP ↓</span>
+            <div class="table-top-bar">
+                <label
+                    style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    <input type="checkbox" id="fidelitySort" onchange="toggleFidelitySort()" style="margin-right: 6px;">
+                    Sort by Fidelity
+                </label>
+                <div class="guide-box">
+                    <div class="q-mark">?</div>
+                    <div class="guide-img"><img src="assets/guide.webp" alt="Guide" onerror="this.style.display='none'">
                     </div>
                 </div>
+                <div id="sortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    Sorted by: <span id="currentSortLabel">Min ₿/PP ↓</span>
+                </div>
+            </div>
+            <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
@@ -971,7 +1013,7 @@
             </div>
 
             <div class="charts-container">
-                <h2 class="charts-title">History Charts</h2>
+                <h2 class="charts-title">Profitability History</h2>
 
                 <!-- Time Controls -->
                 <div class="controls" id="timeControls" style="margin-bottom: 20px;">
@@ -989,9 +1031,6 @@
                 </div>
 
                 <div class="chart-wrapper">
-                    <div class="chart-header">
-                        <h3 id="chartTitle"></h3>
-                    </div>
                     <div class="chart-canvas-container">
                         <canvas id="mainChart"></canvas>
                     </div>
@@ -1004,10 +1043,83 @@
             </div>
         </div>
 
-        <!-- Tab 2: Coming Soon -->
-        <div id="comingsoon" class="tab-content">
-            <div class="coming-soon-pane">
-                🚧 Coming Soon 🚧
+        <!-- Tab 2: Company Basing -->
+        <div id="company_basing" class="tab-content">
+            <div class="table-top-bar">
+                <label
+                    style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    <input type="checkbox" id="workersSort" onchange="toggleWorkersSort()" style="margin-right: 6px;">
+                    Sort by Workers
+                </label>
+                <div class="guide-box">
+                    <div class="q-mark">?</div>
+                    <div class="guide-img"
+                        style="width: 300px; white-space: normal; line-height: 1.5; font-size: 13px;">
+                        <p style="color: #fc8181; font-weight: bold; margin-bottom: 8px;">⚠️ Test version. Bugs and
+                            mistakes are possible.</p>
+                        <p style="margin-bottom: 8px;">Best region is the region with the highest production bonus.
+                        </p>
+                        <p>Automated Engine PP/h excludes region bonus.</p>
+                    </div>
+                </div>
+                <div id="compSortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    Sorted by: <span id="currentCompSortLabel">Total Companies ↓</span>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="cursor: default;">Product</th>
+                            <th onclick="handleCompSort('comp_best_count')"><span class="desktop-text">Best
+                                    Regions</span><span class="mobile-text">Best</span></th>
+                            <th onclick="handleCompSort('comp_others_count')"><span class="desktop-text">Other
+                                    Regions</span><span class="mobile-text">Others</span></th>
+                            <th onclick="handleCompSort('comp_total_count')">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="compTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="charts-container">
+                <h2 class="charts-title">Company Basing History</h2>
+
+                <!-- Time Controls -->
+                <div class="controls" id="compTimeControls" style="margin-bottom: 20px;">
+                    <button id="btn24_comp" onclick="setPeriod(24)" class="active">24 Hours</button>
+                    <button id="btn72_comp" onclick="setPeriod(72)">3 Days</button>
+                    <button id="btn168_comp" onclick="setPeriod(168)">7 Days</button>
+                    <button id="btn0_comp" onclick="setPeriod(0)">All Time</button>
+                </div>
+
+                <!-- Column Controls -->
+                <div class="controls" style="margin-bottom: 10px;">
+                    <button id="btn_comp_best" onclick="setCompColumn('best')">Best Regions</button>
+                    <button id="btn_comp_others" onclick="setCompColumn('others')">Other Regions</button>
+                    <button id="btn_comp_total" onclick="setCompColumn('total')" class="active">Total</button>
+                </div>
+
+                <!-- Metric Controls -->
+                <div class="controls" style="margin-bottom: 15px;">
+                    <select id="compMetricSelect" onchange="updateCompChart()"
+                        style="padding: 8px; border-radius: 6px; border: 1px solid var(--button-border); background: var(--button-bg); color: var(--button-text);">
+                        <option value="count">Companies</option>
+                        <option value="workers">Workers</option>
+                        <option value="ae">AE PP/h</option>
+                    </select>
+                </div>
+
+                <div class="chart-wrapper">
+                    <div class="chart-canvas-container">
+                        <canvas id="compChart"></canvas>
+                    </div>
+                    <div class="legend-wrapper">
+                        <button class="chart-toggle-btn" onclick="toggleAll('compChart')"
+                            style="margin-bottom: 8px;">Toggle All</button>
+                        <div id="compChart-legend" class="custom-legend"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1025,15 +1137,22 @@
         const tableData = {{ table_data_json | safe }};
         const labels = {{ metric_labels_json | safe }};
         const itemColors = {{ item_colors_json | safe }};
+        const itemShortNames = {{ item_short_names_json | safe }};
 
         const productionLines = {{ production_lines_json | safe }};
         let currentSort = { col: 'min_pp', dir: 'desc' };
+        let currentCompSort = { col: 'comp_total_count', dir: 'desc' };
         let currentMetric = 'min_pp';
         let sortByFidelity = false;
+        let sortByWorkers = false;
         let chartInstances = {};
         let modalChartInstance = null;
         let mobileAnnotation = null;
         let chart = null;
+
+        // --- COMP CHART VARS ---
+        let currentCompMetricType = 'count'; // count, workers, ae
+        let currentCompColumn = 'total'; // best, others, total
 
         // --- THEME SWITCHER ---
         const themeToggle = document.getElementById('theme-toggle');
@@ -1051,7 +1170,8 @@
             const newTheme = body.classList.contains('dark-mode') ? 'light' : 'dark';
             localStorage.setItem('theme', newTheme);
             applyTheme(newTheme);
-            renderCharts(); // Re-render charts for new theme
+            renderMainChart();
+            updateCompChart();
         });
 
         const savedTheme = localStorage.getItem('theme');
@@ -1066,6 +1186,9 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
+            localStorage.setItem('activeTab', tabId);
+            // Recalculate widths when tab becomes visible
+            requestAnimationFrame(equalizeColumnWidths);
         }
 
         function toggleFidelitySort() {
@@ -1108,8 +1231,7 @@
                 document.getElementById('btn_' + m).classList.toggle('active', m === metric);
             });
             // Update Title
-            document.getElementById('chartTitle').innerText = labels[metric];
-            renderCharts();
+            renderMainChart();
         }
 
         function updateRelativeTime() {
@@ -1164,7 +1286,13 @@
                     let costPrice = type === 'min' ? r.max : (type === 'max' ? r.min : r.avg);
                     let subCost = r.quantity * costPrice;
                     totalCost += subCost;
-                    costHtml += `<div class="formula-step"><span>- ${r.quantity}x ${r.pretty_name} @ ${costPrice.toFixed(3)} (${costLabel}):</span> <span>${subCost.toFixed(3)}</span></div>`;
+
+                    let rName = r.pretty_name;
+                    if (window.innerWidth <= 768) {
+                        rName = itemShortNames[r.item] || rName;
+                    }
+
+                    costHtml += `<div class="formula-step"><span>- ${r.quantity}x ${rName} @ ${costPrice.toFixed(3)} (${costLabel}):</span> <span>${subCost.toFixed(3)}</span></div>`;
                 });
                 html += costHtml;
                 html += `<div class="formula-result">${baseSellPrice.toFixed(3)} - ${totalCost.toFixed(3)} = ${netProfit.toFixed(3)}</div>`;
@@ -1195,6 +1323,7 @@
             return `<img src="assets/${itemName}.webp" class="item-icon" onerror="this.style.display='none'" alt="">`;
         }
 
+        // --- PROFITABILITY TABLE RENDER ---
 
         function renderTable() {
             const tbody = document.getElementById('tableBody');
@@ -1274,12 +1403,7 @@
 
                 let displayName = row.pretty_name;
                 if (window.innerWidth <= 768) {
-                    const shortNames = {
-                        'coca': 'Myst. Plant',
-                        'heavyAmmo': 'H. Ammo',
-                        'lightAmmo': 'L. Ammo'
-                    };
-                    displayName = shortNames[row.item] || row.pretty_name;
+                    displayName = itemShortNames[row.item] || row.pretty_name;
                 }
 
                 return `<tr>
@@ -1302,6 +1426,80 @@
             }).join('');
 
             setupTooltips();
+            equalizeColumnWidths();
+        }
+
+        // --- COMPANY TABLE RENDER ---
+
+        function renderCompTable() {
+            const tbody = document.getElementById('compTableBody');
+            const data = [...tableData].sort((a, b) => {
+                let v1, v2;
+                let sortCol = currentCompSort.col;
+
+                if (sortByWorkers) {
+                    // Replace _count with _workers in the current sort column
+                    sortCol = sortCol.replace('_count', '_workers');
+                }
+
+                v1 = a[sortCol] || 0;
+                v2 = b[sortCol] || 0;
+
+                return currentCompSort.dir === 'asc' ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
+            });
+
+            tbody.innerHTML = data.map(row => {
+                let displayName = row.pretty_name;
+                if (window.innerWidth <= 768) {
+                    displayName = itemShortNames[row.item] || row.pretty_name;
+                }
+
+                // Helper for cells
+                const renderCell = (prefix) => {
+                    const count = row[prefix + '_count'] || 0;
+                    const workers = row[prefix + '_workers'] || 0;
+                    const ae = row[prefix + '_ae'] || 0;
+
+                    return `
+                        <div class="pp-cell">
+                            <span class="pp-main">🏢 ${count}</span>
+                            <span class="pp-sub" title="Workers">
+                                <span class="fidelity-icon">👷</span> ${workers}
+                            </span>
+                        </div>
+                    `;
+                };
+
+                // Tooltip for Company Table
+                const getCompTooltip = (prefix) => {
+                    const count = row[prefix + '_count'] || 0;
+                    const workers = row[prefix + '_workers'] || 0;
+                    const ae = row[prefix + '_ae'] || 0;
+                    let html = `
+                        <div>Total Companies: <span style="color:#fff; font-weight:bold">${count}</span></div>
+                        <div>Total Workers: <span style="color:#fff; font-weight:bold">${workers}</span></div>
+                        <div>Automated Engine PP/h: <span style="color:#68d391; font-weight:bold">${ae}</span></div>`;
+                    if (prefix === 'comp_best' && row.comp_best_regions_count !== undefined) {
+                        html += `<div style="margin-top:4px; font-size:10px; color:var(--text-secondary); border-top:1px solid var(--border-color); padding-top:2px;">Best Regions Count: ${row.comp_best_regions_count} (debug)</div>`;
+                    }
+                    return html;
+                };
+
+                return `<tr>
+                    <td>
+                        <div class="item-cell">
+                            ${getIcon(row.item)}
+                            <span class="item-name">${displayName}</span>
+                        </div>
+                    </td>
+                    <td class="pp-col tooltip">${renderCell('comp_best')}<span class="tooltiptext">${getCompTooltip('comp_best')}</span></td>
+                    <td class="pp-col tooltip">${renderCell('comp_others')}<span class="tooltiptext">${getCompTooltip('comp_others')}</span></td>
+                    <td class="pp-col tooltip">${renderCell('comp_total')}<span class="tooltiptext">${getCompTooltip('comp_total')}</span></td>
+                </tr>`;
+            }).join('');
+
+            setupTooltips(); // Re-bind tooltips
+            equalizeColumnWidths();
         }
 
         function handleSort(col) {
@@ -1311,11 +1509,29 @@
             renderTable();
         }
 
+        function handleCompSort(col) {
+            currentCompSort.dir = (currentCompSort.col === col && currentCompSort.dir === 'desc') ? 'asc' : 'desc';
+            currentCompSort.col = col;
+            updateCompSortLabel();
+            renderCompTable();
+        }
+
         function updateSortLabel() {
             const labels = { 'min_pp': 'Min ₿/PP', 'avg_pp': 'Avg ₿/PP', 'max_pp': 'Max ₿/PP', 'item': 'Product' };
             let text = labels[currentSort.col] || currentSort.col;
             text += currentSort.dir === 'asc' ? ' ↑' : ' ↓';
             const el = document.getElementById('currentSortLabel');
+            if (el) el.textContent = text;
+        }
+
+        function updateCompSortLabel() {
+            let labels = { 'comp_best_count': 'Best Regions', 'comp_others_count': 'Other Regions', 'comp_total_count': 'Total' };
+            if (window.innerWidth <= 768) {
+                labels = { 'comp_best_count': 'Best', 'comp_others_count': 'Others', 'comp_total_count': 'Total' };
+            }
+            let text = (labels[currentCompSort.col] || 'Count');
+            text += currentCompSort.dir === 'asc' ? ' ↑' : ' ↓';
+            const el = document.getElementById('currentCompSortLabel');
             if (el) el.textContent = text;
         }
 
@@ -1350,6 +1566,29 @@
             });
         }
 
+        function equalizeColumnWidths() {
+            // Process both tables
+            document.querySelectorAll('table').forEach(table => {
+                if (table.offsetParent === null) return; // Skip hidden tables (inactive tabs)
+
+                const headers = Array.from(table.querySelectorAll('th:not(:first-child)'));
+                if (!headers.length) return;
+
+                // 1. Reset widths to allow browser to calculate natural width based on content
+                headers.forEach(th => th.style.width = '');
+
+                // 2. Find the maximum width among data columns
+                let maxW = 0;
+                headers.forEach(th => {
+                    const w = th.getBoundingClientRect().width;
+                    if (w > maxW) maxW = w;
+                });
+
+                // 3. Apply the maximum width to all data columns
+                const finalW = Math.ceil(maxW) + 1 + 'px'; // +1px buffer
+                headers.forEach(th => th.style.width = finalW);
+            });
+        }
 
         // --- CHART LOGIC ---
         let timeFilterHours = 24; // Default 24 Hours
@@ -1358,12 +1597,19 @@
             timeFilterHours = hours;
 
             // Update active button
-            document.querySelectorAll('#timeControls button').forEach(b => b.classList.remove('active'));
-            const btnId = hours === 0 ? 'btn0' : 'btn' + hours;
-            const btn = document.getElementById(btnId);
-            if (btn) btn.classList.add('active');
+            // Sync both sets of buttons
+            document.querySelectorAll('#timeControls button, #compTimeControls button').forEach(b => b.classList.remove('active'));
 
-            renderCharts();
+            const btnId = hours === 0 ? 'btn0' : 'btn' + hours;
+            const compBtnId = hours === 0 ? 'btn0_comp' : 'btn' + hours + '_comp';
+
+            const btn1 = document.getElementById(btnId);
+            const btn2 = document.getElementById(compBtnId);
+            if (btn1) btn1.classList.add('active');
+            if (btn2) btn2.classList.add('active');
+
+            renderMainChart();
+            updateCompChart();
             if (document.getElementById('chartModal').style.display === 'block') {
                 // If modal is open, refresh it too (we need to know which item was opened)
                 // For simplicity, we just close it or let user reopen. 
@@ -1394,9 +1640,10 @@
         }
 
 
-        function getFilteredData(row, metric) {
-            const allLabels = row.labels;
-            const allData = row.history[metric];
+        function getFilteredData(row, metric, isComp = false) {
+            const allLabels = isComp ? (row.comp_labels || []) : (row.labels || []);
+            const historyObj = isComp ? (row.comp_history || {}) : (row.history || {});
+            const allData = historyObj[metric] || [];
 
             // 1. Filter by time range
             let startIndex = 0;
@@ -1434,7 +1681,9 @@
                 } else {
                     if (count > 0) {
                         aggLabels.push(bucketStartTime);
-                        aggData.push(sum / count);
+                        let val = sum / count;
+                        if (isComp) val = Math.round(val);
+                        aggData.push(val);
                     }
                     bucketStartTime = filteredLabels[i];
                     sum = filteredData[i];
@@ -1443,7 +1692,9 @@
             }
             if (count > 0) {
                 aggLabels.push(bucketStartTime);
-                aggData.push(sum / count);
+                let val = sum / count;
+                if (isComp) val = Math.round(val);
+                aggData.push(val);
             }
 
             return {
@@ -1465,6 +1716,25 @@
                 const t = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                 return `${d}, ${t}`;
             });
+        }
+
+        function toggleWorkersSort() {
+            sortByWorkers = document.getElementById('workersSort').checked;
+            updateCompSortLabel();
+            renderCompTable();
+        }
+
+        function setCompColumn(colType) {
+            currentCompColumn = colType;
+            ['best', 'others', 'total'].forEach(c => {
+                document.getElementById('btn_comp_' + c).classList.toggle('active', c === colType);
+            });
+            updateCompChart();
+        }
+
+        function updateCompChart() {
+            currentCompMetricType = document.getElementById('compMetricSelect').value;
+            createChart('compChart', `comp_${currentCompColumn}_${currentCompMetricType}`, '', true);
         }
 
         function generateCustomLegend(canvasId, chart) {
@@ -1517,6 +1787,11 @@
                     const meta = chart.getDatasetMeta(idx);
                     const isHidden = meta.hidden === null ? ds.hidden : meta.hidden;
 
+                    let label = ds.label;
+                    if (window.innerWidth <= 768) {
+                        label = itemShortNames[ds.itemCode] || label;
+                    }
+
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'legend-item' + (isHidden ? ' hidden' : '');
                     itemDiv.onclick = () => {
@@ -1526,7 +1801,7 @@
                         generateCustomLegend(canvasId, chart);
                     };
 
-                    itemDiv.innerHTML = `<span class="legend-color" style="background:${ds.backgroundColor}"></span>${ds.label}`;
+                    itemDiv.innerHTML = `<span class="legend-color" style="background:${ds.backgroundColor}"></span>${label}`;
                     groupDiv.appendChild(itemDiv);
                 });
 
@@ -1534,93 +1809,245 @@
             }
         }
 
-        function renderCharts() {
+        const fallbackColors = [
+            '#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F',
+            '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC',
+            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+            '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+        ];
+
+        function createChart(canvasId, metric, title, isComp = false) {
             if (!tableData.length) return;
 
-            const fallbackColors = [
-                '#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F',
-                '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC',
-                '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-                '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
-            ];
+            // 1. Cleanup Mobile Tooltip
+            if (mobileAnnotation) {
+                mobileAnnotation.remove();
+                mobileAnnotation = null;
+            }
 
             const isMobile = window.innerWidth <= 768;
+            const ctx = document.getElementById(canvasId).getContext('2d');
 
-            const commonOptions = {
+            // Helper for contrast text color
+            const getContrastYIQ = (hexcolor) => {
+                hexcolor = hexcolor.replace("#", "");
+                var r = parseInt(hexcolor.substr(0, 2), 16);
+                var g = parseInt(hexcolor.substr(2, 2), 16);
+                var b = parseInt(hexcolor.substr(4, 2), 16);
+                var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                return (yiq >= 128) ? 'black' : 'white';
+            };
+
+            // State for desktop hover optimization
+            let lastHoverX = null;
+            let lastTop3 = null;
+            // Custom Plugin to draw value labels on chart
+            const valueLabelPlugin = {
+                id: 'valueLabel',
+                afterDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    // Determine active points based on device type
+                    const activePoints = isMobile ? chart.clickedPoints : chart.hoverPoints;
+
+                    if (activePoints && activePoints.length) {
+                        // Prepare labels with collision detection
+                        let labels = [];
+                        activePoints.forEach(p => {
+                            const meta = chart.getDatasetMeta(p.datasetIndex);
+                            if (meta.hidden) return;
+
+                            const element = meta.data[p.index];
+                            if (!element) return; // Point might be clipped
+
+                            const ds = chart.data.datasets[p.datasetIndex];
+                            const value = ds.data[p.index];
+                            const valStr = isComp ? Math.round(value) : value.toFixed(3);
+
+                            labels.push({
+                                y: element.y,
+                                x: element.x,
+                                text: valStr,
+                                name: ds.label,
+                                color: ds.borderColor
+                            });
+                        });
+
+                        // Sort by Y to handle stacking (top to bottom)
+                        labels.sort((a, b) => a.y - b.y);
+
+                        // Prevent overlap - iterate backwards to push upper labels up
+                        for (let i = labels.length - 1; i > 0; i--) {
+                            const bottom = labels[i];
+                            const top = labels[i - 1];
+                            // Threshold adjusted for smaller badges
+                            if (bottom.y - top.y < 24) {
+                                top.y = bottom.y - 24;
+                            }
+                        }
+
+                        labels.forEach(l => {
+                            const padding = 2;
+                            ctx.font = 'bold 7px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            const nameWidth = ctx.measureText(l.name).width;
+                            ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            const valWidth = ctx.measureText(l.text).width;
+
+                            const contentWidth = Math.max(nameWidth, valWidth);
+                            const boxWidth = contentWidth + (padding * 2);
+                            const boxHeight = 22;
+                            const boxY = l.y - 15 - (boxHeight / 2); // Position above point
+
+                            // Draw Badge Background
+                            ctx.save();
+                            ctx.globalAlpha = 0.6;
+                            ctx.fillStyle = l.color;
+                            ctx.beginPath();
+                            ctx.roundRect(l.x - (boxWidth / 2), boxY, boxWidth, boxHeight, 2);
+                            ctx.fill();
+                            ctx.restore();
+
+                            // Draw Text
+                            ctx.fillStyle = getContrastYIQ(l.color);
+                            ctx.font = 'bold 7px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            ctx.fillText(l.name, l.x, boxY + 7);
+
+                            ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            ctx.fillText(l.text, l.x, boxY + 17);
+                        });
+                    }
+                    ctx.restore();
+                }
+            };
+            // 2. Preserve Hidden State & Destroy Old Chart
+            let hiddenState = {};
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].data.datasets.forEach((ds, i) => {
+                    const meta = chartInstances[canvasId].getDatasetMeta(i);
+                    hiddenState[ds.label] = meta.hidden !== null ? meta.hidden : ds.hidden;
+                });
+                chartInstances[canvasId].destroy();
+            }
+
+            // 3. Prepare Data
+            let chartLabels = [];
+            const datasets = tableData.map((row, index) => {
+                const filtered = getFilteredData(row, metric, isComp);
+                if (index === 0) chartLabels = formatLabels(filtered.labels);
+
+                const color = itemColors[row.item] || fallbackColors[index % fallbackColors.length];
+
+                return {
+                    label: row.pretty_name,
+                    itemCode: row.item,
+                    data: filtered.data,
+                    borderColor: color,
+                    backgroundColor: color,
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHitRadius: 10,
+                    borderWidth: 2,
+                    hidden: hiddenState[row.pretty_name]
+                };
+            });
+
+            // 4. Chart Options (The Fresh Start)
+            const options = {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                onClick: (evt) => {
-                    if (!isMobile) return;
-                    const chart = evt.chart;
-                    const canvas = chart.canvas;
+                layout: {
+                    padding: { top: 50, left: 0, right: isMobile ? 20 : 40, bottom: 0 }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: { display: false }, // We use a custom HTML legend
+                    tooltip: { enabled: false } // Disable standard tooltip
+                },
+                onHover: (event, elements, chart) => {
+                    if (isMobile) return;
 
+                    // Desktop Logic: Find 3 nearest lines to cursor Y
+                    const points = chart.getElementsAtEventForMode(event, 'index', { intersect: false }, false);
+
+                    // Reset previous hover state
+                    chart.hoverPoints = [];
+                    chart.data.datasets.forEach(ds => {
+                        ds.pointRadius = 0;
+                        ds.pointHoverRadius = 0;
+                    });
+
+                    if (points.length > 0) {
+                        const cursorY = event.y;
+
+                        const distances = points.map(p => ({
+                            datasetIndex: p.datasetIndex,
+                            index: p.index,
+                            dist: Math.abs(p.element.y - cursorY)
+                        }));
+                        distances.sort((a, b) => a.dist - b.dist);
+                        const top3 = distances.slice(0, 3);
+
+                        chart.hoverPoints = top3;
+
+                        // Highlight specific points
+                        top3.forEach(p => {
+                            const ds = chart.data.datasets[p.datasetIndex];
+                            const radii = new Array(ds.data.length).fill(0);
+                            radii[p.index] = 5;
+                            ds.pointRadius = radii;
+                            ds.pointHoverRadius = 5;
+                        });
+                    }
+                    chart.update();
+                },
+                onClick: (event, elements, chart) => {
+                    if (!isMobile) return;
+
+                    // Mobile Logic: Custom Tooltip on Click
+                    // 1. Clear previous state completely
                     if (mobileAnnotation) {
                         mobileAnnotation.remove();
                         mobileAnnotation = null;
                     }
+                    chart.clickedPoints = [];
 
-                    chart.data.datasets.forEach(dataset => {
-                        dataset.pointRadius = 0;
+                    // Force reset of all points to invisible
+                    chart.data.datasets.forEach(ds => {
+                        ds.pointRadius = 0;
+                        ds.pointHoverRadius = 0;
                     });
 
-                    const points = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, true);
-                    if (points.length) {
-                        const firstPoint = points[0];
-                        const dataset = chart.data.datasets[firstPoint.datasetIndex];
-                        const value = dataset.data[firstPoint.index];
-                        const { x, y } = firstPoint.getProps(['x', 'y'], true);
+                    const points = chart.getElementsAtEventForMode(event, 'index', { intersect: false }, false);
 
-                        const radii = new Array(dataset.data.length).fill(0);
-                        radii[firstPoint.index] = 5;
-                        dataset.pointRadius = radii;
+                    if (points.length > 0) {
+                        const clickY = event.y;
+                        const distances = points.map(p => ({
+                            datasetIndex: p.datasetIndex,
+                            index: p.index,
+                            dist: Math.abs(p.element.y - clickY)
+                        }));
+                        distances.sort((a, b) => a.dist - b.dist);
+                        const top3 = distances.slice(0, 3);
 
-                        const div = document.createElement('div');
-                        div.style.position = 'absolute';
-                        div.style.left = x + 'px';
-                        div.style.top = y + 'px';
-                        div.style.transform = 'translate(-50%, -150%)';
-                        div.style.background = 'rgba(0,0,0,0.75)';
-                        div.style.color = 'white';
-                        div.style.padding = '4px 8px';
-                        div.style.borderRadius = '4px';
-                        div.style.fontSize = '12px';
-                        div.style.pointerEvents = 'none';
-                        div.style.whiteSpace = 'nowrap';
-                        div.textContent = `${dataset.label}: ${value.toFixed(4)}`;
-                        canvas.parentNode.appendChild(div);
-                        mobileAnnotation = div;
+                        chart.clickedPoints = top3;
+
+                        // Highlight top 3 points
+                        top3.forEach(p => {
+                            const ds = chart.data.datasets[p.datasetIndex];
+                            const radii = new Array(ds.data.length).fill(0);
+                            radii[p.index] = 5;
+                            ds.pointRadius = radii;
+                            ds.pointHoverRadius = 5;
+                        });
                     }
-                    chart.update('none');
-                },
-                plugins: {
-                    legend: { display: false }, // We use a custom HTML legend
-                    tooltip: {
-                        enabled: !isMobile,
-                        backgroundColor: '#2d3748',
-                        titleColor: '#cbd5e0',
-                        bodyColor: '#f7fafc',
-                        borderColor: '#4a5568',
-                        borderWidth: 1,
-                        padding: 12,
-                        cornerRadius: 8,
-                        boxPadding: 6,
-                        usePointStyle: true,
-                        titleFont: { size: 14, weight: 'bold' },
-                        bodyFont: { size: 13 },
-                        yAlign: 'bottom', // Force tooltip to appear above the point
-                        callbacks: {
-                            label: function (context) {
-                                let label = context.dataset.label || '';
-                                if (label) label += ': ';
-                                if (context.parsed.y !== null) label += context.parsed.y.toFixed(4);
-                                return label;
-                            }
-                        }
-                    },
-                    title: {
-                        display: false
-                    }
+                    chart.update();
                 },
                 scales: {
                     x: {
@@ -1647,69 +2074,51 @@
                 }
             };
 
-            function createChart(canvasId, metric, title) {
-                let hiddenState = {};
-                if (chartInstances[canvasId]) {
-                    chartInstances[canvasId].data.datasets.forEach((ds, i) => {
-                        const meta = chartInstances[canvasId].getDatasetMeta(i);
-                        hiddenState[ds.label] = meta.hidden !== null ? meta.hidden : ds.hidden;
-                    });
-                    chartInstances[canvasId].destroy();
-                }
+            // 5. Create Chart
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: { labels: chartLabels, datasets: datasets },
+                options: options,
+                plugins: [valueLabelPlugin]
+            });
 
-                // Prepare datasets with filtering
-                let chartLabels = [];
-                const datasets = tableData.map((row, index) => {
-                    const filtered = getFilteredData(row, currentMetric);
-                    if (index === 0) chartLabels = formatLabels(filtered.labels); // Use labels from first item
+            // Initialize state arrays
+            chartInstances[canvasId].clickedPoints = [];
+            chartInstances[canvasId].hoverPoints = [];
 
-                    const color = itemColors[row.item] || fallbackColors[index % fallbackColors.length];
+            generateCustomLegend(canvasId, chartInstances[canvasId]);
+        }
 
-                    return {
-                        label: row.pretty_name,
-                        itemCode: row.item, // Store item code for grouping
-                        data: filtered.data,
-                        borderColor: color,
-                        backgroundColor: color,
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 0, // Hide points for cleaner look
-                        pointHitRadius: 10,
-                        borderWidth: 2,
-                        hidden: hiddenState[row.pretty_name]
-                    };
-                });
-
-                const ctx = document.getElementById(canvasId).getContext('2d');
-                const finalOptions = JSON.parse(JSON.stringify(commonOptions)); // Deep copy
-
-                // Восстанавливаем функцию сортировки (теряется при JSON.stringify)
-                if (!finalOptions.plugins.tooltip) finalOptions.plugins.tooltip = {};
-                finalOptions.plugins.tooltip.itemSort = (a, b) => b.raw - a.raw;
-
-                chartInstances[canvasId] = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: chartLabels, datasets: datasets },
-                    options: finalOptions
-                });
-
-                generateCustomLegend(canvasId, chartInstances[canvasId]);
-            }
-
+        function renderMainChart() {
             createChart('mainChart', currentMetric, '');
         }
         // Sync fidelity sort state on page load in case of browser cache
         sortByFidelity = document.getElementById('fidelitySort').checked;
+        sortByWorkers = document.getElementById('workersSort').checked;
 
         updateSortLabel();
+        updateCompSortLabel();
         setMetric('min_pp'); // Set initial title
 
         window.addEventListener('resize', () => {
             renderTable();
+            renderCompTable();
+            renderMainChart();
+            updateCompChart();
+            equalizeColumnWidths();
         });
 
+        // Restore active tab
+        const savedTab = localStorage.getItem('activeTab');
+        if (savedTab) {
+            const btn = document.querySelector(`.tab-btn[onclick*="${savedTab}"]`);
+            if (btn) switchTab(savedTab, btn);
+        }
+
         renderTable();
-        renderCharts();
+        renderCompTable();
+        renderMainChart();
+        updateCompChart(); // Init comp chart
     </script>
 </body>
 

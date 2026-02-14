@@ -11,7 +11,11 @@ class ReportGenerator:
     """
 
     @staticmethod
-    def generate(history: Dict[str, Any], current_snapshot: Dict[str, Any]):
+    def generate(
+        history: Dict[str, Any],
+        comp_history: Dict[str, Any],
+        current_snapshot: Dict[str, Any],
+    ):
         """Builds the index.html file."""
         print("Generating HTML report...")
 
@@ -26,13 +30,16 @@ class ReportGenerator:
 
             # Get history for this item
             item_history = history["items"].get(item_code, {})
+            item_comp_history = comp_history["items"].get(item_code, {})
 
             row = {
                 "item": item_code,
                 "pretty_name": config.ITEM_PRETTY_NAMES.get(item_code, item_code),
                 **metrics,  # Includes min_pp, prices, bonuses, location info
                 "history": item_history,
+                "comp_history": item_comp_history,
                 "labels": history.get("labels", []),  # Using labels (Unix timestamps)
+                "comp_labels": comp_history.get("labels", []),
             }
             table_data.append(row)
 
@@ -40,6 +47,7 @@ class ReportGenerator:
         table_data_json = json.dumps(table_data)
         metric_labels_json = json.dumps(config.METRIC_LABELS)
         item_colors_json = json.dumps(config.ITEM_COLORS)
+        item_short_names_json = json.dumps(config.ITEM_SHORT_NAMES)
         production_lines_json = json.dumps(config.PRODUCTION_LINES)
         timestamp = int(datetime.now(timezone.utc).timestamp())
 
@@ -47,6 +55,7 @@ class ReportGenerator:
             table_data_json=table_data_json,
             metric_labels_json=metric_labels_json,
             item_colors_json=item_colors_json,
+            item_short_names_json=item_short_names_json,
             production_lines_json=production_lines_json,
             timestamp=timestamp,
         )

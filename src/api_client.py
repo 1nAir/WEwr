@@ -1,6 +1,8 @@
 import json
-import random
-from typing import Any, Dict, List, Optional
+import time
+from collections import deque
+from itertools import cycle
+from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import quote
 
 import requests
@@ -12,16 +14,44 @@ class TRPCClient:
     Includes logic for complex stats gathering and key rotation.
     """
 
+    BATCH_SIZE = 50  # Testing higher limits (watch for HTTP 414 errors)
+
     def __init__(self, api_keys: List[str]):
         if not api_keys:
             raise ValueError("No API keys provided.")
         self.api_keys = api_keys
+        # Rate limiting: 200 req/min per key
+        self._key_usage = {k: deque(maxlen=200) for k in api_keys}
+        self._key_cycle = cycle(api_keys)
         self.base_url = "https://api2.warera.io/trpc"
-        self._current_key = random.choice(self.api_keys)
         self._game_config_cache = None
 
-    def _get_headers(self) -> Dict[str, str]:
-        return {"accept": "*/*", "X-API-Key": self._current_key}
+    def _get_valid_key(self) -> str:
+        """Rotates keys respecting the rate limit (200 req/min)."""
+        # Try to find an available key
+        for _ in range(len(self.api_keys)):
+            key = next(self._key_cycle)
+            history = self._key_usage[key]
+
+            # Check if key has quota
+            if len(history) < 200:
+                history.append(time.time())
+                return key
+
+            # Check if oldest request is older than 60s
+            if time.time() - history[0] > 60:
+                history.append(time.time())
+                return key
+
+        # If all keys are exhausted, wait for the soonest one to free up
+        wait_times = [
+            max(0, 60 - (time.time() - self._key_usage[k][0])) for k in self.api_keys
+        ]
+        sleep_time = min(wait_times)
+        if sleep_time > 0:
+            time.sleep(sleep_time + 0.1)
+
+        return self._get_valid_key()
 
     def call(
         self,
@@ -30,11 +60,12 @@ class TRPCClient:
         raise_on_error: bool = True,
     ) -> Any:
         params = params or {}
+        key = self._get_valid_key()
         encoded_input = quote(json.dumps(params))
         url = f"{self.base_url}/{method}?input={encoded_input}"
 
         try:
-            resp = requests.get(url, headers=self._get_headers())
+            resp = requests.get(url, headers={"accept": "*/*", "X-API-Key": key})
             if raise_on_error:
                 resp.raise_for_status()
             return resp.json() if resp.text else {}
@@ -43,6 +74,52 @@ class TRPCClient:
             if raise_on_error:
                 raise
             return {}
+
+    def batch_call(
+        self,
+        calls: List[Tuple[str, Dict[str, Any]]],
+        raise_on_error: bool = True,
+    ) -> List[Any]:
+        """
+        Executes multiple tRPC calls in a single HTTP request (batching).
+        Chunks requests to avoid URL length limits.
+        """
+        if not calls:
+            return []
+
+        results = []
+
+        for i in range(0, len(calls), self.BATCH_SIZE):
+            chunk = calls[i : i + self.BATCH_SIZE]
+            key = self._get_valid_key()
+            methods = [c[0] for c in chunk]
+            # tRPC batch input keys are indices "0", "1", etc. relative to the batch
+            inputs = {str(idx): c[1] for idx, c in enumerate(chunk)}
+
+            encoded_input = quote(json.dumps(inputs))
+            method_string = ",".join(methods)
+            url = f"{self.base_url}/{method_string}?batch=1&input={encoded_input}"
+
+            try:
+                resp = requests.get(url, headers={"accept": "*/*", "X-API-Key": key})
+                if raise_on_error:
+                    resp.raise_for_status()
+
+                data = resp.json() if resp.text else []
+                if isinstance(data, list):
+                    results.extend(data)
+                else:
+                    if raise_on_error:
+                        raise requests.RequestException(
+                            f"Invalid batch response: {data}"
+                        )
+                    results.extend([{} for _ in chunk])
+            except requests.RequestException:
+                if raise_on_error:
+                    raise
+                results.extend([{} for _ in chunk])
+
+        return results
 
     # --- Core Data Endpoints ---
 
@@ -88,6 +165,7 @@ class TRPCClient:
         """
         Calculates min/avg/max based on order depth.
         Preserves original logic: checks top 10 orders to determine stability.
+        Optimized to use batch requests.
         """
         prices_resp = self.get_item_prices()
         prices_data = prices_resp.get("result", {}).get("data", {})
@@ -95,47 +173,64 @@ class TRPCClient:
         exclude_items = {"case1", "case2", "scraps"}
         results = {}
 
-        for item_code in item_codes:
-            if item_code not in prices_data or item_code in exclude_items:
-                continue
+        # Filter items to process
+        items_to_process = [
+            code
+            for code in item_codes
+            if code in prices_data and code not in exclude_items
+        ]
 
+        # Prepare batch calls
+        calls = [
+            ("tradingOrder.getTopOrders", {"itemCode": code, "limit": 10})
+            for code in items_to_process
+        ]
+
+        # Execute batch calls
+        batch_responses = self.batch_call(calls, raise_on_error=True)
+
+        for i, item_code in enumerate(items_to_process):
             avg = round(prices_data[item_code], 3)
 
-            try:
-                # Fetch depth
-                orders_resp = self.get_top_orders(item_code, limit=10)
-                orders_data = orders_resp.get("result", {}).get("data", {})
+            # Get corresponding response
+            resp = batch_responses[i] if i < len(batch_responses) else {}
 
-                buy_prices = [
-                    o["price"] for o in orders_data.get("buyOrders", []) if "price" in o
-                ]
-                sell_prices = [
-                    o["price"]
-                    for o in orders_data.get("sellOrders", [])
-                    if "price" in o
-                ]
+            # Explicitly check for tRPC error in the individual response
+            if "error" in resp:
+                error_details = resp["error"]
+                raise requests.RequestException(
+                    f"API error for item '{item_code}': {error_details}"
+                )
 
-                # Logic from original script
-                if len(buy_prices) >= 10:
-                    top_buy = buy_prices[:limit]
-                    min_price = round(sum(top_buy) / len(top_buy), 3)
-                else:
-                    min_price = round(buy_prices[0], 3) if buy_prices else avg
+            orders_data = (
+                resp.get("result", {}).get("data", {}) if isinstance(resp, dict) else {}
+            )
 
-                if len(sell_prices) >= 10:
-                    top_sell = sell_prices[:limit]
-                    max_price = round(sum(top_sell) / len(top_sell), 3)
-                else:
-                    max_price = round(sell_prices[0], 3) if sell_prices else avg
+            buy_prices = [
+                o["price"] for o in orders_data.get("buyOrders", []) if "price" in o
+            ]
+            sell_prices = [
+                o["price"] for o in orders_data.get("sellOrders", []) if "price" in o
+            ]
 
-                results[item_code] = {
-                    "min": min_price,
-                    "avg": avg,
-                    "max": max_price,
-                }
-            except Exception:
-                # Fallback to simple average if orders fail
-                results[item_code] = {"min": avg, "avg": avg, "max": avg}
+            # Logic from original script
+            if len(buy_prices) >= 10:
+                top_buy = buy_prices[:limit]
+                min_price = round(sum(top_buy) / len(top_buy), 3)
+            else:
+                min_price = round(buy_prices[0], 3) if buy_prices else avg
+
+            if len(sell_prices) >= 10:
+                top_sell = sell_prices[:limit]
+                max_price = round(sum(top_sell) / len(top_sell), 3)
+            else:
+                max_price = round(sell_prices[0], 3) if sell_prices else avg
+
+            results[item_code] = {
+                "min": min_price,
+                "avg": avg,
+                "max": max_price,
+            }
 
         return results
 

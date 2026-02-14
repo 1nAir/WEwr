@@ -30,11 +30,7 @@ class MarketAnalyzer:
         best_options = {}
 
         for item in items:
-            try:
-                recs = self.client.get_recommended_regions(item)
-            except Exception:
-                continue
-
+            recs = self.client.get_recommended_regions(item)
             if not recs:
                 continue
 

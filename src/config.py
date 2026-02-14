@@ -2,13 +2,21 @@ import os
 
 # --- Paths ---
 HISTORY_FILE = "history.json"
+HISTORY_COMPANIES_FILE = "history_companies.json"
 OUTPUT_HTML = "index.html"
 ASSETS_DIR = "assets"
 
 # --- API Configuration ---
-# Explicit key separation
-API_KEY_MAIN = os.environ.get("WARERA_API_KEY_MAIN")
-API_KEY_COMPANY = os.environ.get("WARERA_API_KEY_COMPANY")
+API_KEYS = [
+    key
+    for key in [
+        os.environ.get("WEALTHRATE1"),
+        os.environ.get("WEALTHRATE2"),
+        os.environ.get("WEALTHRATE3"),
+    ]
+    if key
+]
+
 # --- Data Processing Settings ---
 MAX_HISTORY_POINTS = 2016
 THRESHOLD_MULTIPLIER = 1.3
@@ -36,6 +44,16 @@ ITEM_PRETTY_NAMES = {
     "bread": "Bread",
     "heavyAmmo": "Heavy Ammo",
     "grain": "Grain",
+}
+
+ITEM_SHORT_NAMES = {
+    "coca": "Myst. Plant",
+    "heavyAmmo": "H. Ammo",
+    "lightAmmo": "L. Ammo",
+    "cookedFish": "C. Fish",
+    "limestone": "Limest.",
+    "petroleum": "Petrol.",
+    "concrete": "Concr.",
 }
 
 # Colors for charts
@@ -85,3 +103,18 @@ PRODUCTION_LINES = {
     "Iron Works": ["iron", "steel"],
     "Quarry": ["limestone", "concrete"],
 }
+
+# --- History Configuration ---
+PROFITABILITY_METRICS = ["min_pp", "avg_pp", "max_pp"]
+
+COMPANY_METRICS = [
+    "comp_best_count",
+    "comp_best_workers",
+    "comp_best_ae",
+    "comp_others_count",
+    "comp_others_workers",
+    "comp_others_ae",
+    "comp_total_count",
+    "comp_total_workers",
+    "comp_total_ae",
+]

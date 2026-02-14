@@ -13,15 +13,14 @@ class DataProcessor:
     """
 
     @staticmethod
-    def load_history() -> Dict[str, Any]:
-        if os.path.exists(config.HISTORY_FILE):
+    def _load_json(filepath: str) -> Dict[str, Any]:
+        """Generic loader for history files."""
+        if os.path.exists(filepath):
             try:
-                with open(config.HISTORY_FILE, "r", encoding="utf-8") as f:
+                with open(filepath, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     if not isinstance(data, dict):
                         return {"labels": [], "items": {}}
-
-                    # Ensure required keys exist
                     data.setdefault("labels", [])
                     data.setdefault("items", {})
                     return data
@@ -30,45 +29,85 @@ class DataProcessor:
         return {"labels": [], "items": {}}
 
     @staticmethod
-    def save_history(data: Dict[str, Any]) -> None:
-        with open(config.HISTORY_FILE, "w", encoding="utf-8") as f:
+    def _save_json(filepath: str, data: Dict[str, Any]) -> None:
+        """Generic saver for history files."""
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=None)
 
     @staticmethod
-    def append_snapshot(
-        history: Dict[str, Any], current_data: Dict[str, Any]
+    def _append_metrics(
+        history: Dict[str, Any],
+        current_data: Dict[str, Any],
+        metric_keys: List[str],
     ) -> Dict[str, Any]:
-        """Adds new data point and maintains history size."""
-        # Restore old logic: Unix timestamp (int)
+        """
+        Generic logic to append a new snapshot of metrics to history.
+        Handles timestamp generation, padding missing items, and trimming.
+        """
         timestamp = int(datetime.now(timezone.utc).timestamp())
         history["labels"].append(timestamp)
-
-        # Ensure item structure exists
         current_len = len(history["labels"])
+
+        # Ensure all items in current snapshot exist in history
         for item_name in current_data.keys():
             if item_name not in history["items"]:
-                # Pad with 0s to align with history length (minus the new point we just added)
-                history["items"][item_name] = {
-                    "min_pp": [0.0] * (current_len - 1),
-                    "avg_pp": [0.0] * (current_len - 1),
-                    "max_pp": [0.0] * (current_len - 1),
-                }
+                history["items"][item_name] = {}
 
-        # Append new values
+        # Iterate over all items in history (to handle items that might be missing from current snapshot)
+        # or just iterate current_data if we assume it covers everything.
+        # Better: Iterate current_data to update, and we might need to handle missing items later if needed.
+        # For now, we follow the pattern of updating based on current_data.
+
         for item_name, metrics in current_data.items():
             item_hist = history["items"][item_name]
-            item_hist["min_pp"].append(metrics["min_pp"])
-            item_hist["avg_pp"].append(metrics["avg_pp"])
-            item_hist["max_pp"].append(metrics["max_pp"])
+
+            for key in metric_keys:
+                if key not in item_hist:
+                    # Pad with 0s for previous time points
+                    item_hist[key] = [0] * (current_len - 1)
+
+                # Get value or default to 0
+                val = metrics.get(key, 0)
+                item_hist[key].append(val)
 
         # Trim to MAX_HISTORY_POINTS
         if len(history["labels"]) > config.MAX_HISTORY_POINTS:
             history["labels"] = history["labels"][-config.MAX_HISTORY_POINTS :]
             for item in history["items"].values():
-                for key in ["min_pp", "avg_pp", "max_pp"]:
+                for key in item.keys():
                     item[key] = item[key][-config.MAX_HISTORY_POINTS :]
 
         return history
+
+    # --- Public Interface ---
+
+    @classmethod
+    def load_history(cls) -> Dict[str, Any]:
+        return cls._load_json(config.HISTORY_FILE)
+
+    @classmethod
+    def save_history(cls, data: Dict[str, Any]) -> None:
+        cls._save_json(config.HISTORY_FILE, data)
+
+    @classmethod
+    def append_snapshot(
+        cls, history: Dict[str, Any], current_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        return cls._append_metrics(history, current_data, config.PROFITABILITY_METRICS)
+
+    @classmethod
+    def load_companies_history(cls) -> Dict[str, Any]:
+        return cls._load_json(config.HISTORY_COMPANIES_FILE)
+
+    @classmethod
+    def save_companies_history(cls, data: Dict[str, Any]) -> None:
+        cls._save_json(config.HISTORY_COMPANIES_FILE, data)
+
+    @classmethod
+    def append_companies_snapshot(
+        cls, history: Dict[str, Any], current_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        return cls._append_metrics(history, current_data, config.COMPANY_METRICS)
 
     # --- Original Spike Cleaner Logic ---
 
