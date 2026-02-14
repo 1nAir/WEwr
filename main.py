@@ -24,7 +24,7 @@ def main():
     try:
         if not config.API_KEYS:
             raise ValueError(
-                "No API keys found in environment (WARERA1, WARERA2, WARERA3)"
+                "No API keys found in environment (WEALTHRATE1, WEALTHRATE2, WEALTHRATE3)"
             )
         client = TRPCClient(api_keys=config.API_KEYS)
     except Exception as e:

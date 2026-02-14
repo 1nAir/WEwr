@@ -27,15 +27,16 @@ jobs:
 
     - name: Run script
       env:
-        WARERA_API_KEY_MAIN: ${{ secrets.WARERA_API_KEY_MAIN }}
-        WARERA_API_KEY_COMPANY: ${{ secrets.WARERA_API_KEY_COMPANY }}
+        WEALTHRATE1: ${{ secrets.WEALTHRATE1 }}
+        WEALTHRATE2: ${{ secrets.WEALTHRATE2 }}
+        WEALTHRATE3: ${{ secrets.WEALTHRATE3 }}
       run: python main.py
 
     - name: Commit and push changes
       run: |
         git config --global user.name 'GitHub Action'
         git config --global user.email 'action@github.com'
-        # Add index.html and history.json
-        git add index.html history.json
+        # Add index.html, history.json and history_companies.json
+        git add index.html history.json history_companies.json
         # Commit only if changed
         git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update data [skip ci]" && git push)
