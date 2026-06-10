@@ -14,36 +14,32 @@ class TRPCClient:
     Includes logic for complex stats gathering and key rotation.
     """
 
-    BATCH_SIZE = 50  # Testing higher limits (watch for HTTP 414 errors)
+    BATCH_SIZE = 50
 
-    def __init__(self, api_keys: List[str]):
+    def __init__(self, api_keys: List[str], rate_limit: int = 150):
         if not api_keys:
             raise ValueError("No API keys provided.")
         self.api_keys = api_keys
-        # Rate limiting: 200 req/min per key
-        self._key_usage = {k: deque(maxlen=200) for k in api_keys}
+        self.rate_limit = rate_limit
+        self._key_usage = {k: deque(maxlen=self.rate_limit) for k in api_keys}
         self._key_cycle = cycle(api_keys)
         self.base_url = "https://api2.warera.io/trpc"
         self._game_config_cache = None
 
     def _get_valid_key(self) -> str:
-        """Rotates keys respecting the rate limit (200 req/min)."""
-        # Try to find an available key
+        """Rotates keys respecting the rate limit."""
         for _ in range(len(self.api_keys)):
             key = next(self._key_cycle)
             history = self._key_usage[key]
 
-            # Check if key has quota
-            if len(history) < 200:
+            if len(history) < self.rate_limit:
                 history.append(time.time())
                 return key
 
-            # Check if oldest request is older than 60s
             if time.time() - history[0] > 60:
                 history.append(time.time())
                 return key
 
-        # If all keys are exhausted, wait for the soonest one to free up
         wait_times = [
             max(0, 60 - (time.time() - self._key_usage[k][0])) for k in self.api_keys
         ]
@@ -70,7 +66,6 @@ class TRPCClient:
                 resp.raise_for_status()
             return resp.json() if resp.text else {}
         except requests.RequestException:
-            # Simple rotation on failure could be added here
             if raise_on_error:
                 raise
             return {}
@@ -81,7 +76,7 @@ class TRPCClient:
         raise_on_error: bool = True,
     ) -> List[Any]:
         """
-        Executes multiple tRPC calls in a single HTTP request (batching).
+        Executes multiple tRPC calls in a single HTTP request.
         Chunks requests to avoid URL length limits.
         """
         if not calls:
@@ -93,7 +88,6 @@ class TRPCClient:
             chunk = calls[i : i + self.BATCH_SIZE]
             key = self._get_valid_key()
             methods = [c[0] for c in chunk]
-            # tRPC batch input keys are indices "0", "1", etc. relative to the batch
             inputs = {str(idx): c[1] for idx, c in enumerate(chunk)}
 
             encoded_input = quote(json.dumps(inputs))
@@ -120,8 +114,6 @@ class TRPCClient:
                 results.extend([{} for _ in chunk])
 
         return results
-
-    # --- Core Data Endpoints ---
 
     def get_game_config(self) -> Any:
         if self._game_config_cache is None:
@@ -157,15 +149,11 @@ class TRPCClient:
         final_data = data.get("json", data) if isinstance(data, dict) else data
         return final_data if isinstance(final_data, list) else []
 
-    # --- Complex Logic Preserved from original script ---
-
     def get_item_stats(
         self, item_codes: List[str], limit: int = 3
     ) -> Dict[str, Dict[str, Any]]:
         """
         Calculates min/avg/max based on order depth.
-        Preserves original logic: checks top 10 orders to determine stability.
-        Optimized to use batch requests.
         """
         prices_resp = self.get_item_prices()
         prices_data = prices_resp.get("result", {}).get("data", {})
@@ -173,29 +161,23 @@ class TRPCClient:
         exclude_items = {"case1", "case2", "scraps"}
         results = {}
 
-        # Filter items to process
         items_to_process = [
             code
             for code in item_codes
             if code in prices_data and code not in exclude_items
         ]
 
-        # Prepare batch calls
         calls = [
             ("tradingOrder.getTopOrders", {"itemCode": code, "limit": 10})
             for code in items_to_process
         ]
 
-        # Execute batch calls
         batch_responses = self.batch_call(calls, raise_on_error=True)
 
         for i, item_code in enumerate(items_to_process):
             avg = round(prices_data[item_code], 3)
-
-            # Get corresponding response
             resp = batch_responses[i] if i < len(batch_responses) else {}
 
-            # Explicitly check for tRPC error in the individual response
             if "error" in resp:
                 error_details = resp["error"]
                 raise requests.RequestException(
@@ -213,7 +195,6 @@ class TRPCClient:
                 o["price"] for o in orders_data.get("sellOrders", []) if "price" in o
             ]
 
-            # Logic from original script
             if len(buy_prices) >= 10:
                 top_buy = buy_prices[:limit]
                 min_price = round(sum(top_buy) / len(top_buy), 3)
