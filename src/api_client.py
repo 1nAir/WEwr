@@ -16,7 +16,7 @@ class TRPCClient:
 
     BATCH_SIZE = 50
 
-    def __init__(self, api_keys: List[str], rate_limit: int = 100):
+    def __init__(self, api_keys: List[str], rate_limit: int = 150):
         if not api_keys:
             raise ValueError("No API keys provided.")
         self.api_keys = api_keys
