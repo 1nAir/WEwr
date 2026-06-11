@@ -44,6 +44,8 @@ ITEM_PRETTY_NAMES = {
     "bread": "Bread",
     "heavyAmmo": "Heavy Ammo",
     "grain": "Grain",
+    "wood": "Wood",
+    "paper": "Paper",
 }
 
 ITEM_SHORT_NAMES = {
@@ -84,6 +86,9 @@ ITEM_COLORS = {
     # Limestone - Gray
     "limestone": "#4A5568",
     "concrete": "#A0AEC0",
+    # Wood/Paper - Cyan
+    "wood": "#00838f",
+    "paper": "#4dd0e1",
 }
 
 # --- UI Configuration ---
@@ -102,6 +107,7 @@ PRODUCTION_LINES = {
     "Lead Works": ["lead", "ammo", "heavyAmmo", "lightAmmo"],
     "Iron Works": ["iron", "steel"],
     "Quarry": ["limestone", "concrete"],
+    "Lumber Mill": ["wood", "paper"],
 }
 
 # --- History Configuration ---
