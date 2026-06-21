@@ -2,8 +2,12 @@ name: Update Wealthrate Data
 
 on:
   schedule:
-    - cron: '7,22,37,52 * * * *'
+    - cron: '3,11,19,27,35,43,51,59 * * * *'
   workflow_dispatch:
+
+concurrency:
+  group: wealthrate-update
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -36,7 +40,5 @@ jobs:
       run: |
         git config --global user.name 'GitHub Action'
         git config --global user.email 'action@github.com'
-        # Add index.html, history.json and history_companies.json
         git add index.html history.json history_companies.json
-        # Commit only if changed
         git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update data [skip ci]" && git push)
