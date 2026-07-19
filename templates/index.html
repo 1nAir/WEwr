@@ -1697,11 +1697,6 @@
                 aggData.push(val);
             }
 
-            // 4. Filter out items with insufficient history (less than 5 data points)
-            if (aggData.length < 5) {
-                return { labels: [], data: [] };
-            }
-
             return {
                 labels: aggLabels,
                 data: aggData
@@ -1792,16 +1787,13 @@
                     const meta = chart.getDatasetMeta(idx);
                     const isHidden = meta.hidden === null ? ds.hidden : meta.hidden;
 
-                    // Don't show hidden items in legend
-                    if (isHidden) return;
-
                     let label = ds.label;
                     if (window.innerWidth <= 768) {
                         label = itemShortNames[ds.itemCode] || label;
                     }
 
                     const itemDiv = document.createElement('div');
-                    itemDiv.className = 'legend-item';
+                    itemDiv.className = 'legend-item' + (isHidden ? ' hidden' : '');
                     itemDiv.onclick = () => {
                         meta.hidden = isHidden ? null : true;
                         ds.hidden = !isHidden;
@@ -1959,7 +1951,7 @@
                     pointRadius: 0,
                     pointHitRadius: 10,
                     borderWidth: 2,
-                    hidden: filtered.data.length === 0 ? true : hiddenState[row.pretty_name]
+                    hidden: hiddenState[row.pretty_name]
                 };
             });
 
