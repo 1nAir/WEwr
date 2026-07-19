@@ -1934,26 +1934,31 @@
 
             // 3. Prepare Data
             let chartLabels = [];
-            const datasets = tableData.map((row, index) => {
-                const filtered = getFilteredData(row, metric, isComp);
-                if (index === 0) chartLabels = formatLabels(filtered.labels);
+            const datasets = tableData
+                .map((row, index) => {
+                    const filtered = getFilteredData(row, metric, isComp);
+                    if (index === 0) chartLabels = formatLabels(filtered.labels);
 
-                const color = itemColors[row.item] || fallbackColors[index % fallbackColors.length];
+                    // Skip items with no data after filtering
+                    if (filtered.data.length === 0) return null;
 
-                return {
-                    label: row.pretty_name,
-                    itemCode: row.item,
-                    data: filtered.data,
-                    borderColor: color,
-                    backgroundColor: color,
-                    fill: false,
-                    tension: 0.3,
-                    pointRadius: 0,
-                    pointHitRadius: 10,
-                    borderWidth: 2,
-                    hidden: hiddenState[row.pretty_name]
-                };
-            });
+                    const color = itemColors[row.item] || fallbackColors[index % fallbackColors.length];
+
+                    return {
+                        label: row.pretty_name,
+                        itemCode: row.item,
+                        data: filtered.data,
+                        borderColor: color,
+                        backgroundColor: color,
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 0,
+                        pointHitRadius: 10,
+                        borderWidth: 2,
+                        hidden: hiddenState[row.pretty_name]
+                    };
+                })
+                .filter(ds => ds !== null);
 
             // 4. Chart Options (The Fresh Start)
             const options = {
