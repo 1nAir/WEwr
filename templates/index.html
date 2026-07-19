@@ -1697,6 +1697,11 @@
                 aggData.push(val);
             }
 
+            // 4. Filter out items with insufficient history (less than 5 data points)
+            if (aggData.length < 5) {
+                return { labels: [], data: [] };
+            }
+
             return {
                 labels: aggLabels,
                 data: aggData
@@ -1787,13 +1792,16 @@
                     const meta = chart.getDatasetMeta(idx);
                     const isHidden = meta.hidden === null ? ds.hidden : meta.hidden;
 
+                    // Don't show hidden items in legend
+                    if (isHidden) return;
+
                     let label = ds.label;
                     if (window.innerWidth <= 768) {
                         label = itemShortNames[ds.itemCode] || label;
                     }
 
                     const itemDiv = document.createElement('div');
-                    itemDiv.className = 'legend-item' + (isHidden ? ' hidden' : '');
+                    itemDiv.className = 'legend-item';
                     itemDiv.onclick = () => {
                         meta.hidden = isHidden ? null : true;
                         ds.hidden = !isHidden;
@@ -1934,31 +1942,26 @@
 
             // 3. Prepare Data
             let chartLabels = [];
-            const datasets = tableData
-                .map((row, index) => {
-                    const filtered = getFilteredData(row, metric, isComp);
-                    if (index === 0) chartLabels = formatLabels(filtered.labels);
+            const datasets = tableData.map((row, index) => {
+                const filtered = getFilteredData(row, metric, isComp);
+                if (index === 0) chartLabels = formatLabels(filtered.labels);
 
-                    // Skip items with no data after filtering
-                    if (filtered.data.length === 0) return null;
+                const color = itemColors[row.item] || fallbackColors[index % fallbackColors.length];
 
-                    const color = itemColors[row.item] || fallbackColors[index % fallbackColors.length];
-
-                    return {
-                        label: row.pretty_name,
-                        itemCode: row.item,
-                        data: filtered.data,
-                        borderColor: color,
-                        backgroundColor: color,
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 0,
-                        pointHitRadius: 10,
-                        borderWidth: 2,
-                        hidden: hiddenState[row.pretty_name]
-                    };
-                })
-                .filter(ds => ds !== null);
+                return {
+                    label: row.pretty_name,
+                    itemCode: row.item,
+                    data: filtered.data,
+                    borderColor: color,
+                    backgroundColor: color,
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHitRadius: 10,
+                    borderWidth: 2,
+                    hidden: filtered.data.length === 0 ? true : hiddenState[row.pretty_name]
+                };
+            });
 
             // 4. Chart Options (The Fresh Start)
             const options = {
