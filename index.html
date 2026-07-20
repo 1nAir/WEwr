@@ -1643,7 +1643,14 @@
         function getFilteredData(row, metric, isComp = false) {
             const allLabels = isComp ? (row.comp_labels || []) : (row.labels || []);
             const historyObj = isComp ? (row.comp_history || {}) : (row.history || {});
-            const allData = historyObj[metric] || [];
+            let allData = historyObj[metric] || [];
+
+            // Filter out zero values from new items that have no real data yet.
+            // Chart.js treats null as a gap in the line, so we convert zeros to nulls.
+            const validIndices = new Set();
+            for (let i = 0; i < allData.length; i++) {
+                if (allData[i] !== 0) validIndices.add(i);
+            }
 
             // 1. Filter by time range
             let startIndex = 0;
@@ -1654,7 +1661,10 @@
             }
 
             const filteredLabels = allLabels.slice(startIndex);
-            const filteredData = allData.slice(startIndex);
+            const filteredData = [];
+            for (let i = startIndex; i < allData.length; i++) {
+                filteredData.push(validIndices.has(i) ? allData[i] : null);
+            }
 
             // 2. Determine aggregation interval
             let intervalSeconds = 0;
@@ -1676,18 +1686,22 @@
 
             for (let i = 0; i < filteredLabels.length; i++) {
                 if (filteredLabels[i] < bucketStartTime + intervalSeconds) {
-                    sum += filteredData[i];
-                    count++;
+                    const val = filteredData[i];
+                    if (val !== null) {
+                        sum += val;
+                        count++;
+                    }
                 } else {
                     if (count > 0) {
                         aggLabels.push(bucketStartTime);
-                        let val = sum / count;
-                        if (isComp) val = Math.round(val);
-                        aggData.push(val);
+                        let avgVal = sum / count;
+                        if (isComp) avgVal = Math.round(avgVal);
+                        aggData.push(avgVal);
                     }
                     bucketStartTime = filteredLabels[i];
-                    sum = filteredData[i];
-                    count = 1;
+                    const nextVal = filteredData[i];
+                    sum = nextVal !== null ? nextVal : 0;
+                    count = nextVal !== null ? 1 : 0;
                 }
             }
             if (count > 0) {
@@ -1701,6 +1715,12 @@
                 labels: aggLabels,
                 data: aggData
             };
+        }
+
+        // Helper to convert zero values to null for chart rendering
+        function filterZeros(dataArray) {
+            if (!dataArray || !Array.isArray(dataArray)) return [];
+            return dataArray.map(v => v === 0 ? null : v);
         }
 
         function formatLabels(timestamps) {
