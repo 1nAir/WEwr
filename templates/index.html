@@ -503,6 +503,11 @@
             opacity: 1;
         }
 
+        .tooltip.tooltip-active .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
         /* Header Tooltip Styling */
         th.tooltip .tooltiptext {
             font-size: 12px;
@@ -926,6 +931,15 @@
                 padding: 4px;
             }
 
+            .legend-group--multi-column {
+                grid-column: span 2;
+            }
+
+            .legend-group-items {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                column-gap: 4px;
+            }
+
             .legend-group-header {
                 font-size: 10px;
                 margin-bottom: 2px;
@@ -933,6 +947,7 @@
 
             .legend-item {
                 font-size: 9px;
+                white-space: nowrap;
             }
 
             .legend-color {
@@ -1544,33 +1559,56 @@
         }
 
         function setupTooltips() {
+            if (!window.tooltipDismissHandlerBound) {
+                window.tooltipDismissHandlerBound = true;
+                document.addEventListener('click', event => {
+                    if (!event.target.closest('.tooltip')) {
+                        document.querySelectorAll('.tooltip.tooltip-active').forEach(active => {
+                            active.classList.remove('tooltip-active');
+                        });
+                    }
+                });
+            }
 
             document.querySelectorAll('.tooltip').forEach(el => {
-                el.onmouseenter = function () {
-                    const t = this.querySelector('.tooltiptext');
+                const positionTooltip = () => {
+                    const t = el.querySelector('.tooltiptext');
                     if (!t) return;
 
                     t.style.visibility = 'visible'; // Make it visible to measure width
-                    const r = this.getBoundingClientRect();
+                    const r = el.getBoundingClientRect();
                     const tooltipWidth = t.offsetWidth;
                     t.style.visibility = ''; // Reset visibility
 
-                    // Center horizontally
                     let left = r.left + (r.width / 2) - (tooltipWidth / 2);
-
-                    // Clamp to screen edges
                     if (left < 10) left = 10;
                     if (left + tooltipWidth > window.innerWidth - 10) left = window.innerWidth - tooltipWidth - 10;
 
                     let top = r.top - t.offsetHeight - 10;
                     if (top < 10) top = r.bottom + 10;
-
-                    // Prevent bottom overflow
                     if (top + t.offsetHeight > window.innerHeight) top = window.innerHeight - t.offsetHeight - 10;
 
                     t.style.left = left + 'px';
                     t.style.top = top + 'px';
                 };
+
+                el.onmouseenter = positionTooltip;
+
+                if (!el.dataset.tooltipTouchBound) {
+                    el.dataset.tooltipTouchBound = 'true';
+                    el.addEventListener('click', () => {
+                        if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+
+                        const willOpen = !el.classList.contains('tooltip-active');
+                        document.querySelectorAll('.tooltip.tooltip-active').forEach(active => {
+                            active.classList.remove('tooltip-active');
+                        });
+                        if (willOpen) {
+                            positionTooltip();
+                            el.classList.add('tooltip-active');
+                        }
+                    });
+                }
             });
         }
 
@@ -1761,7 +1799,7 @@
                 if (groupIndices.length === 0) continue;
 
                 const groupDiv = document.createElement('div');
-                groupDiv.className = 'legend-group';
+                groupDiv.className = 'legend-group' + (groupIndices.length > 2 ? ' legend-group--multi-column' : '');
 
                 // Check if all items in this group are hidden
                 const allGroupHidden = groupIndices.every(idx => {
