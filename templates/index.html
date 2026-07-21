@@ -691,6 +691,14 @@
             min-width: 100px;
         }
 
+        .legend-group-items {
+            display: grid;
+            grid-template-columns: repeat(2, max-content);
+            grid-template-rows: repeat(2, auto);
+            grid-auto-flow: column;
+            column-gap: 10px;
+        }
+
         .legend-group-header {
             font-weight: 700;
             margin-bottom: 5px;
@@ -1783,6 +1791,9 @@
                 };
                 groupDiv.appendChild(header);
 
+                const itemsContainer = document.createElement('div');
+                itemsContainer.className = 'legend-group-items';
+
                 // Items
                 groupIndices.forEach(idx => {
                     const ds = chart.data.datasets[idx];
@@ -1804,9 +1815,10 @@
                     };
 
                     itemDiv.innerHTML = `<span class="legend-color" style="background:${ds.backgroundColor}"></span>${label}`;
-                    groupDiv.appendChild(itemDiv);
+                    itemsContainer.appendChild(itemDiv);
                 });
 
+                groupDiv.appendChild(itemsContainer);
                 legendContainer.appendChild(groupDiv);
             }
         }
