@@ -1675,27 +1675,29 @@
             let count = 0;
 
             for (let i = 0; i < filteredLabels.length; i++) {
+                const value = filteredData[i];
                 if (filteredLabels[i] < bucketStartTime + intervalSeconds) {
-                    sum += filteredData[i];
-                    count++;
-                } else {
-                    if (count > 0) {
-                        aggLabels.push(bucketStartTime);
-                        let val = sum / count;
-                        if (isComp) val = Math.round(val);
-                        aggData.push(val);
+                    // Null represents a historical zero placeholder.  It is
+                    // intentionally excluded so missing samples cannot pull a
+                    // bucket average down or appear as a chart value.
+                    if (value !== null && value !== undefined) {
+                        sum += value;
+                        count++;
                     }
+                } else {
+                    aggLabels.push(bucketStartTime);
+                    let val = count > 0 ? sum / count : null;
+                    if (isComp && val !== null) val = Math.round(val);
+                    aggData.push(val);
                     bucketStartTime = filteredLabels[i];
-                    sum = filteredData[i];
-                    count = 1;
+                    sum = value !== null && value !== undefined ? value : 0;
+                    count = value !== null && value !== undefined ? 1 : 0;
                 }
             }
-            if (count > 0) {
-                aggLabels.push(bucketStartTime);
-                let val = sum / count;
-                if (isComp) val = Math.round(val);
-                aggData.push(val);
-            }
+            aggLabels.push(bucketStartTime);
+            let val = count > 0 ? sum / count : null;
+            if (isComp && val !== null) val = Math.round(val);
+            aggData.push(val);
 
             return {
                 labels: aggLabels,

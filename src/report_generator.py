@@ -11,6 +11,22 @@ class ReportGenerator:
     """
 
     @staticmethod
+    def _chart_safe_history(item_history: Dict[str, Any]) -> Dict[str, Any]:
+        """Return a copy of a history item with zero placeholders hidden.
+
+        A zero is a missing-data sentinel in these chart series, not a valid
+        measurement.  Converting it to ``None`` makes it a gap in Chart.js
+        while retaining its timestamp and every non-zero historical value.
+        The persisted history is deliberately never changed here.
+        """
+        return {
+            metric: [None if value == 0 else value for value in values]
+            if isinstance(values, list)
+            else values
+            for metric, values in item_history.items()
+        }
+
+    @staticmethod
     def generate(
         history: Dict[str, Any],
         comp_history: Dict[str, Any],
@@ -29,8 +45,12 @@ class ReportGenerator:
                 r["pretty_name"] = config.ITEM_PRETTY_NAMES.get(r["item"], r["item"])
 
             # Get history for this item
-            item_history = history["items"].get(item_code, {})
-            item_comp_history = comp_history["items"].get(item_code, {})
+            item_history = ReportGenerator._chart_safe_history(
+                history["items"].get(item_code, {})
+            )
+            item_comp_history = ReportGenerator._chart_safe_history(
+                comp_history["items"].get(item_code, {})
+            )
 
             row = {
                 "item": item_code,
