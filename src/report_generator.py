@@ -11,7 +11,9 @@ class ReportGenerator:
     """
 
     @staticmethod
-    def _chart_safe_history(item_history: Dict[str, Any]) -> Dict[str, Any]:
+    def _chart_safe_history(
+        item_code: str, item_history: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Return a copy of a history item with zero placeholders hidden.
 
         A zero is a missing-data sentinel in these chart series, not a valid
@@ -19,12 +21,35 @@ class ReportGenerator:
         while retaining its timestamp and every non-zero historical value.
         The persisted history is deliberately never changed here.
         """
-        return {
+        chart_history = {
             metric: [None if value == 0 else value for value in values]
             if isinstance(values, list)
             else values
             for metric, values in item_history.items()
         }
+
+        # These two products have a known, already persisted synthetic prefix
+        # from the old cleaner.  Hide only the initial values before the first
+        # genuine profitability observation (> 0.1); leave every later point
+        # and all stored history untouched.
+        if item_code in {"wood", "paper"}:
+            for metric in config.PROFITABILITY_METRICS:
+                series = chart_history.get(metric)
+                if not isinstance(series, list):
+                    continue
+
+                first_real_index = next(
+                    (
+                        index
+                        for index, value in enumerate(series)
+                        if value is not None and value > 0.1
+                    ),
+                    None,
+                )
+                if first_real_index is not None:
+                    series[:first_real_index] = [None] * first_real_index
+
+        return chart_history
 
     @staticmethod
     def generate(
@@ -46,10 +71,10 @@ class ReportGenerator:
 
             # Get history for this item
             item_history = ReportGenerator._chart_safe_history(
-                history["items"].get(item_code, {})
+                item_code, history["items"].get(item_code, {})
             )
             item_comp_history = ReportGenerator._chart_safe_history(
-                comp_history["items"].get(item_code, {})
+                item_code, comp_history["items"].get(item_code, {})
             )
 
             row = {

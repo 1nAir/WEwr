@@ -148,6 +148,13 @@ class DataProcessor:
             prev_val = cleaned[i - 1]
             curr_val = cleaned[i]
 
+            # A zero is a missing-history placeholder, not a low measurement.
+            # Preserve it so the report generator can render a gap instead of
+            # turning it into synthetic profitability data.
+            if curr_val == 0:
+                i += 1
+                continue
+
             # 1. Protection from zero/dips (Logic from spike_cleaner.py)
             if curr_val < min_abs_val:
                 next_val = cleaned[i + 1]
