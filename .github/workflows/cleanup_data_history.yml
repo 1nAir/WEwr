@@ -1,0 +1,36 @@
+name: Maintenance - Squash Data History
+
+on:
+  schedule:
+    # Run at 03:00 UTC on the 1st day of every month
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+
+concurrency:
+  group: warera-api-lock
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  squash:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: Checkout data branch
+      uses: actions/checkout@v4
+      with:
+        ref: data
+        fetch-depth: 1
+
+    - name: Squash history to single commit
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git checkout --orphan temp_data_squash
+        git add -A
+        git commit -m "chore(data): monthly history squash and repository optimization"
+        git branch -M temp_data_squash data
+        git push origin data --force
