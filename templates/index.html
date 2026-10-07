@@ -1,0 +1,3791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealthrate</title>
+    <link rel="icon" type="image/webp" href="favicon.webp">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        :root {
+            --bg-color: #f2f0ea;
+            /* Lighter newspaper */
+            --container-bg: #ffffff;
+            --border-color: #c8c6be;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #1a202c;
+            --text-secondary: #718096;
+            --text-heading-font: 'Georgia', serif;
+            --hover-bg: #f7fafc;
+            --header-gradient-start: #667eea;
+            --header-gradient-end: #764ba2;
+            --link-color: #5a67d8;
+            --high-profit-bg: #c6f6d5;
+            --high-profit-text: #22543d;
+            --tooltip-bg: #2d3748;
+            --tooltip-text: #f7fafc;
+            --tooltip-border: #4a5568;
+            --bonus-badge-bg: #fffaf0;
+            --bonus-badge-text: #b7791f;
+            --bonus-badge-border: #f6e05e;
+            --button-bg: #ffffff;
+            --button-border: #cbd5e0;
+            --button-text: #4a5568;
+            --button-hover-bg: #edf2f7;
+            --button-hover-border: #a0aec0;
+            --button-active-bg: #667eea;
+            --button-active-text: white;
+            --icon-fill: #4a5568;
+            --drawer-bg: #f8fafc;
+            --wage-pill-bg: #ebf8ff;
+            --wage-pill-border: #bee3f8;
+            --rank-gold: #b7791f;
+            --subhead-green: #276749;
+            --worker-region-color: #4a5568;
+            --worker-country-color: #1a202c;
+            --worker-tax-bg: #edf2f7;
+            --worker-tax-color: #4a5568;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a202c;
+            --container-bg: #2d3748;
+            --border-color: #4a5568;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --text-primary: #f7fafc;
+            --text-secondary: #cbd5e0;
+            --hover-bg: #4a5568;
+            --link-color: #90cdf4;
+            --high-profit-bg: #2f855a;
+            --high-profit-text: #f0fff4;
+            --tooltip-bg: #1a202c;
+            --tooltip-text: #e2e8f0;
+            --tooltip-border: #718096;
+            --bonus-badge-bg: #4a371b;
+            --bonus-badge-text: #f6e05e;
+            --bonus-badge-border: #b7791f;
+            --button-bg: #4a5568;
+            --button-border: #4a5568;
+            --button-text: #e2e8f0;
+            --button-hover-bg: #2d3748;
+            --button-hover-border: #718096;
+            --icon-fill: #a0aec0;
+            --drawer-bg: rgba(0, 0, 0, 0.22);
+            --wage-pill-bg: rgba(99, 179, 237, 0.12);
+            --wage-pill-border: rgba(99, 179, 237, 0.28);
+            --rank-gold: #f6e05e;
+            --subhead-green: #68d391;
+            --worker-region-color: #cbd5e0;
+            --worker-country-color: #ffffff;
+            --worker-tax-bg: rgba(255, 255, 255, 0.08);
+            --worker-tax-color: #cbd5e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        /* New Header & Tabs Styles */
+
+        .site-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: var(--container-bg);
+            margin-bottom: 20px;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .site-title {
+            font-family: var(--text-heading-font);
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            margin-bottom: 5px;
+        }
+
+        .update-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .warship-link {
+            position: absolute;
+            right: 20px;
+            display: block;
+            width: 80px;
+            height: auto;
+            transition: transform 0.2s;
+        }
+
+        .warship-link:hover {
+            transform: scale(1.05);
+        }
+
+        .warship-link img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .tabs-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 0;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 10px 24px;
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--button-text);
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .tab-btn:hover {
+            background: var(--button-hover-bg);
+        }
+
+        .tab-btn.active {
+            background: var(--button-active-bg);
+            color: var(--button-active-text);
+            border-color: var(--button-active-bg);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .coming-soon-pane {
+            text-align: center;
+            padding: 80px 20px;
+            color: #a0aec0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #theme-toggle:hover {
+            background-color: var(--hover-bg);
+        }
+
+        #theme-toggle svg {
+            width: 26px;
+            height: 26px;
+            fill: var(--icon-fill);
+            transition: fill 0.3s;
+        }
+
+        body.dark-mode #theme-icon-sun {
+            display: block;
+        }
+
+        body.dark-mode #theme-icon-moon {
+            display: none;
+        }
+
+        body:not(.dark-mode) #theme-icon-sun {
+            display: none;
+        }
+
+        body:not(.dark-mode) #theme-icon-moon {
+            display: block;
+        }
+
+        .guide-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .q-mark {
+            width: 24px;
+            height: 24px;
+            background: var(--button-active-bg);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: help;
+        }
+
+        .guide-img {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--tooltip-bg);
+            color: var(--tooltip-text);
+            border: 1px solid var(--tooltip-border);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(28, 37, 51, 0.3);
+            z-index: 20000;
+            transition: opacity 0.2s ease-in-out;
+            width: max-content;
+            max-width: 90vw;
+        }
+
+        .guide-img img {
+            max-width: 450px;
+            height: auto;
+            display: block;
+        }
+
+        .guide-box:hover .guide-img {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .table-top-bar {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0 30px 15px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .table-top-bar>*:first-child {
+            justify-self: start;
+        }
+
+        .table-top-bar>*:nth-child(2) {
+            justify-self: center;
+        }
+
+        .table-top-bar>*:last-child {
+            justify-self: end;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 0 30px 20px;
+        }
+
+        table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--header-gradient-start) 0%, var(--header-gradient-end) 100%);
+            color: white;
+        }
+
+        th {
+            padding: 16px;
+            text-align: right;
+            cursor: pointer;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            white-space: nowrap;
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+            width: auto;
+        }
+
+        #profitability th:not(:first-child),
+        #workers th:not(:first-child) {
+            width: 130px;
+        }
+
+        #company_basing th:not(:first-child) {
+            width: 140px;
+            text-align: center;
+        }
+
+        th.sort-asc::after {
+            content: " ↑";
+        }
+
+        th.sort-desc::after {
+            content: " ↓";
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            vertical-align: middle;
+            transition: background-color 0.2s;
+        }
+
+        /* tbody tr:hover { background: var(--hover-bg); } */
+        .clickable {
+            cursor: pointer;
+        }
+
+        /* Icon and Name styling */
+        .item-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 4px 0;
+        }
+
+        .item-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 6px;
+            object-fit: contain;
+            flex-shrink: 0;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .item-content {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .item-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+
+        .item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .bonus-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--bonus-badge-text);
+            background: var(--bonus-badge-bg);
+            padding: 3px 6px;
+            border-radius: 6px;
+            border: 1px solid var(--bonus-badge-border);
+        }
+
+        .deposit-timer {
+            font-size: 10px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 12px;
+            line-height: 1.4;
+        }
+
+        .pp-col {
+            font-weight: 600;
+            color: var(--link-color);
+        }
+
+        .pp-col.high {
+            background: var(--high-profit-bg);
+            color: var(--high-profit-text);
+        }
+
+        .pp-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .pp-main {
+            font-size: 14px;
+        }
+
+        .pp-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .fidelity-icon svg {
+            width: 1em;
+            height: 1em;
+            stroke: var(--vmcoznmr, #e53e3e);
+            paint-order: stroke;
+            stroke-width: 12%;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: currentColor;
+            color: #e53e3e;
+            margin-right: 2px;
+        }
+
+        /* Unified Expand Icons & Clickable Rows */
+        .row-clickable,
+        .worker-row-clickable {
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .row-clickable:hover,
+        .worker-row-clickable:hover {
+            background-color: var(--row-hover, rgba(255, 255, 255, 0.03));
+        }
+
+        .expand-icon,
+        .worker-expand-icon {
+            display: inline-block;
+            transition: transform 0.2s ease;
+            font-size: 10px;
+            margin-right: 6px;
+            color: var(--text-secondary);
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .expand-icon.open,
+        .worker-expand-icon.open {
+            transform: rotate(90deg);
+            color: var(--text-primary);
+        }
+
+        /* Tables use downward expanding drawers instead of hover tooltips */
+        .tooltip .tooltiptext,
+        .tooltiptext {
+            display: none !important;
+        }
+
+        /* Profitability Drawer (compact 2-column side-by-side or stacked on mobile) */
+        .prof-expanded-cell {
+            padding: 10px 12px !important;
+            background: var(--drawer-bg) !important;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .prof-drawer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .prof-mobile-tabs {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .prof-drawer-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .prof-mobile-tabs {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 8px;
+                justify-content: center;
+            }
+
+            .prof-tab-btn {
+                background: var(--button-bg);
+                border: 1px solid var(--button-border);
+                color: var(--button-text);
+                padding: 4px 14px;
+                border-radius: 6px;
+                font-size: 11.5px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.15s ease;
+            }
+
+            .prof-tab-btn:hover {
+                background: var(--button-hover-bg);
+                border-color: var(--button-hover-border);
+            }
+
+            .prof-tab-btn.active {
+                background: var(--button-active-bg);
+                border-color: var(--button-active-bg);
+                color: var(--button-active-text);
+            }
+
+            .prof-drawer-card.mobile-hidden {
+                display: none !important;
+            }
+        }
+
+        .prof-drawer-card {
+            background-color: var(--tooltip-bg);
+            color: var(--tooltip-text);
+            border: 1px solid var(--tooltip-border);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .prof-drawer-card .formula-header {
+            color: #63b3ed;
+            border-bottom: 1px solid var(--tooltip-border);
+            margin-bottom: 4px;
+            padding-bottom: 2px;
+        }
+
+        .prof-drawer-card .location-row {
+            color: #cbd5e0;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .prof-drawer-card .formula-step {
+            color: var(--tooltip-text);
+        }
+
+        .prof-drawer-card .val {
+            color: #fff;
+        }
+
+        .prof-drawer-card .formula-result {
+            color: #68d391;
+            border-top: 1px solid var(--tooltip-border);
+            margin-top: 4px;
+            padding-top: 4px;
+        }
+
+        /* Company Basing Locations Drawer & Cards */
+        /* Company Basing Main Table Cells */
+        .basing-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 3px 0;
+            white-space: nowrap;
+        }
+
+        .basing-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            line-height: 1.25;
+        }
+
+        .basing-val {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .basing-icon {
+            font-size: 13px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .basing-count {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.2px;
+        }
+
+        .basing-pct {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--wage-pill-bg);
+            border: 1px solid var(--wage-pill-border);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+            letter-spacing: 0.1px;
+        }
+
+        /* Company Basing Locations Drawer & Cards */
+        .comp-locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(295px, 1fr));
+            gap: 10px;
+            width: 100%;
+        }
+
+        .comp-location-card {
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            transition: border-color 0.15s ease;
+        }
+
+        .comp-location-card.zero-group {
+            background: var(--drawer-bg);
+            border: 1px dashed var(--border-color);
+        }
+
+        .comp-loc-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 7px;
+        }
+
+        .comp-loc-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .comp-loc-top-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .comp-loc-rank {
+            font-weight: 700;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--button-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--button-border);
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .comp-loc-rank.top-rank {
+            background: rgba(183, 121, 31, 0.12);
+            color: var(--rank-gold);
+            border-color: rgba(183, 121, 31, 0.35);
+        }
+
+        .comp-loc-country {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-primary);
+            line-height: 1.25;
+            word-break: break-word;
+            min-width: 0;
+        }
+
+        .comp-loc-sub-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.2;
+            padding-left: 1px;
+        }
+
+        .comp-loc-region {
+            font-weight: 500;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .comp-loc-sub-all {
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.85;
+            font-style: italic;
+        }
+
+        .comp-tax-badge {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--worker-tax-color);
+            background: var(--worker-tax-bg);
+            padding: 1px 5px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .comp-loc-bonus {
+            font-weight: 700;
+            font-size: 12px;
+            color: #68d391;
+            background: rgba(104, 211, 145, 0.12);
+            border: 1px solid rgba(104, 211, 145, 0.25);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            align-self: flex-start;
+        }
+
+        .comp-loc-bonus.zero {
+            color: var(--text-secondary);
+            background: rgba(160, 174, 192, 0.12);
+            border-color: transparent;
+        }
+
+        .comp-loc-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .comp-loc-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+        }
+
+        .comp-loc-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+        }
+
+        .comp-loc-values {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .comp-loc-values strong {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 12.5px;
+        }
+
+        .comp-summary-row td {
+            background: var(--container-bg);
+            border-top: 2px solid var(--border-color);
+            padding: 12px 16px;
+            font-weight: 700;
+        }
+
+        .drawer-content-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .drawer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .drawer-sec-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .drawer-pills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .drawer-pill {
+            font-size: 11.5px;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            padding: 2px 7px;
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        .drawer-scenarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .drawer-scenario-card {
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .drawer-scenario-card .formula-header {
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 700;
+        }
+
+        .drawer-scenario-card .formula-step {
+            color: var(--text-primary);
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        .drawer-scenario-card .val {
+            color: var(--text-primary);
+        }
+
+        .drawer-scenario-card .location-row {
+            color: var(--text-secondary);
+        }
+
+        .drawer-scenario-card .formula-result {
+            color: #38a169;
+            border-top: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .drawer-scenario-card .formula-result {
+            color: #68d391;
+        }
+
+        .drawer-scen-name {
+            font-weight: 700;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 4px;
+            margin-bottom: 2px;
+        }
+
+        .drawer-scen-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11.5px;
+            color: var(--text-primary);
+        }
+
+        .drawer-scen-row span {
+            color: var(--text-secondary);
+        }
+
+        .drawer-scen-res {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 4px;
+            margin-top: 2px;
+            font-size: 12px;
+        }
+
+        .worker-expanded-cell {
+            padding: 12px 14px !important;
+            background: var(--drawer-bg) !important;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .worker-cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .worker-card {
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .worker-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .worker-card-rank {
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .worker-card-loc {
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .worker-card-loc .loc-reg {
+            color: var(--worker-region-color);
+            font-weight: 500;
+        }
+
+        .worker-card-loc .loc-ctr {
+            color: var(--worker-country-color);
+            font-weight: 700;
+        }
+
+        .worker-card-bonus {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--bonus-badge-text);
+            background: var(--bonus-badge-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--bonus-badge-border);
+        }
+
+        .worker-card-tax {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--worker-tax-color);
+            background: var(--worker-tax-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .worker-calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 8px;
+        }
+
+        .worker-calc-box {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        body.dark-mode .worker-calc-box {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .worker-calc-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #63b3ed;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 3px;
+            margin-bottom: 2px;
+        }
+
+        .worker-calc-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+            font-size: 11px;
+            gap: 6px;
+            color: var(--text-primary);
+        }
+
+        .worker-calc-line .w-tier {
+            color: var(--text-secondary);
+            font-weight: 600;
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .worker-calc-line .w-math {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* Market Wage Banner & Pill */
+        .market-wage-banner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 30px 14px;
+        }
+
+        .market-wage-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: var(--wage-pill-bg);
+            border: 1px solid var(--wage-pill-border);
+            box-shadow: 0 1px 4px var(--shadow-color);
+            font-size: 13px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .market-wage-pill .wage-icon {
+            width: 15px;
+            height: 15px;
+            color: var(--link-color);
+            flex-shrink: 0;
+        }
+
+        .market-wage-pill .wage-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .market-wage-pill strong {
+            color: var(--link-color);
+            font-size: 13.5px;
+            font-weight: 700;
+        }
+
+        .market-wage-pill .wage-tag {
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1px 7px;
+            font-weight: 500;
+        }
+
+        /* Tooltip Logic */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: auto;
+            min-width: 320px;
+            max-width: 450px;
+            background-color: var(--tooltip-bg);
+            color: var(--tooltip-text);
+            text-align: left;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            box-shadow: 0 8px 24px rgba(28, 37, 51, 0.3);
+            border: 1px solid var(--tooltip-border);
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 1.3;
+            pointer-events: none;
+            white-space: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip.tooltip-active .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Header Tooltip Styling */
+        th.tooltip .tooltiptext {
+            font-size: 12px;
+            min-width: 300px;
+        }
+
+        /* Content Tooltip Styling */
+        .formula-header {
+            font-weight: 700;
+            color: #63b3ed;
+            margin-bottom: 4px;
+            border-bottom: 1px solid var(--tooltip-border);
+            padding-bottom: 2px;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .formula-header:first-child {
+            margin-top: 0;
+        }
+
+        .formula-step {
+            color: var(--tooltip-text);
+            font-family: monospace;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .formula-result {
+            color: #68d391;
+            font-weight: 600;
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px solid var(--tooltip-border);
+            font-family: monospace;
+            text-align: right;
+        }
+
+        .formula-sub {
+            color: #a0aec0;
+            font-size: 10px;
+            font-style: italic;
+            margin-bottom: 2px;
+        }
+
+        .location-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: normal;
+        }
+
+        .val {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 20000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background-color: var(--container-bg);
+            margin: 1% auto;
+            padding: 10px;
+            border-radius: 8px;
+            width: 98%;
+            max-width: none;
+            height: 95vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 32px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            z-index: 10;
+            line-height: 1;
+        }
+
+        .modal-chart-container {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            min-height: 0;
+        }
+
+        /* Charts Section */
+        .charts-container {
+            padding: 20px 0 30px;
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .charts-title {
+            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            margin-bottom: 40px;
+            height: auto;
+            position: relative;
+            background: var(--container-bg);
+            border-radius: 8px;
+            padding: 0;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px 15px 0;
+        }
+
+        .chart-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chart-toggle-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--button-text);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-toggle-btn:hover {
+            background: var(--button-hover-bg);
+            border-color: var(--button-hover-border);
+        }
+
+        .legend-wrapper {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 15px;
+        }
+
+        .custom-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .legend-group {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 10px;
+            display: flex;
+            flex-direction: column;
+            min-width: 100px;
+        }
+
+        .legend-group-items {
+            display: grid;
+            grid-template-columns: repeat(2, max-content);
+            grid-template-rows: repeat(2, auto);
+            grid-auto-flow: column;
+            column-gap: 10px;
+        }
+
+        .legend-group-header {
+            font-weight: 700;
+            margin-bottom: 5px;
+            cursor: pointer;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 3px;
+            text-align: center;
+        }
+
+        .legend-group-header:hover {
+            color: #3182ce;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 2px 0;
+            color: var(--text-secondary);
+        }
+
+        .legend-item.hidden {
+            opacity: 0.4;
+            text-decoration: line-through;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .chart-canvas-container {
+            height: 500px;
+            position: relative;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .controls {
+            /* Add padding to prevent buttons from touching screen edges */
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        .controls button {
+            cursor: pointer;
+            padding: 6px 12px;
+            border: 1px solid var(--button-border);
+            background: var(--button-bg);
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: var(--button-text);
+        }
+
+        .controls button:hover {
+            background: var(--button-hover-bg);
+            border-color: var(--button-hover-border);
+        }
+
+        .controls button.active {
+            background: var(--button-active-bg);
+            color: var(--button-active-text);
+            border-color: var(--button-active-bg);
+        }
+
+        .fidelity-ctrl-label {
+            display: inline-flex;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-right: 2px;
+            user-select: none;
+        }
+
+        /* Responsive Text Helpers */
+        .mobile-text {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .desktop-text {
+                display: none;
+            }
+
+            .mobile-text {
+                display: inline;
+            }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .site-header {
+                align-items: center;
+            }
+
+            .site-title {
+                font-size: 24px;
+            }
+
+            .guide-box {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+
+            .table-top-bar {
+                padding: 0 10px 15px;
+            }
+
+            .table-wrapper {
+                padding: 0 5px 20px;
+            }
+
+            th,
+            td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            #profitability th:not(:first-child),
+            #workers th:not(:first-child) {
+                width: 84px;
+            }
+
+            #company_basing th:not(:first-child) {
+                width: 78px;
+                text-align: center;
+            }
+
+            #company_basing .item-cell {
+                gap: 4px;
+            }
+
+            #company_basing .expand-icon {
+                margin-right: 0;
+                font-size: 9px;
+            }
+
+            #company_basing .item-icon {
+                width: 26px;
+                height: 26px;
+            }
+
+            #company_basing .item-name {
+                font-size: 11px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .basing-cell {
+                gap: 3px;
+                padding: 2px 0;
+            }
+
+            .basing-row {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5px;
+                line-height: 1.15;
+            }
+
+            .basing-val {
+                gap: 2px;
+            }
+
+            .basing-icon {
+                font-size: 11px;
+            }
+
+            .basing-count {
+                font-size: 11px;
+                font-weight: 600;
+            }
+
+            .basing-pct {
+                font-size: 9px;
+                padding: 0px 3px;
+                border-radius: 3px;
+                line-height: 1.15;
+            }
+
+            .comp-summary-row td {
+                padding: 8px 4px;
+            }
+
+            .comp-locations-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .comp-location-card {
+                padding: 8px 10px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .comp-loc-country {
+                font-size: 12px;
+            }
+
+            .comp-loc-region {
+                font-size: 11px;
+            }
+
+            .comp-loc-sub-all {
+                font-size: 10.5px;
+            }
+
+            .item-cell {
+                gap: 6px;
+            }
+
+            .item-icon {
+                width: 30px;
+                height: 30px;
+            }
+
+            .item-content {
+                gap: 2px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .item-name {
+                font-size: 11px;
+                margin-right: 0;
+            }
+
+            .item-meta {
+                margin-left: 0;
+                gap: 4px;
+                flex-direction: row;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .bonus-badge {
+                font-size: 9px;
+                padding: 1px 3px;
+            }
+
+            .deposit-timer {
+                font-size: 9px;
+                padding: 1px 4px;
+            }
+
+            .pp-main {
+                font-size: 12px;
+            }
+
+            .pp-sub {
+                font-size: 10px;
+            }
+
+            .worker-expanded-cell {
+                padding: 8px 4px !important;
+            }
+
+            .worker-card {
+                padding: 8px 10px;
+                gap: 6px;
+            }
+
+            .worker-card-header {
+                font-size: 11.5px;
+                gap: 5px;
+                padding-bottom: 4px;
+            }
+
+            .worker-calc-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .worker-calc-box {
+                padding: 6px 8px;
+            }
+
+            .worker-calc-line {
+                font-size: 10px;
+            }
+
+            .worker-calc-line .w-tier {
+                min-width: 72px;
+            }
+
+            .market-wage-banner {
+                padding: 0 10px 10px;
+            }
+
+            .market-wage-pill {
+                padding: 4px 10px;
+                font-size: 11px;
+                gap: 5px;
+            }
+
+            .market-wage-pill .wage-icon {
+                width: 12px;
+                height: 12px;
+            }
+
+            .market-wage-pill strong {
+                font-size: 11.5px;
+            }
+
+            .market-wage-pill .wage-tag {
+                font-size: 9.5px;
+                padding: 0 4px;
+            }
+
+            /* On mobile, floating tooltips are suppressed in favor of row expand drawers */
+            .tooltip .tooltiptext {
+                display: none !important;
+            }
+
+            .drawer-scenarios-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .drawer-scenario-card {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+
+            .drawer-scen-row {
+                font-size: 11px;
+            }
+
+            .charts-container {
+                padding: 15px 0;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .controls button {
+                padding: 6px 10px;
+                font-size: 12px;
+                flex: 1 1 40%;
+            }
+
+            .controls label {
+                width: 100%;
+                justify-content: center;
+                margin-left: 0 !important;
+                margin-top: 5px;
+            }
+
+            .fidelity-ctrl-label {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 2px;
+            }
+
+            #workerFidelityControls button {
+                flex: 1 1 28%;
+                min-width: 60px;
+            }
+
+            .chart-canvas-container {
+                height: 400px;
+            }
+
+            .guide-img {
+                width: 300px;
+                max-width: 90vw;
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);
+            }
+
+            .guide-img img {
+                width: 100%;
+            }
+
+            th.tooltip .tooltiptext {
+                min-width: 200px;
+                max-width: 250px;
+                white-space: normal;
+            }
+
+            .tooltip .tooltiptext {
+                max-width: 90vw;
+            }
+
+            .custom-legend {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px;
+            }
+
+            .legend-group {
+                min-width: 0;
+                padding: 4px;
+            }
+
+            .legend-group--multi-column {
+                grid-column: span 2;
+            }
+
+            .legend-group-items {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                column-gap: 4px;
+            }
+
+            .legend-group-header {
+                font-size: 10px;
+                margin-bottom: 2px;
+            }
+
+            .legend-item {
+                font-size: 9px;
+                white-space: nowrap;
+            }
+
+            .legend-color {
+                width: 8px;
+                height: 8px;
+                margin-right: 4px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- New Header -->
+        <div class="site-header">
+            <button id="theme-toggle" title="Toggle theme">
+                <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                        d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM12 9c1.65 0 3 1.35 3 3s-1.35 3-3 3-3-1.35-3-3 1.35-3 3-3zm0-5h-1v3h1V4zm9.12 2.47l-.71.71a5.53 5.53 0 0 0-1.41-1.41l.71-.71c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41zM20 11h-3v1h3v-1zm-2.47 9.12l-.71-.71a5.53 5.53 0 0 0 1.41-1.41l.71.71c.39.39.39 1.02 0 1.41-.39.39-1.02.39-1.41 0zM12 20h1v-3h-1v3zm-9.12-2.47l.71-.71a5.53 5.53 0 0 0 1.41 1.41l-.71.71c-.39-.39-1.02-.39-1.41 0-.39-.39-.39-1.02 0-1.41zM4 13h3v-1H4v1zm2.47-9.12l.71.71a5.53 5.53 0 0 0-1.41 1.41l-.71-.71c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0z" />
+                </svg>
+                <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                        d="M12.3 4.88c.16.02.32.05.49.07C7.9 5.55 4.5 9.4 4.5 14c0 4.13 3.37 7.5 7.5 7.5.85 0 1.67-.14 2.44-.4l.25.63c-.83.33-1.72.51-2.69.51-4.97 0-9-4.03-9-9 0-4.56 3.35-8.33 7.79-8.92z" />
+                </svg>
+            </button>
+            <div class="site-title">Wealthrate</div>
+            <div class="update-info">Updated: <span id="updateTime" data-market-timestamp="{{ market_timestamp }}" data-comp-timestamp="{{ comp_timestamp }}" data-workers-timestamp="{{ workers_timestamp }}" data-timestamp="{{ timestamp }}">just now</span>
+            </div>
+            <a href="https://app.warera.io/user/69635dc2d83cd4e381a66dce" target="_blank" class="warship-link">
+                <img src="assets/ru_warship.webp" alt="Profile" onerror="this.style.display='none'">
+            </a>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('profitability', this)">Profitability</button>
+            <button class="tab-btn" onclick="switchTab('company_basing', this)">Company Basing</button>
+            <button class="tab-btn" onclick="switchTab('workers', this)">Workers</button>
+        </div>
+
+        <!-- Tab 1: Profitability -->
+        <div id="profitability" class="tab-content active">
+            <div class="table-top-bar">
+                <label
+                    style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    <input type="checkbox" id="fidelitySort" onchange="toggleFidelitySort()" style="margin-right: 6px;">
+                    Sort by Fidelity
+                </label>
+                <div class="guide-box">
+                    <div class="q-mark">?</div>
+                    <div class="guide-img" style="width: 320px; max-width: 90vw; padding: 12px; font-size: 11.5px; line-height: 1.45; text-align: left; white-space: normal;">
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 2px;">Min ₿/PP</div>
+                            <div style="color: var(--text-secondary);">Minimum profit in ₿ per 1 Production Point.<br>Based on "Conservative" scenario: High resource costs (top 3 sell order avg), Low sell price (top 3 buy order avg).</div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 2px;">Max ₿/PP</div>
+                            <div style="color: var(--text-secondary);">Maximum profit in ₿ per 1 Production Point.<br>Based on "Optimistic" scenario: Low resource costs (top 3 buy order avg), High sell price (top 3 sell order avg).</div>
+                        </div>
+                        <img src="assets/top3.webp" alt="Guide" style="width: 100%; border-radius: 6px; display: block;" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div id="sortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    Sorted by: <span id="currentSortLabel">Min ₿/PP ↓</span>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="cursor: default;">Product</th>
+                            <th onclick="handleSort('min_pp')">Min ₿/PP</th>
+                            <!-- Avg B/PP column hidden as requested, can be easily restored
+                            <th onclick="handleSort('avg_pp')">Avg ₿/PP</th>
+                            -->
+                            <th onclick="handleSort('max_pp')">Max ₿/PP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="charts-container">
+                <h2 class="charts-title">Profitability History</h2>
+
+                <!-- Time Controls -->
+                <div class="controls" id="timeControls" style="margin-bottom: 20px;">
+                    <button id="btn24" onclick="setPeriod(24)" class="active">24 Hours</button>
+                    <button id="btn72" onclick="setPeriod(72)">3 Days</button>
+                    <button id="btn168" onclick="setPeriod(168)">7 Days</button>
+                    <button id="btn0" onclick="setPeriod(0)">All Time</button>
+                </div>
+
+                <!-- Metric Controls -->
+                <div class="controls" style="margin-bottom: 15px;">
+                    <button id="btn_min_pp" onclick="setMetric('min_pp')" class="active">Min ₿/PP</button>
+                    <!-- <button id="btn_avg_pp" onclick="setMetric('avg_pp')">Avg ₿/PP</button> -->
+                    <button id="btn_max_pp" onclick="setMetric('max_pp')">Max ₿/PP</button>
+                </div>
+
+                <div class="chart-wrapper">
+                    <div class="chart-canvas-container">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                    <div class="legend-wrapper">
+                        <button class="chart-toggle-btn" onclick="toggleAll('mainChart')"
+                            style="margin-bottom: 8px;">Toggle All</button>
+                        <div id="mainChart-legend" class="custom-legend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Company Basing -->
+        <div id="company_basing" class="tab-content">
+            <div class="table-top-bar">
+                <label
+                    style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    <input type="checkbox" id="workersSort" onchange="toggleWorkersSort()" style="margin-right: 6px;">
+                    Sort by Workers
+                </label>
+                <div class="guide-box">
+                    <div class="q-mark">?</div>
+                    <div class="guide-img"
+                        style="width: 320px; max-width: 90vw; white-space: normal; line-height: 1.45; font-size: 12px; padding: 12px; text-align: left;">
+                        <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px; color: #63b3ed; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                            Company Basing FAQ
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">Best Regions</div>
+                            <div style="color: var(--text-secondary);">Best regions are determined purely by the highest production bonus % in the world for each product (taxes and other criteria are ignored).</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">Company Filter (Level 20+)</div>
+                            <div style="color: var(--text-secondary);">Only companies belonging to players of <strong>Level 20 or higher</strong> are tracked. This filters out abandoned starter businesses and inactive accounts, focusing stats on real active production.</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="compSortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    Sorted by: <span id="currentCompSortLabel">Total Companies ↓</span>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="cursor: default;">Product</th>
+                            <th onclick="handleCompSort('comp_best_count')"><span class="desktop-text">Best
+                                    Regions</span><span class="mobile-text">Best</span></th>
+                            <th onclick="handleCompSort('comp_others_count')"><span class="desktop-text">Other
+                                    Regions</span><span class="mobile-text">Others</span></th>
+                            <th onclick="handleCompSort('comp_total_count')">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="compTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="charts-container">
+                <h2 class="charts-title">Company Basing History</h2>
+
+                <!-- Time Controls -->
+                <div class="controls" id="compTimeControls" style="margin-bottom: 20px;">
+                    <button id="btn24_comp" onclick="setPeriod(24)" class="active">24 Hours</button>
+                    <button id="btn72_comp" onclick="setPeriod(72)">3 Days</button>
+                    <button id="btn168_comp" onclick="setPeriod(168)">7 Days</button>
+                    <button id="btn0_comp" onclick="setPeriod(0)">All Time</button>
+                </div>
+
+                <!-- Metric Controls (Companies vs Workers toggle) -->
+                <div class="controls" style="margin-bottom: 15px;">
+                    <button id="btn_comp_metric_count" onclick="setCompChartMetric('count')" class="active">Companies</button>
+                    <button id="btn_comp_metric_workers" onclick="setCompChartMetric('workers')">Workers</button>
+                </div>
+
+                <div class="chart-wrapper">
+                    <div class="chart-canvas-container">
+                        <canvas id="compChart"></canvas>
+                    </div>
+                    <div class="legend-wrapper">
+                        <button class="chart-toggle-btn" onclick="toggleAll('compChart')"
+                            style="margin-bottom: 8px;">Toggle All</button>
+                        <div id="compChart-legend" class="custom-legend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Workers -->
+        <div id="workers" class="tab-content">
+            <div class="table-top-bar">
+                <label
+                    style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    <input type="checkbox" id="workerFidelitySort" onchange="toggleWorkerFidelitySort()" style="margin-right: 6px;">
+                    Sort by Fidelity
+                </label>
+                <div class="guide-box">
+                    <div class="q-mark">?</div>
+                    <div class="guide-img" style="width: 290px; white-space: normal; line-height: 1.4; font-size: 12px; padding: 12px;">
+                        <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px; color: #63b3ed; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                            Worker Profitability FAQ
+                        </div>
+                        <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-secondary);">Market wage (after tax):</span>
+                            <strong id="faqMarketWage" style="color: var(--text-primary); font-size: 12px;">0.143 ₿/PP</strong>
+                        </div>
+                        <div style="font-weight: 600; margin-bottom: 4px; color: var(--text-primary); font-size: 11.5px; border-top: 1px solid var(--border-color); padding-top: 6px;">
+                            Live Calculation Example (<span id="faqExItem">Bread</span>):
+                        </div>
+                        <div id="faqExLoc" style="font-size: 10.5px; color: var(--text-secondary); margin-bottom: 6px;">
+                            #1 All regions, Ukraine • +25.5% bonus • 6.9% tax
+                        </div>
+                        <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-family: monospace; font-size: 11px; display: flex; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-secondary);">Profitability (Min PP):</span>
+                                <span id="faqExGross" style="font-weight: 600;">0.152 ₿</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-secondary);">- Market wage:</span>
+                                <span id="faqExWage" style="color: #fc8181;">-0.143 ₿</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-secondary);">- Wage tax (<span id="faqExTaxRate">6.9</span>%):</span>
+                                <span id="faqExTaxVal" style="color: #fc8181;">-0.011 ₿</span>
+                            </div>
+                            <div style="border-top: 1px solid var(--border-color); padding-top: 4px; margin-top: 2px; display: flex; justify-content: space-between; font-weight: 700;">
+                                <span>= Profit (0%):</span>
+                                <span id="faqExNet" style="color: #68d391;">-0.002 ₿/PP</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-secondary);">
+                                <span>Profit (+10%):</span>
+                                <span id="faqExNet10" style="color: #68d391; font-weight: 600;">+0.009 ₿/PP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="workerSortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    Sorted by: <span id="currentWorkerSortLabel">Min ₿/PP ↓</span>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="cursor: default;">Product</th>
+                            <th onclick="handleWorkerSort('min_pp')" class="tooltip">Min ₿/PP
+                                <span class="tooltiptext">
+                                    Minimum net profit with worker (product profitability minus market wage and country tax on wage).
+                                </span>
+                            </th>
+                            <!-- Avg B/PP column hidden as requested, can be easily restored
+                            <th onclick="handleWorkerSort('avg_pp')" class="tooltip">Avg ₿/PP
+                                <span class="tooltiptext">
+                                    Average net profit with worker (average prices minus country tax and market wage).
+                                </span>
+                            </th>
+                            -->
+                            <th onclick="handleWorkerSort('max_pp')" class="tooltip">Max ₿/PP
+                                <span class="tooltiptext">
+                                    Maximum net profit with worker (optimistic prices minus country tax and market wage).
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="workersTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="charts-container">
+                <h2 class="charts-title">Worker Profitability History</h2>
+
+                <!-- Time Controls -->
+                <div class="controls" id="workerTimeControls" style="margin-bottom: 20px;">
+                    <button id="btn24_worker" onclick="setPeriod(24)" class="active">24 Hours</button>
+                    <button id="btn72_worker" onclick="setPeriod(72)">3 Days</button>
+                    <button id="btn168_worker" onclick="setPeriod(168)">7 Days</button>
+                    <button id="btn0_worker" onclick="setPeriod(0)">All Time</button>
+                </div>
+
+                <!-- Metric Controls -->
+                <div class="controls" style="margin-bottom: 12px;">
+                    <button id="btn_worker_min_pp" onclick="setWorkerChartMetric('min_pp')" class="active">Min ₿/PP</button>
+                    <!-- <button id="btn_worker_avg_pp" onclick="setWorkerChartMetric('avg_pp')">Avg ₿/PP</button> -->
+                    <button id="btn_worker_max_pp" onclick="setWorkerChartMetric('max_pp')">Max ₿/PP</button>
+                </div>
+
+                <!-- Fidelity Controls -->
+                <div class="controls" id="workerFidelityControls" style="margin-bottom: 15px; align-items: center;">
+                    <span class="fidelity-ctrl-label">
+                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: #e53e3e; margin-right: 5px;"><path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"></path></svg>
+                        Fidelity:
+                    </span>
+                    <button id="btn_worker_f0" onclick="setWorkerChartFidelity(0)" class="active">0%</button>
+                    <button id="btn_worker_f5" onclick="setWorkerChartFidelity(5)">5%</button>
+                    <button id="btn_worker_f10" onclick="setWorkerChartFidelity(10)">10%</button>
+                </div>
+
+                <div class="chart-wrapper">
+                    <div class="chart-canvas-container">
+                        <canvas id="workerChart"></canvas>
+                    </div>
+                    <div class="legend-wrapper">
+                        <button class="chart-toggle-btn" onclick="toggleAll('workerChart')"
+                            style="margin-bottom: 8px;">Toggle All</button>
+                        <div id="workerChart-legend" class="custom-legend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeChartModal()">&times;</span>
+            <div class="modal-chart-container">
+                <canvas id="modalChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tableData = {{ table_data_json | safe }};
+        const workersData = {{ workers_data_json | safe }};
+        const labels = {{ metric_labels_json | safe }};
+        const itemColors = {{ item_colors_json | safe }};
+        const itemShortNames = {{ item_short_names_json | safe }};
+
+        const productionLines = {{ production_lines_json | safe }};
+        let currentSort = { col: 'min_pp', dir: 'desc' };
+        let currentCompSort = { col: 'comp_total_count', dir: 'desc' };
+        let currentWorkerSort = { col: 'min_pp', dir: 'desc' };
+        let currentMetric = 'min_pp';
+        let sortByFidelity = false;
+        let sortByWorkers = false;
+        let workerSortByFidelity = false;
+        let expandedProfItems = new Set();
+        let expandedCompItems = new Set();
+        let expandedWorkerItems = new Set();
+
+        let profDrawerTabs = {};
+
+        function toggleProfExpand(itemCode) {
+            if (expandedProfItems.has(itemCode)) {
+                expandedProfItems.delete(itemCode);
+            } else {
+                expandedProfItems.add(itemCode);
+            }
+            renderTable();
+        }
+
+        function setProfDrawerTab(item, tab) {
+            profDrawerTabs[item] = tab;
+            const rowEl = document.getElementById(`prof-drawer-${item}`);
+            if (rowEl) {
+                const btnMin = rowEl.querySelector('.btn-tab-min');
+                const btnMax = rowEl.querySelector('.btn-tab-max');
+                const cardMin = rowEl.querySelector('.prof-card-min');
+                const cardMax = rowEl.querySelector('.prof-card-max');
+                if (btnMin) btnMin.classList.toggle('active', tab === 'min');
+                if (btnMax) btnMax.classList.toggle('active', tab === 'max');
+                if (cardMin) cardMin.classList.toggle('mobile-hidden', tab === 'max');
+                if (cardMax) cardMax.classList.toggle('mobile-hidden', tab === 'min');
+            }
+        }
+
+        function toggleCompExpand(itemCode) {
+            if (expandedCompItems.has(itemCode)) {
+                expandedCompItems.delete(itemCode);
+            } else {
+                expandedCompItems.add(itemCode);
+            }
+            renderCompTable();
+        }
+        let chartInstances = {};
+        let modalChartInstance = null;
+        let mobileAnnotation = null;
+        let chart = null;
+
+        // --- COMP CHART VARS ---
+        let currentCompChartMetric = 'count'; // 'count' or 'workers'
+
+        // --- THEME SWITCHER ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                body.classList.add('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const newTheme = body.classList.contains('dark-mode') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+            renderMainChart();
+            updateCompChart();
+            renderWorkerChart();
+        });
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            applyTheme('dark');
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+            localStorage.setItem('activeTab', tabId);
+            updateRelativeTime();
+            // Recalculate widths when tab becomes visible
+            requestAnimationFrame(equalizeColumnWidths);
+            if (tabId === 'workers') {
+                renderWorkerChart();
+            } else if (tabId === 'company_basing') {
+                updateCompChart();
+            } else if (tabId === 'profitability') {
+                renderMainChart();
+            }
+        }
+
+        function toggleFidelitySort() {
+            sortByFidelity = document.getElementById('fidelitySort').checked;
+            updateSortLabel();
+            renderTable();
+        }
+
+        function openChartModal() {
+            const mainChart = chartInstances.mainChart;
+            if (!mainChart) return;
+
+            const modal = document.getElementById('chartModal');
+            const canvas = document.getElementById('modalChart');
+            const ctx = canvas.getContext('2d');
+
+            const data = JSON.parse(JSON.stringify(mainChart.data));
+            const options = JSON.parse(JSON.stringify(mainChart.options));
+
+            options.plugins.tooltip.callbacks.label = mainChart.options.plugins.tooltip.callbacks.label;
+            options.scales.y.ticks.callback = mainChart.options.scales.y.ticks.callback;
+            options.plugins.legend.display = true;
+            options.plugins.legend.position = 'bottom';
+            options.maintainAspectRatio = false;
+
+            modalChartInstance = new Chart(ctx, { type: 'line', data: data, options: options });
+            modal.style.display = 'block';
+        }
+
+        function closeChartModal() {
+            document.getElementById('chartModal').style.display = 'none';
+            if (modalChartInstance) { modalChartInstance.destroy(); modalChartInstance = null; }
+
+        }
+
+        function setMetric(metric) {
+            currentMetric = metric;
+            // Update buttons
+            ['min_pp', 'avg_pp', 'max_pp'].forEach(m => {
+                const btn = document.getElementById('btn_' + m);
+                if (btn) btn.classList.toggle('active', m === metric);
+            });
+            // Update Title
+            renderMainChart();
+        }
+
+        function updateRelativeTime() {
+            const timeElement = document.getElementById('updateTime');
+            if (!timeElement) return;
+
+            const isComp = document.getElementById('company_basing') && document.getElementById('company_basing').classList.contains('active');
+            const isWorkers = document.getElementById('workers') && document.getElementById('workers').classList.contains('active');
+            const attr = isComp ? 'data-comp-timestamp' : (isWorkers ? 'data-workers-timestamp' : 'data-market-timestamp');
+            let timestamp = parseInt(timeElement.getAttribute(attr));
+            if (!timestamp || isNaN(timestamp)) {
+                timestamp = parseInt(timeElement.getAttribute('data-timestamp')) || 0;
+            }
+
+            if (!timestamp) {
+                timeElement.textContent = 'just now';
+                return;
+            }
+
+            const now = Math.floor(Date.now() / 1000);
+            const diff = Math.max(0, now - timestamp);
+
+            let timeText;
+            if (diff < 60) { timeText = 'just now'; }
+            else if (diff < 3600) { timeText = Math.floor(diff / 60) + 'm ago'; }
+            else if (diff < 86400) {
+                const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60);
+                timeText = m > 0 ? `${h}h${m}m ago` : `${h}h ago`;
+            } else { timeText = Math.floor(diff / 86400) + 'd ago'; }
+
+            timeElement.textContent = timeText;
+        }
+
+
+        updateRelativeTime();
+        setInterval(updateRelativeTime, 1000);
+
+        function getFullTooltip(row, type) {
+            // Type is 'min', 'avg', 'max'
+            const res = row.resources || [];
+
+            // 1. Title & Location
+            let typeLabel = type === 'min' ? 'Min' : (type === 'max' ? 'Max' : 'Avg');
+            let title = `${row.pretty_name} ${typeLabel} PP`;
+            let taxVal = row.tax_percent;
+            if ((taxVal === undefined || taxVal === null || taxVal === 0) && window.workersData && window.workersData.items) {
+                const wLocs = window.workersData.items[row.item] || [];
+                const matched = wLocs.find(l => l.country_name === row.country_name) || wLocs[0];
+                if (matched && matched.tax_percent !== undefined) {
+                    taxVal = matched.tax_percent;
+                }
+            }
+            let taxStr = (taxVal !== undefined && taxVal !== null && taxVal !== 0) ? ` (${taxVal}% tax)` : (taxVal === 0 ? ' (0% tax)' : '');
+
+            let regDisplay = (row.region_bonus > 0 && row.region_name && row.region_name !== 'Unknown') ? row.region_name : 'All regions';
+
+            let html = `<div class="formula-header" style="margin-top:0; font-size:14px; border-bottom: 2px solid var(--border-color); padding-bottom:4px; margin-bottom:6px;">${title}</div>
+                        <div class="location-row" style="margin-bottom:4px"><span>${regDisplay}, ${row.country_name}${taxStr}</span></div>
+                        <div class="formula-step"><span>Bonus:</span> <span>${row.region_bonus}% (Dep) + ${row.country_bonus}% (Country) + ${row.ethic_bonus}% (Ethic)</span></div>
+                        <div class="formula-step" style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:2px; margin-top:2px"><span>Total:</span> <span style="color:#fbd38d">${row.total_bonus}% (x${row.bonus_multiplier.toFixed(4)})</span></div>`;
+
+            // 2. Base Profit Section (Sell Price - Costs)
+            let priceLabel = type === 'min' ? 'Top 3 Buy' : (type === 'max' ? 'Top 3 Sell' : 'Avg');
+            let costLabel = type === 'min' ? 'Top 3 Sell' : (type === 'max' ? 'Top 3 Buy' : 'Avg');
+            let baseSellPrice = row['base_' + type + '_price'];
+            let netProfit = row[type + '_price']; // This is pre-calculated in Python (Sell - Cost)
+
+            html += `<div class="formula-header">Profit</div>
+                     <div class="formula-step"><span>Sell (${priceLabel}):</span> <span class="val">${baseSellPrice.toFixed(3)}</span></div>`;
+
+            if (res.length) {
+                let totalCost = 0;
+                let costHtml = '';
+                res.forEach(r => {
+                    // For min profit, we buy at max cost. For max profit, we buy at min cost.
+                    let costPrice = type === 'min' ? r.max : (type === 'max' ? r.min : r.avg);
+                    let subCost = r.quantity * costPrice;
+                    totalCost += subCost;
+
+                    let rName = r.pretty_name;
+                    if (window.innerWidth <= 768) {
+                        rName = itemShortNames[r.item] || rName;
+                    }
+
+                    costHtml += `<div class="formula-step"><span>- ${r.quantity}x ${rName} @ ${costPrice.toFixed(3)} (${costLabel}):</span> <span>${subCost.toFixed(3)}</span></div>`;
+                });
+                html += costHtml;
+                html += `<div class="formula-result">${baseSellPrice.toFixed(3)} - ${totalCost.toFixed(3)} = ${netProfit.toFixed(3)}</div>`;
+            } else {
+                html += `<div class="formula-result">${netProfit.toFixed(3)}</div>`;
+            }
+
+            // 3. Efficiency Math Section
+            let finalVal = row[type + '_pp'];
+            html += `<div class="formula-header">Efficiency</div>
+                     <div class="formula-step"><span>Base Profit:</span> <span class="val">${netProfit.toFixed(3)}</span></div>
+                     <div class="formula-step"><span>Multiplier:</span> <span class="val">x${row.bonus_multiplier.toFixed(4)}</span></div>
+                     <div class="formula-step"><span>Production Points:</span> <span class="val">÷${row.production_points}</span></div>
+                     <div class="formula-result">(${netProfit.toFixed(3)} × ${row.bonus_multiplier.toFixed(4)}) ÷ ${row.production_points} = ${finalVal.toFixed(3)} ₿/PP</div>`;
+
+            // 4. Fidelity Bonus Section
+            let pp5 = (netProfit * (row.bonus_multiplier + 0.05)) / row.production_points;
+            let pp10 = (netProfit * (row.bonus_multiplier + 0.10)) / row.production_points;
+
+            html += `<div class="formula-header" style="color:#e53e3e;">Fidelity</div>
+                     <div class="formula-step"><span>+5% (x${(row.bonus_multiplier + 0.05).toFixed(4)}):</span> <span class="val">${pp5.toFixed(3)}</span></div>
+                     <div class="formula-step"><span>+10% (x${(row.bonus_multiplier + 0.10).toFixed(4)}):</span> <span class="val">${pp10.toFixed(3)}</span></div>`;
+
+            return html;
+        }
+
+        function getIcon(itemName) {
+            return `<img src="assets/${itemName}.webp" class="item-icon" onerror="this.style.display='none'" alt="">`;
+        }
+
+        function getDepositBadge(depositEndsAt) {
+            if (!depositEndsAt) return '';
+            const end = new Date(depositEndsAt);
+            const now = new Date();
+            const diff = end - now;
+            if (diff <= 0) return '';
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            let timeLeft = days > 0 ? `${days}d ${hours}h` : `${hours}h ${minutes}m`;
+            let color = '#38A169'; let bgColor = 'rgba(56, 161, 105, 0.1)';
+            if (diff < 12 * 3600 * 1000) { color = '#E53E3E'; bgColor = 'rgba(229, 62, 62, 0.1)'; }
+            else if (diff < 48 * 3600 * 1000) { color = '#DD6B20'; bgColor = 'rgba(221, 107, 32, 0.1)'; }
+            return `<div class="deposit-timer" style="color: ${color}; background-color: ${bgColor}">⏳ ${timeLeft}</div>`;
+        }
+
+        // --- PROFITABILITY TABLE RENDER ---
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const data = [...tableData].sort((a, b) => {
+                let v1, v2;
+                if (sortByFidelity && ['min_pp', 'avg_pp', 'max_pp'].includes(currentSort.col)) {
+                    const getFidelity = (row, metric) => {
+                        const priceMetric = metric.replace('_pp', '_price');
+                        const baseProfit = row[priceMetric];
+                        return (baseProfit * (row.bonus_multiplier + 0.10)) / row.production_points;
+                    };
+                    v1 = getFidelity(a, currentSort.col);
+                    v2 = getFidelity(b, currentSort.col);
+                } else {
+                    v1 = a[currentSort.col];
+                    v2 = b[currentSort.col];
+                }
+                return currentSort.dir === 'asc' ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
+            });
+
+            tbody.innerHTML = data.map(row => {
+                const isHigh = row.max_pp >= 0.21;
+
+                const bonusText = Number(row.total_bonus.toFixed(2));
+                // Bonus Badge
+                const bonusBadge = `
+                    <div class="bonus-badge">
+                        <div style="display: flex; align-items: center; margin-right: 2px;">
+                            <svg style="width: 1.2em; height: 1.2em;" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14.79,10.62L3.5,21.9L2.1,20.5L13.38,9.21L14.79,10.62M19.27,7.73L19.86,7.14L19.07,6.35L19.71,5.71L18.29,4.29L17.65,4.93L16.86,4.14L16.27,4.73C14.53,3.31 12.57,2.17 10.47,1.37L9.64,3.16C11.39,4.08 13,5.19 14.5,6.5L14,7L17,10L17.5,9.5C18.81,11 19.92,12.61 20.84,14.36L22.63,13.53C21.83,11.43 20.69,9.47 19.27,7.73Z"></path>
+                            </svg>
+                        </div>
+                        <span>+${bonusText}%</span>
+                    </div>
+                `;
+
+                const depositInfo = getDepositBadge(row.deposit_ends_at);
+
+                // Helper to render PP cell with Fidelity
+                const renderPPCell = (metric) => {
+                    const baseProfit = row[metric.replace('_pp', '_price')];
+                    const pp10 = (baseProfit * (row.bonus_multiplier + 0.10)) / row.production_points;
+
+                    return `
+                        <div class="pp-cell">
+                            <span class="pp-main">${row[metric].toFixed(3)}</span>
+                            <span class="pp-sub">
+                                <span class="fidelity-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"></path></svg>
+                                </span>
+                                ${pp10.toFixed(3)}
+                            </span>
+                        </div>
+                    `;
+                };
+
+                let displayName = row.pretty_name;
+                if (window.innerWidth <= 768) {
+                    displayName = itemShortNames[row.item] || row.pretty_name;
+                }
+
+                const isExpanded = expandedProfItems.has(row.item);
+
+                let rowHtml = `
+                    <tr class="row-clickable" onclick="toggleProfExpand('${row.item}')">
+                        <td>
+                            <div class="item-cell">
+                                <span class="expand-icon ${isExpanded ? 'open' : ''}">▶</span>
+                                ${getIcon(row.item)}
+                                <div class="item-content">
+                                    <span class="item-name">${displayName}</span>
+                                    <div class="item-meta">
+                                        ${depositInfo}
+                                        ${bonusBadge}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="pp-col">${renderPPCell('min_pp')}</td>
+                        ${/* <td class="pp-col">${renderPPCell('avg_pp')}</td> */ ''}
+                        <td class="pp-col ${isHigh ? 'high' : ''}">${renderPPCell('max_pp')}</td>
+                    </tr>
+                `;
+
+                if (isExpanded) {
+                    const activeTab = profDrawerTabs[row.item] || 'min';
+                    rowHtml += `
+                        <tr class="prof-expanded-row" id="prof-drawer-${row.item}">
+                            <td colspan="3" class="prof-expanded-cell">
+                                <div class="prof-drawer-container">
+                                    <div class="prof-mobile-tabs">
+                                        <button class="prof-tab-btn btn-tab-min ${activeTab === 'min' ? 'active' : ''}" onclick="event.stopPropagation(); setProfDrawerTab('${row.item}', 'min')">Min PP</button>
+                                        <button class="prof-tab-btn btn-tab-max ${activeTab === 'max' ? 'active' : ''}" onclick="event.stopPropagation(); setProfDrawerTab('${row.item}', 'max')">Max PP</button>
+                                    </div>
+                                    <div class="prof-drawer-grid">
+                                        <div class="prof-drawer-card prof-card-min ${activeTab === 'max' ? 'mobile-hidden' : ''}">
+                                            ${getFullTooltip(row, 'min')}
+                                        </div>
+                                        <div class="prof-drawer-card prof-card-max ${activeTab === 'min' ? 'mobile-hidden' : ''}">
+                                            ${getFullTooltip(row, 'max')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                return rowHtml;
+            }).join('');
+
+            setupTooltips();
+            equalizeColumnWidths();
+        }
+
+        // --- COMPANY TABLE RENDER ---
+
+        function renderCompTable() {
+            const tbody = document.getElementById('compTableBody');
+            const data = [...tableData].sort((a, b) => {
+                let v1, v2;
+                let sortCol = currentCompSort.col;
+
+                if (sortByWorkers) {
+                    sortCol = sortCol.replace('_count', '_workers');
+                }
+
+                v1 = a[sortCol] || 0;
+                v2 = b[sortCol] || 0;
+
+                return currentCompSort.dir === 'asc' ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
+            });
+
+            // Global totals across all items in the game
+            const globalTotalComps = tableData.reduce((acc, r) => acc + (r.comp_total_count || 0), 0);
+            const globalTotalWorkers = tableData.reduce((acc, r) => acc + (r.comp_total_workers || 0), 0);
+            const globalBestComps = tableData.reduce((acc, r) => acc + (r.comp_best_count || 0), 0);
+            const globalBestWorkers = tableData.reduce((acc, r) => acc + (r.comp_best_workers || 0), 0);
+            const globalOthersComps = tableData.reduce((acc, r) => acc + (r.comp_others_count || 0), 0);
+            const globalOthersWorkers = tableData.reduce((acc, r) => acc + (r.comp_others_workers || 0), 0);
+
+            const rowsHtml = data.map(row => {
+                let displayName = row.pretty_name;
+                if (window.innerWidth <= 768) {
+                    displayName = itemShortNames[row.item] || row.pretty_name;
+                }
+
+                const itemTotalComps = row.comp_total_count || 0;
+                const itemTotalWorkers = row.comp_total_workers || 0;
+
+                // Helper for cells
+                const renderCell = (prefix) => {
+                    const count = row[prefix + '_count'] || 0;
+                    const workers = row[prefix + '_workers'] || 0;
+
+                    let compPctStr, workerPctStr;
+                    if (prefix === 'comp_total') {
+                        compPctStr = globalTotalComps > 0 ? ((count / globalTotalComps) * 100).toFixed(1) + '%' : '0.0%';
+                        workerPctStr = globalTotalWorkers > 0 ? ((workers / globalTotalWorkers) * 100).toFixed(1) + '%' : '0.0%';
+                    } else {
+                        compPctStr = itemTotalComps > 0 ? ((count / itemTotalComps) * 100).toFixed(1) + '%' : '0.0%';
+                        workerPctStr = itemTotalWorkers > 0 ? ((workers / itemTotalWorkers) * 100).toFixed(1) + '%' : '0.0%';
+                    }
+
+                    return `
+                        <div class="basing-cell">
+                            <div class="basing-row">
+                                <div class="basing-val">
+                                    <span class="basing-icon">🏢</span>
+                                    <span class="basing-count">${count.toLocaleString()}</span>
+                                </div>
+                                <span class="basing-pct">${compPctStr}</span>
+                            </div>
+                            <div class="basing-row">
+                                <div class="basing-val">
+                                    <span class="basing-icon">👷</span>
+                                    <span class="basing-count">${workers.toLocaleString()}</span>
+                                </div>
+                                <span class="basing-pct">${workerPctStr}</span>
+                            </div>
+                        </div>
+                    `;
+                };
+
+                const isExpanded = expandedCompItems.has(row.item);
+
+                let rowHtml = `
+                    <tr class="row-clickable" onclick="toggleCompExpand('${row.item}')">
+                        <td>
+                            <div class="item-cell">
+                                <span class="expand-icon ${isExpanded ? 'open' : ''}">▶</span>
+                                ${getIcon(row.item)}
+                                <span class="item-name">${displayName}</span>
+                            </div>
+                        </td>
+                        <td class="pp-col">${renderCell('comp_best')}</td>
+                        <td class="pp-col">${renderCell('comp_others')}</td>
+                        <td class="pp-col">${renderCell('comp_total')}</td>
+                    </tr>
+                `;
+
+                if (isExpanded) {
+                    const rawLocations = row.locations || [];
+                    let locationsContent = '';
+
+                    // Group 0% bonus locations if not already grouped
+                    const bonusLocs = [];
+                    let zeroComps = 0;
+                    let zeroWorkers = 0;
+
+                    rawLocations.forEach(loc => {
+                        if (loc.is_zero_group || loc.total_bonus <= 0) {
+                            zeroComps += (loc.company_count || 0);
+                            zeroWorkers += (loc.worker_count || 0);
+                        } else {
+                            bonusLocs.push(loc);
+                        }
+                    });
+
+                    // Sort bonus locations: highest bonus first; if equal bonus, sort by workers or companies
+                    bonusLocs.sort((a, b) => {
+                        const bonusDiff = (b.total_bonus || 0) - (a.total_bonus || 0);
+                        if (bonusDiff !== 0) return bonusDiff;
+
+                        if (sortByWorkers) {
+                            const workerDiff = (b.worker_count || 0) - (a.worker_count || 0);
+                            if (workerDiff !== 0) return workerDiff;
+                            return (b.company_count || 0) - (a.company_count || 0);
+                        } else {
+                            const compDiff = (b.company_count || 0) - (a.company_count || 0);
+                            if (compDiff !== 0) return compDiff;
+                            return (b.worker_count || 0) - (a.worker_count || 0);
+                        }
+                    });
+
+                    const displayLocs = [...bonusLocs];
+                    if (zeroComps > 0 || zeroWorkers > 0) {
+                        displayLocs.push({
+                            rank: null,
+                            country_name: 'Other regions (0% bonus)',
+                            region_name: '',
+                            total_bonus: 0.0,
+                            tax_percent: null,
+                            company_count: zeroComps,
+                            worker_count: zeroWorkers,
+                            is_zero_group: true
+                        });
+                    }
+
+                    if (displayLocs.length > 0) {
+                        locationsContent = `
+                            <div class="comp-locations-grid">
+                                ${displayLocs.map(loc => {
+                                    const isZero = loc.is_zero_group || loc.total_bonus <= 0;
+                                    const locCompPct = itemTotalComps > 0 ? ((loc.company_count / itemTotalComps) * 100).toFixed(1) : '0.0';
+                                    const locWorkerPct = itemTotalWorkers > 0 ? ((loc.worker_count / itemTotalWorkers) * 100).toFixed(1) : '0.0';
+
+                                    let headerHtml = '';
+
+                                    if (isZero) {
+                                        const rankBadge = `<div class="comp-loc-rank" style="opacity: 0.6;">0%</div>`;
+                                        const bonusBadge = `<div class="comp-loc-bonus zero">0%</div>`;
+                                        headerHtml = `
+                                            <div class="comp-loc-header">
+                                                <div class="comp-loc-title-group">
+                                                    <div class="comp-loc-top-line">
+                                                        ${rankBadge}
+                                                        <span class="comp-loc-country" title="All other regions with no production bonus">Other regions (0% bonus)</span>
+                                                    </div>
+                                                </div>
+                                                ${bonusBadge}
+                                            </div>
+                                        `;
+                                    } else {
+                                        const isTop = loc.rank === 1;
+                                        const rankBadge = `<div class="comp-loc-rank ${isTop ? 'top-rank' : ''}">#${loc.rank}</div>`;
+                                        const bonusBadge = `<div class="comp-loc-bonus">+${Number(loc.total_bonus.toFixed(1))}%</div>`;
+
+                                        let taxBadge = '';
+                                        if (loc.tax_percent !== undefined && loc.tax_percent !== null) {
+                                            taxBadge = `<span class="comp-tax-badge">${loc.tax_percent}% tax</span>`;
+                                        }
+
+                                        const hasSpecificRegion = Boolean(loc.region_name && loc.region_name !== 'All regions' && loc.region_name !== loc.country_name);
+                                        const regionText = hasSpecificRegion ? loc.region_name : 'All regions';
+                                        const fullLocationName = hasSpecificRegion ? `${loc.country_name} (${loc.region_name})` : `${loc.country_name} (All regions)`;
+
+                                        headerHtml = `
+                                            <div class="comp-loc-header">
+                                                <div class="comp-loc-title-group">
+                                                    <div class="comp-loc-top-line">
+                                                        ${rankBadge}
+                                                        <span class="comp-loc-country" title="${fullLocationName}">${loc.country_name}</span>
+                                                        ${taxBadge}
+                                                    </div>
+                                                    <div class="comp-loc-sub-line">
+                                                        <span class="${hasSpecificRegion ? 'comp-loc-region' : 'comp-loc-sub-all'}">${regionText}</span>
+                                                    </div>
+                                                </div>
+                                                ${bonusBadge}
+                                            </div>
+                                        `;
+                                    }
+
+                                    return `
+                                        <div class="comp-location-card ${isZero ? 'zero-group' : ''}">
+                                            ${headerHtml}
+                                            <div class="comp-loc-stats">
+                                                <div class="comp-loc-stat">
+                                                    <span class="comp-loc-label">🏢 Companies</span>
+                                                    <span class="comp-loc-values">
+                                                        <strong>${loc.company_count.toLocaleString()}</strong>
+                                                        <span class="basing-pct">${locCompPct}%</span>
+                                                    </span>
+                                                </div>
+                                                <div class="comp-loc-stat">
+                                                    <span class="comp-loc-label">👷 Workers</span>
+                                                    <span class="comp-loc-values">
+                                                        <strong>${loc.worker_count.toLocaleString()}</strong>
+                                                        <span class="basing-pct">${locWorkerPct}%</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    } else {
+                        locationsContent = `<div style="text-align: center; color: var(--text-secondary); padding: 14px; font-size: 13px;">No active companies recorded for this product.</div>`;
+                    }
+
+                    rowHtml += `
+                        <tr class="comp-expanded-row">
+                            <td colspan="4" class="worker-expanded-cell">
+                                <div class="drawer-content-box">
+                                    ${locationsContent}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                return rowHtml;
+            }).join('');
+
+            // Bottom summary row
+            const bestCompShare = globalTotalComps > 0 ? ((globalBestComps / globalTotalComps) * 100).toFixed(1) : '0.0';
+            const bestWorkerShare = globalTotalWorkers > 0 ? ((globalBestWorkers / globalTotalWorkers) * 100).toFixed(1) : '0.0';
+            const othersCompShare = globalTotalComps > 0 ? ((globalOthersComps / globalTotalComps) * 100).toFixed(1) : '0.0';
+            const othersWorkerShare = globalTotalWorkers > 0 ? ((globalOthersWorkers / globalTotalWorkers) * 100).toFixed(1) : '0.0';
+
+            const summaryRowHtml = `
+                <tr class="comp-summary-row">
+                    <td>
+                        <span style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Total</span>
+                    </td>
+                    <td class="pp-col">
+                        <div class="basing-cell">
+                            <div class="basing-row">
+                                <div class="basing-val">
+                                    <span class="basing-icon">🏢</span>
+                                    <span class="basing-count">${globalBestComps.toLocaleString()}</span>
+                                </div>
+                                <span class="basing-pct">${bestCompShare}%</span>
+                            </div>
+                            <div class="basing-row">
+                                <div class="basing-val">
+                                    <span class="basing-icon">👷</span>
+                                    <span class="basing-count">${globalBestWorkers.toLocaleString()}</span>
+                                </div>
+                                <span class="basing-pct">${bestWorkerShare}%</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="pp-col">
+                        <div class="basing-cell">
+                            <div class="basing-row">
+                                <div class="basing-val">
+                                    <span class="basing-icon">🏢</span>
+                                    <span class="basing-count">${globalOthersComps.toLocaleString()}</span>
+                                </div>
+                                <span class="basing-pct">${othersCompShare}%</span>
+                            </div>
+                            <div class="basing-row">
+                                <div class="basing-val">
+                                    <span class="basing-icon">👷</span>
+                                    <span class="basing-count">${globalOthersWorkers.toLocaleString()}</span>
+                                </div>
+                                <span class="basing-pct">${othersWorkerShare}%</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="pp-col">
+                        <div class="basing-cell">
+                            <div class="basing-row">
+                                <div class="basing-val">
+                                    <span class="basing-icon">🏢</span>
+                                    <span class="basing-count">${globalTotalComps.toLocaleString()}</span>
+                                </div>
+                                <span class="basing-pct">100.0%</span>
+                            </div>
+                            <div class="basing-row">
+                                <div class="basing-val">
+                                    <span class="basing-icon">👷</span>
+                                    <span class="basing-count">${globalTotalWorkers.toLocaleString()}</span>
+                                </div>
+                                <span class="basing-pct">100.0%</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            tbody.innerHTML = rowsHtml + summaryRowHtml;
+
+            equalizeColumnWidths();
+        }
+
+        function handleSort(col) {
+            currentSort.dir = (currentSort.col === col && currentSort.dir === 'desc') ? 'asc' : 'desc';
+            currentSort.col = col;
+            updateSortLabel();
+            renderTable();
+        }
+
+        function handleCompSort(col) {
+            currentCompSort.dir = (currentCompSort.col === col && currentCompSort.dir === 'desc') ? 'asc' : 'desc';
+            currentCompSort.col = col;
+            updateCompSortLabel();
+            renderCompTable();
+        }
+
+        function updateSortLabel() {
+            const labels = { 'min_pp': 'Min ₿/PP', 'avg_pp': 'Avg ₿/PP', 'max_pp': 'Max ₿/PP', 'item': 'Product' };
+            let text = labels[currentSort.col] || currentSort.col;
+            text += currentSort.dir === 'asc' ? ' ↑' : ' ↓';
+            const el = document.getElementById('currentSortLabel');
+            if (el) el.textContent = text;
+        }
+
+        function updateCompSortLabel() {
+            let labels = { 'comp_best_count': 'Best Regions', 'comp_others_count': 'Other Regions', 'comp_total_count': 'Total' };
+            if (window.innerWidth <= 768) {
+                labels = { 'comp_best_count': 'Best', 'comp_others_count': 'Others', 'comp_total_count': 'Total' };
+            }
+            let text = (labels[currentCompSort.col] || 'Count');
+            text += currentCompSort.dir === 'asc' ? ' ↑' : ' ↓';
+            const el = document.getElementById('currentCompSortLabel');
+            if (el) el.textContent = text;
+        }
+
+        // --- WORKERS TABLE LOGIC ---
+
+        function handleWorkerSort(col) {
+            currentWorkerSort.dir = (currentWorkerSort.col === col && currentWorkerSort.dir === 'desc') ? 'asc' : 'desc';
+            currentWorkerSort.col = col;
+            updateWorkerSortLabel();
+            renderWorkersTable();
+        }
+
+        function updateWorkerSortLabel() {
+            const labelsMap = { 'min_pp': 'Min ₿/PP', 'avg_pp': 'Avg ₿/PP', 'max_pp': 'Max ₿/PP' };
+            let text = labelsMap[currentWorkerSort.col] || currentWorkerSort.col;
+            text += currentWorkerSort.dir === 'asc' ? ' ↑' : ' ↓';
+            const el = document.getElementById('currentWorkerSortLabel');
+            if (el) el.textContent = text;
+        }
+
+        function toggleWorkerFidelitySort() {
+            const cb = document.getElementById('workerFidelitySort');
+            workerSortByFidelity = cb ? cb.checked : false;
+            updateWorkerSortLabel();
+            renderWorkersTable();
+        }
+
+        function toggleWorkerExpand(itemCode) {
+            if (expandedWorkerItems.has(itemCode)) {
+                expandedWorkerItems.delete(itemCode);
+            } else {
+                expandedWorkerItems.add(itemCode);
+            }
+            renderWorkersTable();
+        }
+
+        function getWorkerMetric(loc, col, useFidelity) {
+            if (!loc) return -999;
+            if (useFidelity) {
+                return loc[col + '_f10'] !== undefined ? loc[col + '_f10'] : (loc[col] !== undefined ? loc[col] : -999);
+            }
+            return loc[col] !== undefined ? loc[col] : -999;
+        }
+
+        function renderWorkerPPCell(loc, metric) {
+            if (!loc) return '<div class="pp-cell"><span class="pp-main">-</span></div>';
+            const val = loc[metric];
+            const val10 = loc[metric + '_f10'];
+
+            const isValPos = val > 0;
+            const valColor = isValPos ? '#38a169' : (val < 0 ? '#fc8181' : 'inherit');
+            const valPrefix = isValPos ? '+' : '';
+
+            const isVal10Pos = val10 > 0;
+            const val10Color = isVal10Pos ? '#38a169' : (val10 < 0 ? '#fc8181' : 'inherit');
+            const val10Prefix = isVal10Pos ? '+' : '';
+
+            return `
+                <div class="pp-cell">
+                    <span class="pp-main" style="color: ${valColor}; font-weight: ${workerSortByFidelity ? 'normal' : (isValPos ? '600' : 'normal')};">${valPrefix}${val.toFixed(3)}</span>
+                    <span class="pp-sub">
+                        <span class="fidelity-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"></path></svg>
+                        </span>
+                        <span style="color: ${val10Color}; font-weight: ${workerSortByFidelity ? '600' : 'normal'};">${val10Prefix}${val10.toFixed(3)}</span>
+                    </span>
+                </div>
+            `;
+        }
+
+
+        function renderWorkersTable() {
+            const tbody = document.getElementById('workersTableBody');
+            if (!tbody) return;
+
+            const wageEl = document.getElementById('marketWageDisplay');
+            if (wageEl && workersData && workersData.market_wage) {
+                wageEl.textContent = `${workersData.market_wage.avg_wage_after_tax.toFixed(3)} ₿/PP`;
+            }
+            const faqWageEl = document.getElementById('faqMarketWage');
+            if (faqWageEl && workersData && workersData.market_wage) {
+                faqWageEl.textContent = `${workersData.market_wage.avg_wage_after_tax.toFixed(3)} ₿/PP`;
+            }
+
+            const itemsMap = (workersData && workersData.items) || {};
+
+            // Prepare list of items with their sorted locations
+            const rowsData = tableData.map(row => {
+                const itemCode = row.item;
+                const rawLocs = [...(itemsMap[itemCode] || [])];
+
+                // Sort candidate locations for this item by currentWorkerSort.col desc
+                rawLocs.sort((a, b) => {
+                    const v1 = getWorkerMetric(a, currentWorkerSort.col, workerSortByFidelity);
+                    const v2 = getWorkerMetric(b, currentWorkerSort.col, workerSortByFidelity);
+                    return v2 - v1; // Best location first
+                });
+
+                const topLoc = rawLocs[0] || null;
+                const topVal = getWorkerMetric(topLoc, currentWorkerSort.col, workerSortByFidelity);
+
+                return {
+                    row,
+                    itemCode,
+                    locs: rawLocs,
+                    topLoc,
+                    topVal
+                };
+            });
+
+            // Sort products by their Top-1 location's active metric
+            rowsData.sort((a, b) => {
+                const v1 = a.topVal;
+                const v2 = b.topVal;
+                return currentWorkerSort.dir === 'asc' ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
+            });
+
+            // Update FAQ Live Calculation Example from Top 1 product
+            if (rowsData.length > 0 && rowsData[0].topLoc) {
+                const topItem = rowsData[0];
+                const topL = topItem.topLoc;
+                const mWage = (workersData && workersData.market_wage) ? workersData.market_wage.avg_wage_after_tax : 0.143;
+                const exItemEl = document.getElementById('faqExItem');
+                const exLocEl = document.getElementById('faqExLoc');
+                const exGrossEl = document.getElementById('faqExGross');
+                const exTaxRateEl = document.getElementById('faqExTaxRate');
+                const exTaxValEl = document.getElementById('faqExTaxVal');
+                const exWageEl = document.getElementById('faqExWage');
+                const exNetEl = document.getElementById('faqExNet');
+                const exNet10El = document.getElementById('faqExNet10');
+
+                if (exItemEl) exItemEl.textContent = topItem.row.pretty_name;
+                if (exLocEl) exLocEl.textContent = `#1 ${topL.region_name}, ${topL.country_name} • +${topL.total_bonus}% bonus • ${topL.tax_percent}% tax`;
+                const taxRate = Math.min(Math.max((topL.tax_percent || 0) / 100, 0), 0.99);
+                const gWage = topL.gross_wage !== undefined ? topL.gross_wage : (taxRate < 1 ? (mWage / (1 - taxRate)) : mWage);
+                const taxAmt = Number((topL.wage_tax !== undefined ? topL.wage_tax : (gWage - mWage)).toFixed(3));
+                const pMin = Number((topL.prod_min_pp !== undefined ? topL.prod_min_pp : (topL.min_pp + gWage)).toFixed(3));
+                const net0 = Number((pMin - mWage - taxAmt).toFixed(3));
+
+                if (exGrossEl) exGrossEl.textContent = `${pMin.toFixed(3)} ₿`;
+                if (exTaxRateEl) exTaxRateEl.textContent = `${topL.tax_percent}`;
+                if (exTaxValEl) exTaxValEl.textContent = `-${taxAmt.toFixed(3)} ₿`;
+                if (exWageEl) exWageEl.textContent = `-${mWage.toFixed(3)} ₿`;
+                if (exNetEl) {
+                    const netPref = net0 >= 0 ? '+' : '';
+                    exNetEl.textContent = `${netPref}${net0.toFixed(3)} ₿/PP`;
+                    exNetEl.style.color = net0 >= 0 ? '#68d391' : '#fc8181';
+                }
+                if (exNet10El) {
+                    const net10Val = topL.min_pp_f10 !== undefined ? topL.min_pp_f10 : (net0 + 0.015);
+                    const net10Pref = net10Val >= 0 ? '+' : '';
+                    exNet10El.textContent = `${net10Pref}${net10Val.toFixed(3)} ₿/PP`;
+                    exNet10El.style.color = net10Val >= 0 ? '#68d391' : '#fc8181';
+                }
+            }
+
+            let html = '';
+            rowsData.forEach(({ row, itemCode, locs, topLoc }) => {
+                if (!topLoc) return;
+
+                const isExpanded = expandedWorkerItems.has(itemCode);
+
+                const bonusText = Number(topLoc.total_bonus.toFixed(2));
+                const bonusBadge = `
+                    <div class="bonus-badge">
+                        <div style="display: flex; align-items: center; margin-right: 2px;">
+                            <svg style="width: 1.1em; height: 1.1em;" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14.79,10.62L3.5,21.9L2.1,20.5L13.38,9.21L14.79,10.62M19.27,7.73L19.86,7.14L19.07,6.35L19.71,5.71L18.29,4.29L17.65,4.93L16.86,4.14L16.27,4.73C14.53,3.31 12.57,2.17 10.47,1.37L9.64,3.16C11.39,4.08 13,5.19 14.5,6.5L14,7L17,10L17.5,9.5C18.81,11 19.92,12.61 20.84,14.36L22.63,13.53C21.83,11.43 20.69,9.47 19.27,7.73Z"></path>
+                            </svg>
+                        </div>
+                        <span>+${bonusText}%</span>
+                    </div>
+                `;
+
+                const depositInfo = getDepositBadge(topLoc.deposit_ends_at);
+
+                let displayName = row.pretty_name;
+                if (window.innerWidth <= 768) {
+                    displayName = itemShortNames[row.item] || row.pretty_name;
+                }
+
+                // Main Row
+                html += `
+                    <tr class="worker-row-clickable" onclick="toggleWorkerExpand('${itemCode}')">
+                        <td>
+                            <div class="item-cell">
+                                <span class="worker-expand-icon ${isExpanded ? 'open' : ''}">▶</span>
+                                ${getIcon(row.item)}
+                                <div class="item-content">
+                                    <span class="item-name">${displayName}</span>
+                                    <div class="item-meta">
+                                        ${depositInfo}
+                                        ${bonusBadge}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="pp-col">${renderWorkerPPCell(topLoc, 'min_pp')}</td>
+                        ${/* <td class="pp-col">${renderWorkerPPCell(topLoc, 'avg_pp')}</td> */ ''}
+                        <td class="pp-col">${renderWorkerPPCell(topLoc, 'max_pp')}</td>
+                    </tr>
+                `;
+
+                // Expanded sub-row (if toggled)
+                if (isExpanded) {
+                    const profitableLocs = locs.filter(l => (l.min_pp_f10 !== undefined ? l.min_pp_f10 : l.min_pp) >= 0);
+                    const locsToShow = profitableLocs.length > 0 ? profitableLocs : [topLoc];
+                    const mWage = (workersData && workersData.market_wage) ? workersData.market_wage.avg_wage_after_tax : 0.143;
+
+                    html += `
+                        <tr class="worker-expanded-row">
+                            <td colspan="3" class="worker-expanded-cell">
+                                <div class="worker-cards-list">
+                                    ${locsToShow.map((l, idx) => {
+                                        const taxRate = Math.min(Math.max((l.tax_percent || 0) / 100, 0), 0.99);
+                                        const gWage = l.gross_wage !== undefined ? l.gross_wage : (taxRate < 1 ? (mWage / (1 - taxRate)) : mWage);
+                                        const taxAmt = Number((l.wage_tax !== undefined ? l.wage_tax : (gWage - mWage)).toFixed(3));
+
+                                        const prodMin = Number((l.prod_min_pp !== undefined ? l.prod_min_pp : (l.min_pp + gWage)).toFixed(3));
+                                        const prodMin5 = Number((l.prod_min_pp_f5 !== undefined ? l.prod_min_pp_f5 : (l.min_pp_f5 + gWage)).toFixed(3));
+                                        const prodMin10 = Number((l.prod_min_pp_f10 !== undefined ? l.prod_min_pp_f10 : (l.min_pp_f10 + gWage)).toFixed(3));
+
+                                        const netMin = Number((prodMin - mWage - taxAmt).toFixed(3));
+                                        const netMin5 = Number((prodMin5 - mWage - taxAmt).toFixed(3));
+                                        const netMin10 = Number((prodMin10 - mWage - taxAmt).toFixed(3));
+
+                                        const prodMax = Number((l.prod_max_pp !== undefined ? l.prod_max_pp : (l.max_pp + gWage)).toFixed(3));
+                                        const prodMax5 = Number((l.prod_max_pp_f5 !== undefined ? l.prod_max_pp_f5 : (l.max_pp_f5 + gWage)).toFixed(3));
+                                        const prodMax10 = Number((l.prod_max_pp_f10 !== undefined ? l.prod_max_pp_f10 : (l.max_pp_f10 + gWage)).toFixed(3));
+
+                                        const netMax = Number((prodMax - mWage - taxAmt).toFixed(3));
+                                        const netMax5 = Number((prodMax5 - mWage - taxAmt).toFixed(3));
+                                        const netMax10 = Number((prodMax10 - mWage - taxAmt).toFixed(3));
+
+                                        const netColor = (val) => val >= 0 ? '#38a169' : '#fc8181';
+                                        const sign = (val) => val >= 0 ? '+' : '';
+
+                                        return `
+                                            <div class="worker-card">
+                                                <div class="worker-card-header">
+                                                    <span class="worker-card-rank" style="color: ${idx === 0 ? 'var(--rank-gold)' : 'var(--text-secondary)'};">#${idx + 1}</span>
+                                                    <span class="worker-card-loc"><span class="loc-reg">${l.region_name}</span>, <strong class="loc-ctr">${l.country_name}</strong></span>
+                                                    <span class="worker-card-bonus">+${l.total_bonus}% Bonus</span>
+                                                    <span class="worker-card-tax">${l.tax_percent}% Tax</span>
+                                                    ${getDepositBadge(l.deposit_ends_at)}
+                                                </div>
+                                                <div class="worker-calc-grid">
+                                                    <div class="worker-calc-box">
+                                                        <div class="worker-calc-title">Min ₿/PP</div>
+                                                        <div class="worker-calc-line">
+                                                            <span class="w-tier">0% Fidelity:</span>
+                                                            <span class="w-math">${prodMin.toFixed(3)} - ${mWage.toFixed(3)} - ${taxAmt.toFixed(3)} = <strong style="color: ${netColor(netMin)};">${sign(netMin)}${netMin.toFixed(3)}</strong></span>
+                                                        </div>
+                                                        <div class="worker-calc-line">
+                                                            <span class="w-tier">5% Fidelity:</span>
+                                                            <span class="w-math">${prodMin5.toFixed(3)} - ${mWage.toFixed(3)} - ${taxAmt.toFixed(3)} = <strong style="color: ${netColor(netMin5)};">${sign(netMin5)}${netMin5.toFixed(3)}</strong></span>
+                                                        </div>
+                                                        <div class="worker-calc-line">
+                                                            <span class="w-tier">10% Fidelity:</span>
+                                                            <span class="w-math">${prodMin10.toFixed(3)} - ${mWage.toFixed(3)} - ${taxAmt.toFixed(3)} = <strong style="color: ${netColor(netMin10)};">${sign(netMin10)}${netMin10.toFixed(3)}</strong></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="worker-calc-box">
+                                                        <div class="worker-calc-title">Max ₿/PP</div>
+                                                        <div class="worker-calc-line">
+                                                            <span class="w-tier">0% Fidelity:</span>
+                                                            <span class="w-math">${prodMax.toFixed(3)} - ${mWage.toFixed(3)} - ${taxAmt.toFixed(3)} = <strong style="color: ${netColor(netMax)};">${sign(netMax)}${netMax.toFixed(3)}</strong></span>
+                                                        </div>
+                                                        <div class="worker-calc-line">
+                                                            <span class="w-tier">5% Fidelity:</span>
+                                                            <span class="w-math">${prodMax5.toFixed(3)} - ${mWage.toFixed(3)} - ${taxAmt.toFixed(3)} = <strong style="color: ${netColor(netMax5)};">${sign(netMax5)}${netMax5.toFixed(3)}</strong></span>
+                                                        </div>
+                                                        <div class="worker-calc-line">
+                                                            <span class="w-tier">10% Fidelity:</span>
+                                                            <span class="w-math">${prodMax10.toFixed(3)} - ${mWage.toFixed(3)} - ${taxAmt.toFixed(3)} = <strong style="color: ${netColor(netMax10)};">${sign(netMax10)}${netMax10.toFixed(3)}</strong></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            tbody.innerHTML = html;
+            setupTooltips();
+            equalizeColumnWidths();
+        }
+
+        function setupTooltips() {
+            if (window.innerWidth <= 768) return; // Tooltips only on desktop Profitability
+
+            if (!window.tooltipDismissHandlerBound) {
+                window.tooltipDismissHandlerBound = true;
+                document.addEventListener('click', event => {
+                    if (!event.target.closest('.tooltip')) {
+                        document.querySelectorAll('.tooltip.tooltip-active').forEach(active => {
+                            active.classList.remove('tooltip-active');
+                        });
+                    }
+                });
+            }
+
+            document.querySelectorAll('#profitability .tooltip').forEach(el => {
+                const positionTooltip = () => {
+                    const t = el.querySelector('.tooltiptext');
+                    if (!t) return;
+
+                    t.style.visibility = 'visible'; // Make it visible to measure width
+                    const r = el.getBoundingClientRect();
+                    const tooltipWidth = t.offsetWidth;
+                    t.style.visibility = ''; // Reset visibility
+
+                    let left = r.left + (r.width / 2) - (tooltipWidth / 2);
+                    if (left < 10) left = 10;
+                    if (left + tooltipWidth > window.innerWidth - 10) left = window.innerWidth - tooltipWidth - 10;
+
+                    let top = r.top - t.offsetHeight - 10;
+                    if (top < 10) top = r.bottom + 10;
+                    if (top + t.offsetHeight > window.innerHeight) top = window.innerHeight - t.offsetHeight - 10;
+
+                    t.style.left = left + 'px';
+                    t.style.top = top + 'px';
+                };
+
+                el.onmouseenter = positionTooltip;
+            });
+        }
+
+        function equalizeColumnWidths() {
+            // Widths are stably locked via CSS table-layout: fixed to prevent reflow jumping.
+        }
+
+        // --- CHART LOGIC ---
+        let timeFilterHours = 24; // Default 24 Hours
+
+        function setPeriod(hours) {
+            timeFilterHours = hours;
+
+            // Update active button
+            // Sync all three sets of buttons
+            document.querySelectorAll('#timeControls button, #compTimeControls button, #workerTimeControls button').forEach(b => b.classList.remove('active'));
+
+            const btnId = hours === 0 ? 'btn0' : 'btn' + hours;
+            const compBtnId = hours === 0 ? 'btn0_comp' : 'btn' + hours + '_comp';
+            const workerBtnId = hours === 0 ? 'btn0_worker' : 'btn' + hours + '_worker';
+
+            const btn1 = document.getElementById(btnId);
+            const btn2 = document.getElementById(compBtnId);
+            const btn3 = document.getElementById(workerBtnId);
+            if (btn1) btn1.classList.add('active');
+            if (btn2) btn2.classList.add('active');
+            if (btn3) btn3.classList.add('active');
+
+            renderMainChart();
+            updateCompChart();
+            renderWorkerChart();
+            if (document.getElementById('chartModal').style.display === 'block') {
+                // If modal is open, refresh it too (we need to know which item was opened)
+                // For simplicity, we just close it or let user reopen. 
+                // Ideally, store currentModalItem and refresh.
+            }
+        }
+
+
+        function toggleAll(canvasId) {
+            const chart = chartInstances[canvasId];
+            if (!chart) return;
+
+            let allHidden = true;
+            for (let i = 0; i < chart.data.datasets.length; i++) {
+                if (chart.isDatasetVisible(i)) {
+                    allHidden = false;
+                    break;
+                }
+            }
+
+            chart.data.datasets.forEach((ds, i) => {
+                ds.hidden = !allHidden;
+                const meta = chart.getDatasetMeta(i);
+                if (meta) meta.hidden = !allHidden ? true : null;
+            });
+            chart.update();
+            generateCustomLegend(canvasId, chart);
+        }
+
+
+        function getFilteredData(row, metric, isComp = false, isWorker = false) {
+            const allLabels = isWorker ? (row.worker_labels || []) : (isComp ? (row.comp_labels || []) : (row.labels || []));
+            const historyObj = isWorker ? (row.worker_history || {}) : (isComp ? (row.comp_history || {}) : (row.history || {}));
+
+            let targetMetric = metric;
+            if (isWorker && typeof currentWorkerFidelity !== 'undefined' && currentWorkerFidelity > 0) {
+                targetMetric = `${metric}_f${currentWorkerFidelity}`;
+            }
+            const rawData = historyObj[targetMetric] || [];
+            let allData = rawData;
+            if (isWorker && rawData.length < allLabels.length) {
+                allData = new Array(allLabels.length - rawData.length).fill(null).concat(rawData);
+            }
+
+            // 1. Filter by time range
+            let startIndex = 0;
+            if (timeFilterHours > 0) {
+                const cutoff = Date.now() / 1000 - (timeFilterHours * 3600);
+                startIndex = allLabels.findIndex(t => t >= cutoff);
+                if (startIndex === -1) return { labels: [], data: [] };
+            }
+
+            const filteredLabels = allLabels.slice(startIndex);
+            const filteredData = allData.slice(startIndex);
+
+            // 2. Determine aggregation interval
+            let intervalSeconds = 0;
+            if (timeFilterHours === 24) intervalSeconds = 3600;
+            else if (timeFilterHours === 72) intervalSeconds = 3 * 3600;
+            else if (timeFilterHours === 168) intervalSeconds = 7 * 3600;
+            else if (timeFilterHours === 0) intervalSeconds = 12 * 3600;
+
+            if (intervalSeconds === 0 || filteredLabels.length === 0) {
+                return { labels: filteredLabels, data: filteredData };
+            }
+
+            // 3. Aggregate
+            const aggLabels = [];
+            const aggData = [];
+            let bucketStartTime = filteredLabels[0];
+            let sum = 0;
+            let count = 0;
+
+            for (let i = 0; i < filteredLabels.length; i++) {
+                const value = filteredData[i];
+                if (filteredLabels[i] < bucketStartTime + intervalSeconds) {
+                    // Null represents a historical zero placeholder. It is
+                    // intentionally excluded so missing samples cannot pull a
+                    // bucket average down or appear as a chart value.
+                    if (value !== null && value !== undefined) {
+                        sum += value;
+                        count++;
+                    }
+                } else {
+                    aggLabels.push(bucketStartTime);
+                    let val = count > 0 ? sum / count : null;
+                    if (isComp && val !== null) val = Math.round(val);
+                    else if (isWorker && val !== null) val = Number(val.toFixed(4));
+                    aggData.push(val);
+                    bucketStartTime = filteredLabels[i];
+                    sum = value !== null && value !== undefined ? value : 0;
+                    count = value !== null && value !== undefined ? 1 : 0;
+                }
+            }
+            aggLabels.push(bucketStartTime);
+            let val = count > 0 ? sum / count : null;
+            if (isComp && val !== null) val = Math.round(val);
+            else if (isWorker && val !== null) val = Number(val.toFixed(4));
+            aggData.push(val);
+
+            return {
+                labels: aggLabels,
+                data: aggData
+            };
+        }
+
+        function formatLabels(timestamps) {
+            return timestamps.map(ts => {
+                if (typeof ts === 'string') return ts;
+                const date = new Date(ts * 1000);
+
+                if (timeFilterHours === 24) {
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                }
+
+                const d = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const t = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                return `${d}, ${t}`;
+            });
+        }
+
+        function toggleWorkersSort() {
+            sortByWorkers = document.getElementById('workersSort').checked;
+            updateCompSortLabel();
+            renderCompTable();
+        }
+
+        function setCompChartMetric(metricType) {
+            currentCompChartMetric = metricType;
+            const btnCount = document.getElementById('btn_comp_metric_count');
+            const btnWorkers = document.getElementById('btn_comp_metric_workers');
+            if (btnCount) btnCount.classList.toggle('active', metricType === 'count');
+            if (btnWorkers) btnWorkers.classList.toggle('active', metricType === 'workers');
+            updateCompChart();
+        }
+
+        function updateCompChart() {
+            createChart('compChart', `comp_total_${currentCompChartMetric}`, '', true);
+        }
+
+        function generateCustomLegend(canvasId, chart) {
+            const legendContainer = document.getElementById(canvasId + '-legend');
+            legendContainer.innerHTML = '';
+
+            // Helper to find dataset by item code
+            const findDatasetIndex = (code) => chart.data.datasets.findIndex(ds => ds.itemCode === code);
+
+            // Iterate defined groups
+            for (const [groupName, items] of Object.entries(productionLines)) {
+                // Check if any item in this group exists in chart
+                const groupIndices = items.map(findDatasetIndex).filter(i => i !== -1);
+                if (groupIndices.length === 0) continue;
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'legend-group' + (groupIndices.length > 2 ? ' legend-group--multi-column' : '');
+
+                // Check if all items in this group are hidden
+                const allGroupHidden = groupIndices.every(idx => {
+                    const meta = chart.getDatasetMeta(idx);
+                    return meta.hidden === null ? chart.data.datasets[idx].hidden : meta.hidden;
+                });
+
+                // Group Header (Toggle All in Group)
+                const header = document.createElement('div');
+                header.className = 'legend-group-header';
+                header.innerText = groupName;
+                if (allGroupHidden) {
+                    header.style.opacity = '0.5';
+                    header.style.textDecoration = 'line-through';
+                }
+
+                header.onclick = () => {
+                    // Determine if we are hiding or showing based on group state
+                    const newState = !allGroupHidden; // Toggle
+
+                    groupIndices.forEach(idx => {
+                        chart.getDatasetMeta(idx).hidden = newState ? true : null;
+                        chart.data.datasets[idx].hidden = newState;
+                    });
+                    chart.update();
+                    generateCustomLegend(canvasId, chart); // Re-render legend to update styles
+                };
+                groupDiv.appendChild(header);
+
+                const itemsContainer = document.createElement('div');
+                itemsContainer.className = 'legend-group-items';
+
+                // Items
+                groupIndices.forEach(idx => {
+                    const ds = chart.data.datasets[idx];
+                    const meta = chart.getDatasetMeta(idx);
+                    const isHidden = meta.hidden === null ? ds.hidden : meta.hidden;
+
+                    let label = ds.label;
+                    if (window.innerWidth <= 768) {
+                        label = itemShortNames[ds.itemCode] || label;
+                    }
+
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'legend-item' + (isHidden ? ' hidden' : '');
+                    itemDiv.onclick = () => {
+                        meta.hidden = isHidden ? null : true;
+                        ds.hidden = !isHidden;
+                        chart.update();
+                        generateCustomLegend(canvasId, chart);
+                    };
+
+                    itemDiv.innerHTML = `<span class="legend-color" style="background:${ds.backgroundColor}"></span>${label}`;
+                    itemsContainer.appendChild(itemDiv);
+                });
+
+                groupDiv.appendChild(itemsContainer);
+                legendContainer.appendChild(groupDiv);
+            }
+        }
+
+        const fallbackColors = [
+            '#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F',
+            '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC',
+            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+            '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+        ];
+
+        function createChart(canvasId, metric, title, isComp = false, isWorker = false) {
+            if (!tableData.length) return;
+
+            // 1. Cleanup Mobile Tooltip
+            if (mobileAnnotation) {
+                mobileAnnotation.remove();
+                mobileAnnotation = null;
+            }
+
+            const isMobile = window.innerWidth <= 768;
+            const ctx = document.getElementById(canvasId).getContext('2d');
+
+            // Helper for contrast text color
+            const getContrastYIQ = (hexcolor) => {
+                hexcolor = hexcolor.replace("#", "");
+                var r = parseInt(hexcolor.substr(0, 2), 16);
+                var g = parseInt(hexcolor.substr(2, 2), 16);
+                var b = parseInt(hexcolor.substr(4, 2), 16);
+                var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                return (yiq >= 128) ? 'black' : 'white';
+            };
+
+            // State for desktop hover optimization
+            let lastHoverX = null;
+            let lastTop3 = null;
+            // Custom Plugin to draw value labels on chart
+            const valueLabelPlugin = {
+                id: 'valueLabel',
+                afterDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    // Determine active points based on device type
+                    const activePoints = isMobile ? chart.clickedPoints : chart.hoverPoints;
+
+                    if (activePoints && activePoints.length) {
+                        // Prepare labels with collision detection
+                        let labels = [];
+                        activePoints.forEach(p => {
+                            const meta = chart.getDatasetMeta(p.datasetIndex);
+                            if (meta.hidden) return;
+
+                            const element = meta.data[p.index];
+                            if (!element) return; // Point might be clipped
+
+                            const ds = chart.data.datasets[p.datasetIndex];
+                            const value = ds.data[p.index];
+                            const valStr = isComp ? Math.round(value) : (isWorker ? (value > 0 ? '+' : '') + value.toFixed(3) : value.toFixed(3));
+
+                            labels.push({
+                                y: element.y,
+                                x: element.x,
+                                text: valStr,
+                                name: ds.label,
+                                color: ds.borderColor
+                            });
+                        });
+
+                        // Sort by Y to handle stacking (top to bottom)
+                        labels.sort((a, b) => a.y - b.y);
+
+                        // Prevent overlap - iterate backwards to push upper labels up
+                        for (let i = labels.length - 1; i > 0; i--) {
+                            const bottom = labels[i];
+                            const top = labels[i - 1];
+                            // Threshold adjusted for smaller badges
+                            if (bottom.y - top.y < 24) {
+                                top.y = bottom.y - 24;
+                            }
+                        }
+
+                        labels.forEach(l => {
+                            const padding = 2;
+                            ctx.font = 'bold 7px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            const nameWidth = ctx.measureText(l.name).width;
+                            ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            const valWidth = ctx.measureText(l.text).width;
+
+                            const contentWidth = Math.max(nameWidth, valWidth);
+                            const boxWidth = contentWidth + (padding * 2);
+                            const boxHeight = 22;
+                            const boxY = l.y - 15 - (boxHeight / 2); // Position above point
+
+                            // Draw Badge Background
+                            ctx.save();
+                            ctx.globalAlpha = 0.6;
+                            ctx.fillStyle = l.color;
+                            ctx.beginPath();
+                            ctx.roundRect(l.x - (boxWidth / 2), boxY, boxWidth, boxHeight, 2);
+                            ctx.fill();
+                            ctx.restore();
+
+                            // Draw Text
+                            ctx.fillStyle = getContrastYIQ(l.color);
+                            ctx.font = 'bold 7px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            ctx.fillText(l.name, l.x, boxY + 7);
+
+                            ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            ctx.fillText(l.text, l.x, boxY + 17);
+                        });
+                    }
+                    ctx.restore();
+                }
+            };
+            // 2. Preserve Hidden State & Destroy Old Chart
+            let hiddenState = {};
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].data.datasets.forEach((ds, i) => {
+                    const meta = chartInstances[canvasId].getDatasetMeta(i);
+                    hiddenState[ds.label] = meta.hidden !== null ? meta.hidden : ds.hidden;
+                });
+                chartInstances[canvasId].destroy();
+            }
+
+            // 3. Prepare Data
+            let chartLabels = [];
+            const datasets = tableData.map((row, index) => {
+                const filtered = getFilteredData(row, metric, isComp, isWorker);
+                if (index === 0) chartLabels = formatLabels(filtered.labels);
+
+                const color = itemColors[row.item] || fallbackColors[index % fallbackColors.length];
+
+                return {
+                    label: row.pretty_name,
+                    itemCode: row.item,
+                    data: filtered.data,
+                    borderColor: color,
+                    backgroundColor: color,
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: (filtered.data && filtered.data.filter(v => v !== null && v !== undefined).length <= 2) ? 4 : 0,
+                    pointHitRadius: 10,
+                    borderWidth: 2,
+                    hidden: hiddenState[row.pretty_name]
+                };
+            });
+
+            // 4. Chart Options (The Fresh Start)
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: { top: 50, left: 0, right: isMobile ? 20 : 40, bottom: 0 }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: { display: false }, // We use a custom HTML legend
+                    tooltip: { enabled: false } // Disable standard tooltip
+                },
+                onHover: (event, elements, chart) => {
+                    if (isMobile) return;
+
+                    // Desktop Logic: Find 3 nearest lines to cursor Y
+                    const points = chart.getElementsAtEventForMode(event, 'index', { intersect: false }, false);
+
+                    // Reset previous hover state
+                    chart.hoverPoints = [];
+                    chart.data.datasets.forEach(ds => {
+                        ds.pointRadius = 0;
+                        ds.pointHoverRadius = 0;
+                    });
+
+                    if (points.length > 0) {
+                        const cursorY = event.y;
+
+                        const distances = points.map(p => ({
+                            datasetIndex: p.datasetIndex,
+                            index: p.index,
+                            dist: Math.abs(p.element.y - cursorY)
+                        }));
+                        distances.sort((a, b) => a.dist - b.dist);
+                        const top3 = distances.slice(0, 3);
+
+                        chart.hoverPoints = top3;
+
+                        // Highlight specific points
+                        top3.forEach(p => {
+                            const ds = chart.data.datasets[p.datasetIndex];
+                            const radii = new Array(ds.data.length).fill(0);
+                            radii[p.index] = 5;
+                            ds.pointRadius = radii;
+                            ds.pointHoverRadius = 5;
+                        });
+                    }
+                    chart.update();
+                },
+                onClick: (event, elements, chart) => {
+                    if (!isMobile) return;
+
+                    // Mobile Logic: Custom Tooltip on Click
+                    // 1. Clear previous state completely
+                    if (mobileAnnotation) {
+                        mobileAnnotation.remove();
+                        mobileAnnotation = null;
+                    }
+                    chart.clickedPoints = [];
+
+                    // Force reset of all points to invisible
+                    chart.data.datasets.forEach(ds => {
+                        ds.pointRadius = 0;
+                        ds.pointHoverRadius = 0;
+                    });
+
+                    const points = chart.getElementsAtEventForMode(event, 'index', { intersect: false }, false);
+
+                    if (points.length > 0) {
+                        const clickY = event.y;
+                        const distances = points.map(p => ({
+                            datasetIndex: p.datasetIndex,
+                            index: p.index,
+                            dist: Math.abs(p.element.y - clickY)
+                        }));
+                        distances.sort((a, b) => a.dist - b.dist);
+                        const top3 = distances.slice(0, 3);
+
+                        chart.clickedPoints = top3;
+
+                        // Highlight top 3 points
+                        top3.forEach(p => {
+                            const ds = chart.data.datasets[p.datasetIndex];
+                            const radii = new Array(ds.data.length).fill(0);
+                            radii[p.index] = 5;
+                            ds.pointRadius = radii;
+                            ds.pointHoverRadius = 5;
+                        });
+                    }
+                    chart.update();
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: () => document.body.classList.contains('dark-mode') ? '#cbd5e0' : '#718096',
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 20
+                        },
+                        grid: {
+                            color: () => document.body.classList.contains('dark-mode') ? 'rgba(160, 174, 192, 0.2)' : 'rgba(226, 232, 240, 0.7)'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        beginAtZero: false,
+                        ticks: {
+                            color: () => document.body.classList.contains('dark-mode') ? '#cbd5e0' : '#718096',
+                            callback: function(val) { return isComp ? val : val.toFixed(3); }
+                        },
+                        grid: {
+                            color: () => document.body.classList.contains('dark-mode') ? 'rgba(160, 174, 192, 0.2)' : 'rgba(226, 232, 240, 0.7)'
+                        }
+                    }
+                }
+            };
+
+            // 5. Create Chart
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: { labels: chartLabels, datasets: datasets },
+                options: options,
+                plugins: [valueLabelPlugin]
+            });
+
+            // Initialize state arrays
+            chartInstances[canvasId].clickedPoints = [];
+            chartInstances[canvasId].hoverPoints = [];
+
+            generateCustomLegend(canvasId, chartInstances[canvasId]);
+        }
+
+        function renderMainChart() {
+            createChart('mainChart', currentMetric, '');
+        }
+
+        let currentWorkerMetric = 'min_pp';
+        let currentWorkerFidelity = 0;
+
+        function setWorkerChartMetric(metric) {
+            currentWorkerMetric = metric;
+            ['min_pp', 'avg_pp', 'max_pp'].forEach(m => {
+                const btn = document.getElementById('btn_worker_' + m);
+                if (btn) btn.classList.toggle('active', m === metric);
+            });
+            renderWorkerChart();
+        }
+
+        function setWorkerChartFidelity(tier) {
+            currentWorkerFidelity = Number(tier);
+            [0, 5, 10].forEach(t => {
+                const btn = document.getElementById('btn_worker_f' + t);
+                if (btn) btn.classList.toggle('active', t === currentWorkerFidelity);
+            });
+            renderWorkerChart();
+        }
+
+        function renderWorkerChart() {
+            createChart('workerChart', currentWorkerMetric, '', false, true);
+        }
+        // Sync fidelity sort state on page load in case of browser cache
+        sortByFidelity = document.getElementById('fidelitySort') ? document.getElementById('fidelitySort').checked : false;
+        sortByWorkers = document.getElementById('workersSort') ? document.getElementById('workersSort').checked : false;
+        workerSortByFidelity = document.getElementById('workerFidelitySort') ? document.getElementById('workerFidelitySort').checked : false;
+
+        updateSortLabel();
+        updateCompSortLabel();
+        updateWorkerSortLabel();
+        setMetric('min_pp'); // Set initial title
+
+        window.addEventListener('resize', () => {
+            renderTable();
+            renderCompTable();
+            renderWorkersTable();
+            renderMainChart();
+            updateCompChart();
+            renderWorkerChart();
+            equalizeColumnWidths();
+        });
+
+        // Restore active tab
+        const savedTab = localStorage.getItem('activeTab');
+        if (savedTab) {
+            const btn = document.querySelector(`.tab-btn[onclick*="${savedTab}"]`);
+            if (btn) switchTab(savedTab, btn);
+        }
+
+        renderTable();
+        renderCompTable();
+        renderWorkersTable();
+        renderMainChart();
+        updateCompChart(); // Init comp chart
+        renderWorkerChart(); // Init worker chart
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,21 @@
+create_api_schema.py
+api_doc.json
+warera_full_schema.json
+count_companies.py
+get_rec_region.py
+.aiexclude
+get_user_companies.py
+get_user_info.py
+new_concept_metric.txt
+__pycache__/
+*.pyc
+.venv/
+
+# Data files and compiled site (stored and updated on 'data' branch)
+history.json
+history_companies.json
+history_workers.json
+latest_market.json
+latest_companies.json
+latest_workers.json
+public/

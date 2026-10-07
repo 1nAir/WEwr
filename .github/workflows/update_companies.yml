@@ -1,0 +1,62 @@
+name: Update Company Basing
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: warera-api-lock
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout repository code (main)
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 1
+
+    - name: Checkout data branch
+      uses: actions/checkout@v4
+      with:
+        ref: data
+        path: data_store
+        fetch-depth: 1
+
+    - name: Copy existing data for analysis
+      run: cp -f data_store/*.json . 2>/dev/null || true
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Execute company basing scraper
+      env:
+        WEALTHRATE1: ${{ secrets.WEALTHRATE1 }}
+        WEALTHRATE2: ${{ secrets.WEALTHRATE2 }}
+        WEALTHRATE3: ${{ secrets.WEALTHRATE3 }}
+      run: python main.py --task companies
+
+    - name: Commit and push results to data branch
+      run: |
+        cp -f latest_companies.json history_companies.json data_store/
+        cd data_store
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add latest_companies.json history_companies.json
+        if ! git diff --staged --quiet; then
+          git commit -m "chore(companies): update company basing stats"
+          git pull --rebase origin data
+          git push origin data
+        fi
