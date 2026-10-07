@@ -63,3 +63,8 @@ jobs:
           git pull --rebase origin data
           git push origin data
         fi
+
+    - name: Trigger Vercel Deploy Hook
+      run: |
+        curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+
