@@ -39,6 +39,9 @@ class ReportGenerator:
         workers_snapshot: dict[str, Any] | None = None,
         workers_timestamp: int | None = None,
         workers_history: dict[str, Any] | None = None,
+        depth_snapshot: dict[str, Any] | None = None,
+        depth_timestamp: int | None = None,
+        depth_history: dict[str, Any] | None = None,
     ):
         """Builds the index.html file."""
         print("Generating HTML report...")
@@ -58,6 +61,11 @@ class ReportGenerator:
         w_ts = (
             workers_timestamp
             or (workers_history and workers_history.get("labels") and workers_history["labels"][-1])
+            or m_ts
+        )
+        d_ts = (
+            depth_timestamp
+            or (depth_history and depth_history.get("labels") and depth_history["labels"][-1])
             or m_ts
         )
 
@@ -83,6 +91,17 @@ class ReportGenerator:
                 if workers_history and "items" in workers_history
                 else {}
             )
+            # Depth history and snapshot
+            item_depth_history = (
+                depth_history["items"].get(item_code, {})
+                if depth_history and "items" in depth_history
+                else {}
+            )
+            item_depth_data = (
+                depth_snapshot.get(item_code, {})
+                if depth_snapshot
+                else {}
+            )
 
             row = {
                 "item": item_code,
@@ -91,10 +110,13 @@ class ReportGenerator:
                 "history": item_history,
                 "comp_history": item_comp_history,
                 "worker_history": item_worker_history,
+                "depth_history": item_depth_history,
+                "depth_data": item_depth_data,
                 "labels": history.get("labels", []),  # Using labels (Unix timestamps)
                 "comp_labels": comp_history.get("labels", []),
                 "worker_labels": workers_history.get("labels", []) if workers_history else [],
                 "worker_wages": workers_history.get("wages", []) if workers_history else [],
+                "depth_labels": depth_history.get("labels", []) if depth_history else [],
             }
             tax = metrics.get("tax_percent")
             if (tax is None or tax == 0) and workers_snapshot and "items" in workers_snapshot:
@@ -113,6 +135,8 @@ class ReportGenerator:
         # Serialize data for JS injection
         table_data_json = json.dumps(table_data)
         workers_data_json = json.dumps(workers_snapshot or {})
+        depth_data_json = json.dumps(depth_snapshot or {})
+        depth_history_json = json.dumps(depth_history or {})
         metric_labels_json = json.dumps(config.METRIC_LABELS)
         item_colors_json = json.dumps(config.ITEM_COLORS)
         item_short_names_json = json.dumps(config.ITEM_SHORT_NAMES)
@@ -121,6 +145,8 @@ class ReportGenerator:
         full_html = html_templates.get_base_template(
             table_data_json=table_data_json,
             workers_data_json=workers_data_json,
+            depth_data_json=depth_data_json,
+            depth_history_json=depth_history_json,
             metric_labels_json=metric_labels_json,
             item_colors_json=item_colors_json,
             item_short_names_json=item_short_names_json,
@@ -129,6 +155,7 @@ class ReportGenerator:
             market_timestamp=m_ts,
             comp_timestamp=c_ts,
             workers_timestamp=w_ts,
+            depth_timestamp=d_ts,
         )
 
         os.makedirs(os.path.dirname(config.OUTPUT_HTML), exist_ok=True)

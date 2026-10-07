@@ -12,10 +12,6 @@ __pycache__/
 .venv/
 
 # Data files and compiled site (stored and updated on 'data' branch)
-history.json
-history_companies.json
-history_workers.json
-latest_market.json
-latest_companies.json
-latest_workers.json
+*.json
+!vercel.json
 public/

@@ -162,6 +162,7 @@
 
         .tabs-nav {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
             margin-bottom: 0;
@@ -1148,6 +1149,603 @@
             font-weight: 500;
         }
 
+        /* Market Depth Tab Styles */
+        .depth-top-sellers-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 360px;
+        }
+
+        .depth-seller-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            padding: 2px 7px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background: var(--button-bg);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .depth-seller-pill.rank-1 {
+            border-color: rgba(245, 158, 11, 0.5);
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .depth-seller-pill.rank-2 {
+            border-color: rgba(156, 163, 175, 0.45);
+            background: rgba(156, 163, 175, 0.08);
+        }
+
+        .depth-seller-pill.rank-3 {
+            border-color: rgba(217, 119, 6, 0.4);
+            background: rgba(217, 119, 6, 0.06);
+        }
+
+        .depth-seller-pill .medal {
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .depth-seller-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .depth-seller-link:hover {
+            opacity: 0.85;
+        }
+
+        .depth-seller-link:hover .seller-name {
+            color: var(--link-color);
+            text-decoration: underline;
+        }
+
+        .depth-avatar {
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: var(--bg-color);
+            vertical-align: middle;
+        }
+
+        .depth-avatar.depth-flag {
+            border-radius: 2px;
+            width: 17px;
+            height: 12px;
+        }
+
+        .depth-avatar-fallback {
+            font-size: 11.5px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .depth-seller-pill .seller-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            max-width: 115px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .depth-seller-pill .seller-colon {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin: 0 1px;
+        }
+
+        .depth-seller-pill .seller-qty {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .depth-seller-pill .seller-share {
+            font-size: 10.5px;
+            color: var(--text-secondary);
+        }
+
+        /* Drawer styles for Market Depth */
+        .depth-expanded-cell {
+            padding: 14px 16px !important;
+            background: var(--drawer-bg) !important;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .depth-drawer-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .depth-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .depth-drawer-top-sellers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .depth-drawer-seller-card {
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .depth-drawer-seller-card.rank-1 {
+            border-color: rgba(245, 158, 11, 0.55);
+            background: rgba(245, 158, 11, 0.07);
+        }
+
+        .depth-drawer-seller-card.rank-2 {
+            border-color: rgba(156, 163, 175, 0.5);
+            background: rgba(156, 163, 175, 0.07);
+        }
+
+        .depth-drawer-seller-card.rank-3 {
+            border-color: rgba(217, 119, 6, 0.45);
+            background: rgba(217, 119, 6, 0.06);
+        }
+
+        .depth-drawer-seller-card .depth-card-header {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .depth-drawer-seller-card.rank-1 .depth-card-header span:first-child {
+            color: var(--rank-gold);
+        }
+
+        .depth-card-type-tag {
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .depth-card-type-tag.type-user {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .depth-card-type-tag.type-country {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .depth-card-type-tag.type-party {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        .depth-card-type-tag.type-mu {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .depth-card-profile-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            margin-top: 2px;
+            transition: color 0.15s;
+        }
+
+        .depth-card-profile-link:hover .depth-card-name {
+            color: var(--link-color);
+            text-decoration: underline;
+        }
+
+        .depth-card-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            background: var(--bg-color);
+        }
+
+        .depth-card-avatar.depth-flag {
+            border-radius: 3px;
+            width: 26px;
+            height: 18px;
+        }
+
+        .depth-card-avatar-fallback {
+            font-size: 18px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .depth-drawer-seller-card .depth-card-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .depth-link-icon {
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .depth-drawer-seller-card .depth-card-metric {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            margin-top: 1px;
+        }
+
+        .depth-drawer-seller-card .depth-card-metric strong {
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .depth-drawer-seller-card .depth-card-share {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+
+        .depth-card-orders {
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .depth-card-orders-header {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .depth-card-orders-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-height: 85px;
+            overflow-y: auto;
+        }
+
+        .depth-card-order-badge {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 11px;
+            font-variant-numeric: tabular-nums;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+
+        .depth-card-order-badge .order-badge-qty {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .depth-card-order-badge .order-badge-at {
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+
+        .depth-card-order-badge .order-badge-price {
+            font-weight: 700;
+            color: var(--link-color);
+        }
+
+        .depth-card-order-badge.is-2x-price .order-badge-price {
+            color: var(--rank-gold);
+        }
+
+        /* Grouped row in ladder */
+        .depth-ladder-grouped-row {
+            background: rgba(245, 158, 11, 0.08) !important;
+            border-top: 1.5px dashed rgba(245, 158, 11, 0.35) !important;
+        }
+
+        .depth-ladder-grouped-row:hover {
+            background: rgba(245, 158, 11, 0.14) !important;
+        }
+
+        .depth-grouped-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            padding: 1px 5px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Price ladder table in drawer */
+        .depth-ladder-card {
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .depth-ladder-header {
+            padding: 8px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--drawer-bg);
+        }
+
+        .depth-ladder-scroll {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .depth-market-kpis {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 2px 0 6px;
+        }
+
+        .depth-kpi-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .depth-kpi-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .depth-kpi-val {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .depth-kpi-val.dominance-high {
+            color: #ef4444;
+        }
+
+        .depth-kpi-val.dominance-normal {
+            color: var(--subhead-green);
+        }
+
+        .depth-kpi-hint {
+            font-size: 10.5px;
+            color: var(--text-secondary);
+            margin-left: auto;
+            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .depth-ladder-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .depth-ladder-table th:nth-child(1),
+        .depth-ladder-table td:nth-child(1) {
+            width: 48%;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .depth-ladder-table th:nth-child(2),
+        .depth-ladder-table td:nth-child(2) {
+            width: 23%;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .depth-ladder-table th:nth-child(3),
+        .depth-ladder-table td:nth-child(3) {
+            width: 29%;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .depth-ladder-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--container-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 7px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            z-index: 1;
+            white-space: nowrap;
+        }
+
+        .depth-ladder-row {
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.15s, border-left 0.15s;
+        }
+
+        .depth-ladder-row:hover {
+            filter: brightness(1.1);
+        }
+
+        .depth-ladder-table tbody tr.is-bought {
+            background: rgba(16, 185, 129, 0.13) !important;
+            border-left: 3px solid #10b981 !important;
+        }
+
+        .depth-ladder-table tbody tr.is-buyout-target {
+            background: rgba(16, 185, 129, 0.22) !important;
+            border-left: 3.5px solid #10b981 !important;
+        }
+
+        .depth-buyout-summary-row {
+            background: var(--drawer-bg) !important;
+            border-bottom: 2px solid #10b981 !important;
+        }
+
+        .depth-buyout-card {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 6px;
+            margin: 4px 2px 6px;
+            padding: 6px 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .depth-buyout-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .depth-buyout-card-title {
+            font-size: 11.5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .depth-buyout-close-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+
+        .depth-buyout-close-btn:hover {
+            color: #ef4444;
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .depth-buyout-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .depth-buyout-stat-box {
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 4px 3px;
+            text-align: center;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .depth-buyout-stat-label {
+            font-size: 9px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .depth-buyout-stat-val {
+            font-size: 11.5px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .depth-ladder-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .depth-ladder-table td {
+            padding: 6px 12px;
+            white-space: nowrap;
+        }
+
         /* Tooltip Logic */
         .tooltip {
             position: relative;
@@ -1823,6 +2421,200 @@
                 height: 8px;
                 margin-right: 4px;
             }
+
+            /* Market Depth Mobile */
+            #market_depth table {
+                table-layout: fixed;
+                width: 100%;
+            }
+
+            #market_depth th:nth-child(1),
+            #market_depth td:nth-child(1) {
+                width: 27%;
+                max-width: 27%;
+                overflow: hidden;
+            }
+
+            #market_depth th:nth-child(2),
+            #market_depth td:nth-child(2) {
+                width: 35%;
+                max-width: 35%;
+                overflow: hidden;
+                text-align: right;
+            }
+
+            #market_depth th:nth-child(3),
+            #market_depth td:nth-child(3) {
+                width: 38%;
+                max-width: 38%;
+                overflow: hidden;
+            }
+
+            #market_depth .item-cell {
+                gap: 4px;
+                min-width: 0;
+                overflow: hidden;
+            }
+
+            #market_depth .expand-icon {
+                font-size: 8px;
+                margin-right: 0;
+                flex-shrink: 0;
+            }
+
+            #market_depth .item-icon {
+                width: 22px;
+                height: 22px;
+                flex-shrink: 0;
+            }
+
+            #market_depth .item-content {
+                min-width: 0;
+                overflow: hidden;
+            }
+
+            #market_depth .item-name {
+                font-size: 11px;
+                max-width: 62px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: block;
+            }
+
+            .depth-top-sellers-cell {
+                gap: 2.5px;
+                max-width: 100%;
+            }
+
+            .depth-seller-pill {
+                padding: 1px 4px;
+                gap: 2.5px;
+                font-size: 10px;
+                line-height: 1.2;
+                max-width: 100%;
+            }
+
+            .depth-seller-pill .medal {
+                font-size: 9px;
+            }
+
+            .depth-avatar {
+                width: 13px;
+                height: 13px;
+            }
+
+            .depth-avatar.depth-flag {
+                width: 14px;
+                height: 9px;
+            }
+
+            .depth-avatar-fallback {
+                font-size: 9px;
+            }
+
+            .depth-seller-pill .seller-colon,
+            .depth-seller-pill .seller-qty,
+            .depth-seller-pill .seller-share {
+                display: none;
+            }
+
+            .depth-seller-pill .seller-name {
+                max-width: 105px;
+                font-size: 10.5px;
+            }
+
+            .depth-ladder-table th:nth-child(1),
+            .depth-ladder-table td:nth-child(1) {
+                width: 52%;
+                text-align: left;
+                white-space: nowrap;
+            }
+
+            .depth-ladder-table th:nth-child(2),
+            .depth-ladder-table td:nth-child(2) {
+                width: 20%;
+                text-align: right;
+                white-space: nowrap;
+            }
+
+            .depth-ladder-table th:nth-child(3),
+            .depth-ladder-table td:nth-child(3) {
+                width: 28%;
+                text-align: right;
+                white-space: nowrap;
+            }
+
+            .depth-ladder-table th,
+            .depth-ladder-table td {
+                padding: 5px 4px;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            .depth-grouped-badge {
+                font-size: 8px;
+                padding: 1px 3px;
+                border-radius: 3px;
+                white-space: nowrap;
+            }
+
+            .depth-market-kpis {
+                gap: 5px;
+                padding-bottom: 4px;
+            }
+
+            .depth-kpi-pill {
+                padding: 2px 6px;
+                font-size: 10px;
+            }
+
+            .depth-expanded-cell {
+                padding: 8px 6px !important;
+            }
+
+            .depth-drawer-container {
+                gap: 8px;
+            }
+
+            .depth-drawer-seller-card {
+                padding: 8px 10px;
+                gap: 4px;
+            }
+
+            .depth-ladder-card {
+                border-radius: 6px;
+            }
+
+            .depth-ladder-header {
+                padding: 6px 8px;
+                font-size: 10.5px;
+            }
+
+            .depth-ladder-scroll {
+                max-height: 260px;
+            }
+
+            .depth-buyout-card {
+                padding: 5px 6px;
+                margin: 3px 0 5px;
+            }
+
+            .depth-buyout-stats-grid {
+                gap: 3px;
+            }
+
+            .depth-buyout-stat-box {
+                padding: 3px 2px;
+            }
+
+            .depth-buyout-stat-label {
+                font-size: 8.5px;
+            }
+
+            .depth-buyout-stat-val {
+                font-size: 11px;
+            }
         }
     </style>
 </head>
@@ -1842,7 +2634,7 @@
                 </svg>
             </button>
             <div class="site-title">Wealthrate</div>
-            <div class="update-info">Updated: <span id="updateTime" data-market-timestamp="{{ market_timestamp }}" data-comp-timestamp="{{ comp_timestamp }}" data-workers-timestamp="{{ workers_timestamp }}" data-timestamp="{{ timestamp }}">just now</span>
+            <div class="update-info">Updated: <span id="updateTime" data-market-timestamp="{{ market_timestamp }}" data-comp-timestamp="{{ comp_timestamp }}" data-workers-timestamp="{{ workers_timestamp }}" data-depth-timestamp="{{ depth_timestamp }}" data-timestamp="{{ timestamp }}">just now</span>
             </div>
             <a href="https://app.warera.io/user/69635dc2d83cd4e381a66dce" target="_blank" class="warship-link">
                 <img src="assets/ru_warship.webp" alt="Profile" onerror="this.style.display='none'">
@@ -1854,6 +2646,7 @@
             <button class="tab-btn active" onclick="switchTab('profitability', this)">Profitability</button>
             <button class="tab-btn" onclick="switchTab('company_basing', this)">Company Basing</button>
             <button class="tab-btn" onclick="switchTab('workers', this)">Workers</button>
+            <button class="tab-btn" onclick="switchTab('market_depth', this)">Market Depth</button>
         </div>
 
         <!-- Tab 1: Profitability -->
@@ -2125,6 +2918,71 @@
                 </div>
             </div>
         </div>
+
+        <!-- Tab 4: Market Depth -->
+        <div id="market_depth" class="tab-content">
+            <div class="table-top-bar">
+                <div></div>
+                <div class="guide-box">
+                    <div class="q-mark">?</div>
+                    <div class="guide-img" style="width: 320px; max-width: 90vw; padding: 12px; font-size: 11.5px; line-height: 1.4; text-align: left; white-space: normal;">
+                        <div style="font-weight: 700; font-size: 12.5px; color: #63b3ed; margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 3px;">
+                            Market Depth
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; line-height: 1.4; color: var(--text-secondary);">
+                            <div>• <strong style="color: var(--text-primary);">Global Order Book:</strong> 100% of active sell listings aggregated across all players, countries, political parties, and military units.</div>
+                            <div>• <strong style="color: var(--text-primary);">Buyout Simulator:</strong> Click any price tier in the order ladder to calculate the total Bitcoin (₿) cost and volume to clear the market up to that price.</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="depthSortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                    Sorted by: <span id="currentDepthSortLabel">Total PP ↓</span>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="handleDepthSort('pretty_name')">Product</th>
+                            <th onclick="handleDepthVolumeSort()" class="tooltip" style="text-align: right; cursor: pointer;">Total Volume
+                                <span class="tooltiptext">Consolidated market depth. For 1 PP items, units = PP (no duplicate sum). For items with PP &gt; 1, displays both Production Points and item units. Click to toggle sort.</span>
+                            </th>
+                            <th style="cursor: default;">Top Sellers</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depthTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="charts-container">
+                <h2 class="charts-title">Market Depth History</h2>
+
+                <!-- Time Controls -->
+                <div class="controls" id="depthTimeControls" style="margin-bottom: 20px;">
+                    <button id="btn24_depth" onclick="setPeriod(24)" class="active">24 Hours</button>
+                    <button id="btn72_depth" onclick="setPeriod(72)">3 Days</button>
+                    <button id="btn168_depth" onclick="setPeriod(168)">7 Days</button>
+                    <button id="btn0_depth" onclick="setPeriod(0)">All Time</button>
+                </div>
+
+                <!-- Metric Controls -->
+                <div class="controls" style="margin-bottom: 12px;">
+                    <button id="btn_depth_total_pp" onclick="setDepthChartMetric('total_pp')" class="active">Total PP</button>
+                    <button id="btn_depth_total_units" onclick="setDepthChartMetric('total_units')">Total Units</button>
+                </div>
+
+                <div class="chart-wrapper">
+                    <div class="chart-canvas-container">
+                        <canvas id="depthChart"></canvas>
+                    </div>
+                    <div class="legend-wrapper">
+                        <button class="chart-toggle-btn" onclick="toggleAll('depthChart')"
+                            style="margin-bottom: 8px;">Toggle All</button>
+                        <div id="depthChart-legend" class="custom-legend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="chartModal" class="modal">
@@ -2139,6 +2997,8 @@
     <script>
         const tableData = {{ table_data_json | safe }};
         const workersData = {{ workers_data_json | safe }};
+        const depthData = {{ depth_data_json | safe }};
+        const depthHistory = {{ depth_history_json | safe }};
         const labels = {{ metric_labels_json | safe }};
         const itemColors = {{ item_colors_json | safe }};
         const itemShortNames = {{ item_short_names_json | safe }};
@@ -2147,13 +3007,16 @@
         let currentSort = { col: 'min_pp', dir: 'desc' };
         let currentCompSort = { col: 'comp_total_count', dir: 'desc' };
         let currentWorkerSort = { col: 'min_pp', dir: 'desc' };
+        let currentDepthSort = { col: 'total_pp', dir: 'desc' };
         let currentMetric = 'min_pp';
+        let currentDepthMetric = 'total_pp';
         let sortByFidelity = false;
         let sortByWorkers = false;
         let workerSortByFidelity = false;
         let expandedProfItems = new Set();
         let expandedCompItems = new Set();
         let expandedWorkerItems = new Set();
+        let expandedDepthItems = new Set();
 
         let profDrawerTabs = {};
 
@@ -2216,6 +3079,7 @@
             renderMainChart();
             updateCompChart();
             renderWorkerChart();
+            renderDepthChart();
         });
 
         const savedTheme = localStorage.getItem('theme');
@@ -2240,6 +3104,8 @@
                 updateCompChart();
             } else if (tabId === 'profitability') {
                 renderMainChart();
+            } else if (tabId === 'market_depth') {
+                renderDepthChart();
             }
         }
 
@@ -2293,7 +3159,8 @@
 
             const isComp = document.getElementById('company_basing') && document.getElementById('company_basing').classList.contains('active');
             const isWorkers = document.getElementById('workers') && document.getElementById('workers').classList.contains('active');
-            const attr = isComp ? 'data-comp-timestamp' : (isWorkers ? 'data-workers-timestamp' : 'data-market-timestamp');
+            const isDepth = document.getElementById('market_depth') && document.getElementById('market_depth').classList.contains('active');
+            const attr = isComp ? 'data-comp-timestamp' : (isWorkers ? 'data-workers-timestamp' : (isDepth ? 'data-depth-timestamp' : 'data-market-timestamp'));
             let timestamp = parseInt(timeElement.getAttribute(attr));
             if (!timestamp || isNaN(timestamp)) {
                 timestamp = parseInt(timeElement.getAttribute('data-timestamp')) || 0;
@@ -3210,23 +4077,27 @@
             timeFilterHours = hours;
 
             // Update active button
-            // Sync all three sets of buttons
-            document.querySelectorAll('#timeControls button, #compTimeControls button, #workerTimeControls button').forEach(b => b.classList.remove('active'));
+            // Sync all four sets of buttons
+            document.querySelectorAll('#timeControls button, #compTimeControls button, #workerTimeControls button, #depthTimeControls button').forEach(b => b.classList.remove('active'));
 
             const btnId = hours === 0 ? 'btn0' : 'btn' + hours;
             const compBtnId = hours === 0 ? 'btn0_comp' : 'btn' + hours + '_comp';
             const workerBtnId = hours === 0 ? 'btn0_worker' : 'btn' + hours + '_worker';
+            const depthBtnId = hours === 0 ? 'btn0_depth' : 'btn' + hours + '_depth';
 
             const btn1 = document.getElementById(btnId);
             const btn2 = document.getElementById(compBtnId);
             const btn3 = document.getElementById(workerBtnId);
+            const btn4 = document.getElementById(depthBtnId);
             if (btn1) btn1.classList.add('active');
             if (btn2) btn2.classList.add('active');
             if (btn3) btn3.classList.add('active');
+            if (btn4) btn4.classList.add('active');
 
             renderMainChart();
             updateCompChart();
             renderWorkerChart();
+            renderDepthChart();
             if (document.getElementById('chartModal').style.display === 'block') {
                 // If modal is open, refresh it too (we need to know which item was opened)
                 // For simplicity, we just close it or let user reopen. 
@@ -3257,9 +4128,9 @@
         }
 
 
-        function getFilteredData(row, metric, isComp = false, isWorker = false) {
-            const allLabels = isWorker ? (row.worker_labels || []) : (isComp ? (row.comp_labels || []) : (row.labels || []));
-            const historyObj = isWorker ? (row.worker_history || {}) : (isComp ? (row.comp_history || {}) : (row.history || {}));
+        function getFilteredData(row, metric, isComp = false, isWorker = false, isDepth = false) {
+            const allLabels = isDepth ? (row.depth_labels || []) : (isWorker ? (row.worker_labels || []) : (isComp ? (row.comp_labels || []) : (row.labels || [])));
+            const historyObj = isDepth ? (row.depth_history || {}) : (isWorker ? (row.worker_history || {}) : (isComp ? (row.comp_history || {}) : (row.history || {})));
 
             let targetMetric = metric;
             if (isWorker && typeof currentWorkerFidelity !== 'undefined' && currentWorkerFidelity > 0) {
@@ -3267,7 +4138,7 @@
             }
             const rawData = historyObj[targetMetric] || [];
             let allData = rawData;
-            if (isWorker && rawData.length < allLabels.length) {
+            if ((isWorker || isDepth) && rawData.length < allLabels.length) {
                 allData = new Array(allLabels.length - rawData.length).fill(null).concat(rawData);
             }
 
@@ -3313,7 +4184,7 @@
                 } else {
                     aggLabels.push(bucketStartTime);
                     let val = count > 0 ? sum / count : null;
-                    if (isComp && val !== null) val = Math.round(val);
+                    if ((isComp || isDepth) && val !== null) val = Math.round(val);
                     else if (isWorker && val !== null) val = Number(val.toFixed(4));
                     aggData.push(val);
                     bucketStartTime = filteredLabels[i];
@@ -3323,7 +4194,7 @@
             }
             aggLabels.push(bucketStartTime);
             let val = count > 0 ? sum / count : null;
-            if (isComp && val !== null) val = Math.round(val);
+            if ((isComp || isDepth) && val !== null) val = Math.round(val);
             else if (isWorker && val !== null) val = Number(val.toFixed(4));
             aggData.push(val);
 
@@ -3450,7 +4321,7 @@
             '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
         ];
 
-        function createChart(canvasId, metric, title, isComp = false, isWorker = false) {
+        function createChart(canvasId, metric, title, isComp = false, isWorker = false, isDepth = false) {
             if (!tableData.length) return;
 
             // 1. Cleanup Mobile Tooltip
@@ -3499,7 +4370,7 @@
 
                             const ds = chart.data.datasets[p.datasetIndex];
                             const value = ds.data[p.index];
-                            const valStr = isComp ? Math.round(value) : (isWorker ? (value > 0 ? '+' : '') + value.toFixed(3) : value.toFixed(3));
+                            const valStr = isComp ? Math.round(value) : (isDepth ? (value >= 1e6 ? (value/1e6).toFixed(2) + 'M' : (value >= 1e3 ? (value/1e3).toFixed(1) + 'K' : Math.round(value))) : (isWorker ? (value > 0 ? '+' : '') + value.toFixed(3) : value.toFixed(3)));
 
                             labels.push({
                                 y: element.y,
@@ -3569,7 +4440,7 @@
             // 3. Prepare Data
             let chartLabels = [];
             const datasets = tableData.map((row, index) => {
-                const filtered = getFilteredData(row, metric, isComp, isWorker);
+                const filtered = getFilteredData(row, metric, isComp, isWorker, isDepth);
                 if (index === 0) chartLabels = formatLabels(filtered.labels);
 
                 const color = itemColors[row.item] || fallbackColors[index % fallbackColors.length];
@@ -3697,10 +4568,16 @@
                     },
                     y: {
                         type: 'linear',
-                        beginAtZero: false,
                         ticks: {
                             color: () => document.body.classList.contains('dark-mode') ? '#cbd5e0' : '#718096',
-                            callback: function(val) { return isComp ? val : val.toFixed(3); }
+                            callback: function(val) {
+                                if (isDepth) {
+                                    if (Math.abs(val) >= 1e6) return (val / 1e6).toFixed(1) + 'M';
+                                    if (Math.abs(val) >= 1e3) return (val / 1e3).toFixed(0) + 'K';
+                                    return val.toLocaleString();
+                                }
+                                return isComp ? val : val.toFixed(3);
+                            }
                         },
                         grid: {
                             color: () => document.body.classList.contains('dark-mode') ? 'rgba(160, 174, 192, 0.2)' : 'rgba(226, 232, 240, 0.7)'
@@ -3752,6 +4629,557 @@
         function renderWorkerChart() {
             createChart('workerChart', currentWorkerMetric, '', false, true);
         }
+
+        // --- MARKET DEPTH FUNCTIONS ---
+        function toggleDepthExpand(itemCode) {
+            if (expandedDepthItems.has(itemCode)) {
+                expandedDepthItems.delete(itemCode);
+            } else {
+                expandedDepthItems.add(itemCode);
+            }
+            renderDepthTable();
+        }
+
+        function handleDepthVolumeSort() {
+            if (currentDepthSort.col === 'total_pp') {
+                currentDepthSort.dir = currentDepthSort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentDepthSort.col = 'total_pp';
+                currentDepthSort.dir = 'desc';
+            }
+            updateDepthSortLabel();
+            renderDepthTable();
+        }
+
+        function handleDepthSort(col) {
+            if (col === 'volume' || col === 'total_volume') {
+                handleDepthVolumeSort();
+                return;
+            }
+            if (currentDepthSort.col === col) {
+                currentDepthSort.dir = currentDepthSort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentDepthSort.col = col;
+                currentDepthSort.dir = (col === 'pretty_name') ? 'asc' : 'desc';
+            }
+            updateDepthSortLabel();
+            renderDepthTable();
+        }
+
+        function updateDepthSortLabel() {
+            const el = document.getElementById('currentDepthSortLabel');
+            if (!el) return;
+            const arrow = currentDepthSort.dir === 'asc' ? '↑' : '↓';
+            const names = {
+                'pretty_name': 'Product',
+                'total_pp': 'Total PP'
+            };
+            el.textContent = `${names[currentDepthSort.col] || currentDepthSort.col} ${arrow}`;
+        }
+
+        function formatCompact(num) {
+            if (!num || isNaN(num)) return '0';
+            if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+            return Number(num).toLocaleString();
+        }
+
+        function countryCodeToEmoji(code) {
+            if (!code || typeof code !== 'string' || code.length !== 2) return '🌐';
+            const upper = code.toUpperCase();
+            const first = 0x1F1E6 + (upper.charCodeAt(0) - 65);
+            const second = 0x1F1E6 + (upper.charCodeAt(1) - 65);
+            return String.fromCodePoint(first, second);
+        }
+
+        function getEntityIconFallback(type, code) {
+            if (type === 'country') {
+                return code ? countryCodeToEmoji(code) : '🌐';
+            }
+            if (type === 'party') return '🏛️';
+            if (type === 'mu') return '⚔️';
+            return '👤';
+        }
+
+        function renderSellerAvatar(s, isCard = false) {
+            const avatarClass = isCard ? 'depth-card-avatar' : 'depth-avatar';
+            const fallbackClass = isCard ? 'depth-card-avatar-fallback' : 'depth-avatar-fallback';
+            const flagClass = s.type === 'country' ? ' depth-flag' : '';
+            const fallbackIcon = getEntityIconFallback(s.type, s.code);
+
+            if (s.avatar_url) {
+                return `
+                    <img src="${s.avatar_url}" class="${avatarClass}${flagClass}" alt="${s.name}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';" />
+                    <span class="${fallbackClass}" style="display: none;">${fallbackIcon}</span>
+                `;
+            } else {
+                return `<span class="${fallbackClass}">${fallbackIcon}</span>`;
+            }
+        }
+
+        let activeBuyoutTargets = {};
+
+        function buildLadderRowsHtml(itemCode, depthData) {
+            const ladder = depthData.ladder || [];
+            const totalUnits = depthData.total_units || 0;
+            if (ladder.length === 0) {
+                return `<tr><td colspan="3" style="text-align: center; padding: 16px; color: var(--text-secondary);">No active sell orders found.</td></tr>`;
+            }
+
+            const minPrice = ladder[0].price;
+            const thresholdPrice = minPrice * 2;
+            const regularTiers = [];
+            let groupedQty = 0;
+            let groupedCount = 0;
+
+            ladder.forEach(tier => {
+                if (tier.price >= thresholdPrice - 1e-9) {
+                    groupedQty += tier.quantity;
+                    groupedCount += 1;
+                } else {
+                    regularTiers.push(tier);
+                }
+            });
+
+            const groupedTotal = groupedQty * thresholdPrice;
+            const activeTarget = (activeBuyoutTargets[itemCode] !== undefined) ? activeBuyoutTargets[itemCode] : null;
+
+            let runningCumQty = 0;
+            let runningCumCost = 0;
+            let rowsHtml = '';
+
+            regularTiers.forEach(tier => {
+                const tierTotal = tier.price * tier.quantity;
+                runningCumQty += tier.quantity;
+                runningCumCost += tierTotal;
+                const depthPct = totalUnits > 0 ? Math.min(100, Math.round((runningCumQty / totalUnits) * 100)) : 0;
+
+                let isBought = false;
+                let isTarget = false;
+                if (activeTarget !== null) {
+                    if (tier.price <= activeTarget + 1e-9) {
+                        isBought = true;
+                        if (Math.abs(tier.price - activeTarget) < 1e-9) {
+                            isTarget = true;
+                        }
+                    }
+                }
+
+                const rowClasses = ['depth-ladder-row'];
+                if (isBought) rowClasses.push('is-bought');
+                if (isTarget) rowClasses.push('is-buyout-target');
+
+                const rowBg = isBought
+                    ? ''
+                    : `background: linear-gradient(to right, rgba(56, 189, 248, 0.08) ${depthPct}%, transparent ${depthPct}%);`;
+
+                rowsHtml += `
+                    <tr class="${rowClasses.join(' ')}" ${rowBg ? `style="${rowBg}"` : ''} onclick="handleLadderTierClick('${itemCode}', ${tier.price}, event)">
+                        <td style="text-align: left; font-weight: 600; color: var(--link-color); font-variant-numeric: tabular-nums; white-space: nowrap;">
+                            ${isBought ? '<span style="color: #10b981; font-weight: bold; margin-right: 4px;">✓</span>' : ''}${tier.price.toFixed(3)} ₿
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                            ${tier.quantity.toLocaleString()}
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); white-space: nowrap;" title="Total tier value: ${tierTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₿">
+                            ${tierTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₿
+                        </td>
+                    </tr>
+                `;
+
+                if (isTarget) {
+                    const targetPct = totalUnits > 0 ? ((runningCumQty / totalUnits) * 100).toFixed(1) : '0';
+                    rowsHtml += `
+                        <tr class="depth-buyout-summary-row">
+                            <td colspan="3" style="padding: 0 2px 4px;">
+                                <div class="depth-buyout-card">
+                                    <div class="depth-buyout-card-header">
+                                        <div class="depth-buyout-card-title">
+                                            <span style="color: #10b981; font-size: 13px;">🛒</span>
+                                            <strong style="color: var(--text-primary);">Buyout up to ${tier.price.toFixed(3)} ₿:</strong>
+                                        </div>
+                                        <button type="button" class="depth-buyout-close-btn" onclick="clearBuyout('${itemCode}', event)" title="Clear selection">✕ Dismiss</button>
+                                    </div>
+                                    <div class="depth-buyout-stats-grid">
+                                        <div class="depth-buyout-stat-box">
+                                            <div class="depth-buyout-stat-label">Cost</div>
+                                            <div class="depth-buyout-stat-val" style="color: var(--rank-gold);">${runningCumCost.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿</div>
+                                        </div>
+                                        <div class="depth-buyout-stat-box">
+                                            <div class="depth-buyout-stat-label">Units</div>
+                                            <div class="depth-buyout-stat-val" style="color: var(--subhead-green);">${runningCumQty.toLocaleString()}</div>
+                                        </div>
+                                        <div class="depth-buyout-stat-box">
+                                            <div class="depth-buyout-stat-label">Share</div>
+                                            <div class="depth-buyout-stat-val" style="color: #38bdf8;">${targetPct}%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (groupedCount > 0) {
+                const badgeLabel = (window.innerWidth <= 768) ? '2x+' : `2x+ (${groupedCount})`;
+                rowsHtml += `
+                    <tr class="depth-ladder-grouped-row">
+                        <td style="text-align: left; font-weight: 700; color: var(--rank-gold); font-variant-numeric: tabular-nums; white-space: nowrap;">
+                            <div style="display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                                <span>≥ ${thresholdPrice.toFixed(3)} ₿</span>
+                                <span class="depth-grouped-badge" title="Grouped ${groupedCount} tiers with price ≥ 2x min price (≥ ${thresholdPrice.toFixed(3)} ₿)">${badgeLabel}</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--text-primary); white-space: nowrap;">
+                            ${groupedQty.toLocaleString()}
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-secondary); white-space: nowrap;" title="Calculated as ${groupedQty.toLocaleString()} units × ${thresholdPrice.toFixed(3)} ₿ (2x threshold price)">
+                            ${groupedTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₿
+                        </td>
+                    </tr>
+                `;
+            }
+
+            return rowsHtml;
+        }
+
+        function handleLadderTierClick(itemCode, targetPrice, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            const current = activeBuyoutTargets[itemCode];
+            if (current !== undefined && Math.abs(current - targetPrice) < 1e-9) {
+                delete activeBuyoutTargets[itemCode];
+            } else {
+                activeBuyoutTargets[itemCode] = targetPrice;
+            }
+
+            const scrollContainer = document.getElementById(`depth-ladder-scroll-${itemCode}`);
+            const savedScrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
+            const savedWindowY = window.scrollY;
+
+            const tbody = document.getElementById(`depth-ladder-tbody-${itemCode}`);
+            if (tbody) {
+                const row = tableData.find(r => r.item === itemCode);
+                if (row && row.depth_data) {
+                    tbody.innerHTML = buildLadderRowsHtml(itemCode, row.depth_data);
+                    if (scrollContainer) {
+                        scrollContainer.scrollTop = savedScrollTop;
+                    }
+                    window.scrollTo({ top: savedWindowY, behavior: 'instant' });
+                    return;
+                }
+            }
+
+            renderDepthTable();
+            const newSc = document.getElementById(`depth-ladder-scroll-${itemCode}`);
+            if (newSc) newSc.scrollTop = savedScrollTop;
+            window.scrollTo({ top: savedWindowY, behavior: 'instant' });
+        }
+
+        function clearBuyout(itemCode, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            delete activeBuyoutTargets[itemCode];
+
+            const scrollContainer = document.getElementById(`depth-ladder-scroll-${itemCode}`);
+            const savedScrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
+            const savedWindowY = window.scrollY;
+
+            const tbody = document.getElementById(`depth-ladder-tbody-${itemCode}`);
+            if (tbody) {
+                const row = tableData.find(r => r.item === itemCode);
+                if (row && row.depth_data) {
+                    tbody.innerHTML = buildLadderRowsHtml(itemCode, row.depth_data);
+                    if (scrollContainer) {
+                        scrollContainer.scrollTop = savedScrollTop;
+                    }
+                    window.scrollTo({ top: savedWindowY, behavior: 'instant' });
+                    return;
+                }
+            }
+
+            renderDepthTable();
+            const newSc = document.getElementById(`depth-ladder-scroll-${itemCode}`);
+            if (newSc) newSc.scrollTop = savedScrollTop;
+            window.scrollTo({ top: savedWindowY, behavior: 'instant' });
+        }
+
+        function renderDepthTable() {
+            const tbody = document.getElementById('depthTableBody');
+            if (!tbody) return;
+
+            const data = [...tableData].sort((a, b) => {
+                let v1, v2;
+                const d1 = a.depth_data || {};
+                const d2 = b.depth_data || {};
+
+                if (currentDepthSort.col === 'pretty_name') {
+                    v1 = a.pretty_name.toLowerCase();
+                    v2 = b.pretty_name.toLowerCase();
+                } else if (currentDepthSort.col === 'total_units') {
+                    v1 = d1.total_units || 0;
+                    v2 = d2.total_units || 0;
+                } else {
+                    v1 = d1.total_pp || 0;
+                    v2 = d2.total_pp || 0;
+                }
+
+                if (v1 === v2) return 0;
+                return currentDepthSort.dir === 'asc' ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
+            });
+
+            let html = '';
+            data.forEach(row => {
+                const itemCode = row.item;
+                const d = row.depth_data || {};
+                const totalUnits = d.total_units || 0;
+                const totalPP = d.total_pp || 0;
+                const ppPerUnit = d.pp_per_unit || 1;
+                const topSellers = d.top_sellers || [];
+                const ladder = d.ladder || [];
+                const isExpanded = expandedDepthItems.has(itemCode);
+
+                let displayName = row.pretty_name;
+                if (window.innerWidth <= 768) {
+                    displayName = itemShortNames[itemCode] || row.pretty_name;
+                }
+
+                // Render Top 3 Sellers in main row cell
+                let sellersRowHtml = '';
+                if (topSellers.length === 0) {
+                    sellersRowHtml = `<span style="color: var(--text-secondary); font-size: 12px; font-style: italic;">No active orders</span>`;
+                } else {
+                    sellersRowHtml = `
+                        <div class="depth-top-sellers-cell">
+                            ${topSellers.map((s, idx) => {
+                                const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : 'rank-3');
+                                const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉');
+                                const avatarHtml = renderSellerAvatar(s, false);
+                                const hasLink = Boolean(s.profile_url);
+
+                                const nameContent = `
+                                    ${avatarHtml}
+                                    <span class="seller-name">${s.name}</span>
+                                `;
+
+                                const linkedName = hasLink
+                                    ? `<a href="${s.profile_url}" target="_blank" rel="noopener noreferrer" class="depth-seller-link" onclick="event.stopPropagation();" title="View ${s.name} on Warera">${nameContent}</a>`
+                                    : `<span class="depth-seller-link">${nameContent}</span>`;
+
+                                return `
+                                    <div class="depth-seller-pill ${rankClass}" title="${s.name}: ${s.quantity.toLocaleString()} units (${s.share_pct}%)">
+                                        <span class="medal">${medal}</span>
+                                        ${linkedName}
+                                        <span class="seller-colon">:</span>
+                                        <span class="seller-qty">${formatCompact(s.quantity)}</span>
+                                        <span class="seller-share">(${s.share_pct}%)</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+
+                // Merged Volume Column: PP and Units (Price removed per user request)
+                let volumeCellHtml = '';
+                if (ppPerUnit === 1) {
+                    volumeCellHtml = `
+                        <div style="text-align: right; line-height: 1.25;">
+                            <div style="font-weight: 700; color: var(--subhead-green); font-variant-numeric: tabular-nums; font-size: 13.5px;">
+                                ${totalPP.toLocaleString()} <span style="font-size: 11px; font-weight: 500; color: var(--text-secondary);">PP</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const unitsFormatted = (window.innerWidth <= 768) ? `${formatCompact(totalUnits)} units` : `${totalUnits.toLocaleString()} units`;
+                    volumeCellHtml = `
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.25;">
+                            <div style="font-weight: 700; color: var(--subhead-green); font-variant-numeric: tabular-nums; font-size: 13.5px;">
+                                ${totalPP.toLocaleString()} <span style="font-size: 11px; font-weight: 500; color: var(--text-secondary);">PP</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap;">
+                                ${unitsFormatted}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Main table row: Product, Merged Volume, Top Sellers
+                html += `
+                    <tr class="row-clickable" onclick="toggleDepthExpand('${itemCode}')">
+                        <td>
+                            <div class="item-cell">
+                                <span class="expand-icon ${isExpanded ? 'open' : ''}">▶</span>
+                                ${getIcon(itemCode)}
+                                <div class="item-content">
+                                    <span class="item-name">${displayName}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="text-align: right;">
+                            ${volumeCellHtml}
+                        </td>
+                        <td>
+                            ${sellersRowHtml}
+                        </td>
+                    </tr>
+                `;
+
+                // Drawer expanded row
+                if (isExpanded) {
+                    // 1. Drawer Top 3 Sellers Banner with Individual Listing Prices & Quantities
+                    let drawerSellersHtml = '';
+                    if (topSellers.length === 0) {
+                        drawerSellersHtml = `<div style="color: var(--text-secondary); font-size: 13px; font-style: italic; padding: 8px;">No active sellers currently listed for this commodity.</div>`;
+                    } else {
+                        drawerSellersHtml = `
+                            <div class="depth-drawer-top-sellers">
+                                ${topSellers.map((s, idx) => {
+                                    const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : 'rank-3');
+                                    const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉');
+                                    const title = idx === 0 ? 'Top Seller #1' : (idx === 1 ? 'Seller #2' : 'Seller #3');
+                                    const cardAvatarHtml = renderSellerAvatar(s, true);
+                                    const hasLink = Boolean(s.profile_url);
+                                    const typeLabel = s.type || 'player';
+
+                                    const cardLinkContent = `
+                                        ${cardAvatarHtml}
+                                        <span class="depth-card-name" title="${s.name}">${s.name}</span>
+                                        ${hasLink ? '<span class="depth-link-icon">↗</span>' : ''}
+                                    `;
+
+                                    const linkedCard = hasLink
+                                        ? `<a href="${s.profile_url}" target="_blank" rel="noopener noreferrer" class="depth-card-profile-link" onclick="event.stopPropagation();" title="View ${s.name} on Warera">${cardLinkContent}</a>`
+                                        : `<div class="depth-card-profile-link">${cardLinkContent}</div>`;
+
+                                    // Active listings breakdown for this seller
+                                    let ordersBreakdownHtml = '';
+                                    const sOrders = s.orders || [];
+                                    if (sOrders.length > 0) {
+                                        ordersBreakdownHtml = `
+                                            <div class="depth-card-orders">
+                                                <div class="depth-card-orders-header">Active Listings (${sOrders.length}):</div>
+                                                <div class="depth-card-orders-list">
+                                                    ${sOrders.map(o => {
+                                                        const is2x = (ladder.length > 0 && o.price >= ladder[0].price * 2 - 1e-9);
+                                                        return `
+                                                            <div class="depth-card-order-badge ${is2x ? 'is-2x-price' : ''}" title="${o.quantity.toLocaleString()} units @ ${o.price.toFixed(3)} ₿">
+                                                                <span class="order-badge-qty">${o.quantity.toLocaleString()}</span>
+                                                                <span class="order-badge-at">@</span>
+                                                                <span class="order-badge-price">${o.price.toFixed(3)} ₿</span>
+                                                                ${is2x ? '<span style="font-size: 9px; color: var(--rank-gold); font-weight: 700;">(2x+)</span>' : ''}
+                                                            </div>
+                                                        `;
+                                                    }).join('')}
+                                                </div>
+                                            </div>
+                                        `;
+                                    }
+
+                                    return `
+                                        <div class="depth-drawer-seller-card ${rankClass}">
+                                            <div class="depth-card-header">
+                                                <span>${medal} ${title}</span>
+                                                <span class="depth-card-type-tag type-${s.type || 'user'}">${typeLabel}</span>
+                                            </div>
+                                            ${linkedCard}
+                                            <div class="depth-card-metric">
+                                                <strong>${s.quantity.toLocaleString()}</strong> units
+                                                <span class="depth-card-share">(${s.share_pct}% market share)</span>
+                                            </div>
+                                            ${ordersBreakdownHtml}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    }
+
+                    // 2. Drawer Price Ladder Table: Group items with price >= 2x min price & Interactive Buyout Simulator
+                    let groupedCount = 0;
+                    if (ladder.length > 0) {
+                        const thresholdPrice = ladder[0].price * 2;
+                        ladder.forEach(tier => {
+                            if (tier.price >= thresholdPrice - 1e-9) groupedCount += 1;
+                        });
+                    }
+
+                    const top3Qty = topSellers.reduce((sum, s) => sum + (s.quantity || 0), 0);
+                    const top3Share = totalUnits > 0 ? ((top3Qty / totalUnits) * 100).toFixed(1) : '0';
+
+                    // Market KPI: Top-3 Dominance only (Min Ask and Top 3 Avg removed per user request)
+                    const kpisHtml = (topSellers.length > 0 && totalUnits > 0) ? `
+                        <div class="depth-market-kpis">
+                            <div class="depth-kpi-pill" title="Combined market share of the top 3 sellers">
+                                <span class="depth-kpi-label">Top-3 Dominance:</span>
+                                <span class="depth-kpi-val ${top3Share >= 70 ? 'dominance-high' : 'dominance-normal'}">${top3Share}%</span>
+                            </div>
+                        </div>
+                    ` : '';
+
+                    const ladderRows = buildLadderRowsHtml(itemCode, d);
+
+                    html += `
+                        <tr class="depth-expanded-row" id="depth-drawer-${itemCode}">
+                            <td colspan="3" class="depth-expanded-cell">
+                                <div class="depth-drawer-container">
+                                    <!-- Top 3 Sellers Banner -->
+                                    <div>
+                                        <div class="depth-section-title">
+                                            <span>Top Sellers Breakdown</span>
+                                        </div>
+                                        ${drawerSellersHtml}
+                                    </div>
+
+                                    <!-- Order Book Price Ladder -->
+                                    <div class="depth-ladder-card">
+                                        <div class="depth-ladder-header">
+                                            <span>Order Book Price Ladder (${ladder.length} price tiers${groupedCount > 0 ? ` • ${groupedCount} tiers grouped at ≥2x` : ''})</span>
+                                        </div>
+                                        ${kpisHtml ? `<div style="padding: 8px 12px 2px;">${kpisHtml}</div>` : ''}
+                                        <div class="depth-ladder-scroll" id="depth-ladder-scroll-${itemCode}">
+                                            <table class="depth-ladder-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="text-align: left; white-space: nowrap;">Price (₿)</th>
+                                                        <th style="text-align: right; white-space: nowrap;">Quantity</th>
+                                                        <th style="text-align: right; white-space: nowrap;">Total (₿)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="depth-ladder-tbody-${itemCode}">
+                                                    ${ladderRows}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function setDepthChartMetric(metric) {
+            currentDepthMetric = metric;
+            ['total_pp', 'total_units'].forEach(m => {
+                const btn = document.getElementById('btn_depth_' + m);
+                if (btn) btn.classList.toggle('active', m === metric);
+            });
+            renderDepthChart();
+        }
+
+        function renderDepthChart() {
+            createChart('depthChart', currentDepthMetric, '', false, false, true);
+        }
+
         // Sync fidelity sort state on page load in case of browser cache
         sortByFidelity = document.getElementById('fidelitySort') ? document.getElementById('fidelitySort').checked : false;
         sortByWorkers = document.getElementById('workersSort') ? document.getElementById('workersSort').checked : false;
@@ -3760,15 +5188,18 @@
         updateSortLabel();
         updateCompSortLabel();
         updateWorkerSortLabel();
+        updateDepthSortLabel();
         setMetric('min_pp'); // Set initial title
 
         window.addEventListener('resize', () => {
             renderTable();
             renderCompTable();
             renderWorkersTable();
+            renderDepthTable();
             renderMainChart();
             updateCompChart();
             renderWorkerChart();
+            renderDepthChart();
             equalizeColumnWidths();
         });
 
@@ -3782,9 +5213,11 @@
         renderTable();
         renderCompTable();
         renderWorkersTable();
+        renderDepthTable();
         renderMainChart();
         updateCompChart(); // Init comp chart
         renderWorkerChart(); // Init worker chart
+        renderDepthChart(); // Init depth chart
     </script>
 </body>
 

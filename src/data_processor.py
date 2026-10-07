@@ -251,6 +251,47 @@ class DataProcessor:
 
         return history
 
+    @classmethod
+    def load_market_depth_history(cls) -> dict[str, Any]:
+        """Loads market depth history."""
+        return cls._load_json(config.HISTORY_MARKET_DEPTH_FILE)
+
+    @classmethod
+    def save_market_depth_history(cls, data: dict[str, Any]) -> None:
+        cls._save_json(config.HISTORY_MARKET_DEPTH_FILE, data)
+
+    @classmethod
+    def append_market_depth_snapshot(
+        cls, history: dict[str, Any], current_data: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Appends market depth metrics to history without threshold clipping."""
+        return cls._append_metrics(history, current_data, config.MARKET_DEPTH_METRICS)
+
+    @classmethod
+    def load_latest_market_depth(cls) -> tuple[dict[str, Any], int]:
+        """Loads the most recent market depth snapshot and its timestamp."""
+        if os.path.exists(config.LATEST_MARKET_DEPTH_FILE):
+            try:
+                with open(config.LATEST_MARKET_DEPTH_FILE, "r", encoding="utf-8") as f:
+                    payload = json.load(f)
+                    if isinstance(payload, dict):
+                        if "data" in payload and "timestamp" in payload:
+                            return payload["data"], int(payload["timestamp"])
+                        return payload, 0
+            except Exception:
+                pass
+        return {}, 0
+
+    @classmethod
+    def save_latest_market_depth(
+        cls, data: dict[str, Any], timestamp: int | None = None
+    ) -> None:
+        """Saves the most recent market depth snapshot with timestamp."""
+        ts = timestamp or int(datetime.now(timezone.utc).timestamp())
+        payload = {"timestamp": ts, "data": data}
+        with open(config.LATEST_MARKET_DEPTH_FILE, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2)
+
     # --- Original Spike Cleaner Logic ---
 
     @staticmethod

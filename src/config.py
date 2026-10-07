@@ -4,9 +4,11 @@ import os
 HISTORY_FILE = "history.json"
 HISTORY_COMPANIES_FILE = "history_companies.json"
 HISTORY_WORKERS_FILE = "history_workers.json"
+HISTORY_MARKET_DEPTH_FILE = "history_market_depth.json"
 LATEST_MARKET_FILE = "latest_market.json"
 LATEST_COMPANIES_FILE = "latest_companies.json"
 LATEST_WORKERS_FILE = "latest_workers.json"
+LATEST_MARKET_DEPTH_FILE = "latest_market_depth.json"
 PUBLIC_DIR = "public"
 OUTPUT_HTML = os.path.join(PUBLIC_DIR, "index.html")
 ASSETS_DIR = os.path.join(PUBLIC_DIR, "assets")
@@ -53,14 +55,38 @@ ITEM_PRETTY_NAMES = {
     "paper": "Paper",
 }
 
+ITEM_PRODUCTION_POINTS = {
+    "lead": 1,
+    "cookedFish": 40,
+    "iron": 1,
+    "lightAmmo": 1,
+    "limestone": 1,
+    "steel": 10,
+    "livestock": 20,
+    "concrete": 10,
+    "fish": 40,
+    "steak": 20,
+    "petroleum": 1,
+    "ammo": 4,
+    "oil": 1,
+    "coca": 1,
+    "cocain": 200,
+    "bread": 10,
+    "heavyAmmo": 16,
+    "grain": 1,
+    "wood": 1,
+    "paper": 1,
+}
+
 ITEM_SHORT_NAMES = {
-    "coca": "Myst. Plant",
+    "coca": "Plant",
     "heavyAmmo": "H. Ammo",
     "lightAmmo": "L. Ammo",
     "cookedFish": "C. Fish",
     "limestone": "Limest.",
     "petroleum": "Petrol.",
     "concrete": "Concr.",
+    "livestock": "L.stock",
 }
 
 # --- Ethics & Item Categories ---
@@ -170,3 +196,9 @@ COMPANY_METRICS = [
     "comp_total_workers",
     "comp_total_ae",
 ]
+
+MARKET_DEPTH_METRICS = [
+    "total_units",
+    "total_pp",
+]
+

@@ -9,6 +9,7 @@ from src.market_analyzer import MarketAnalyzer
 from src.production_analyzer import CompanyAnalyzer
 from src.report_generator import ReportGenerator
 from src.worker_analyzer import WorkerAnalyzer
+from src.market_depth_analyzer import MarketDepthAnalyzer
 
 # logging
 logging.basicConfig(
@@ -108,6 +109,24 @@ def run_workers(client: TRPCClient) -> None:
     logger.info("Workers history updated successfully.")
 
 
+def run_depth(client: TRPCClient) -> None:
+    """Collects 100% market depth, saves latest snapshot, and updates depth history."""
+    logger.info("--- Starting Market Depth Collection ---")
+    depth_analyzer = MarketDepthAnalyzer(client)
+    depth_snapshot = depth_analyzer.collect_market_depth()
+
+    # 1. Save latest market depth snapshot
+    DataProcessor.save_latest_market_depth(depth_snapshot)
+    logger.info(f"Saved latest market depth snapshot to {config.LATEST_MARKET_DEPTH_FILE}")
+
+    # 2. Append to market depth history
+    logger.info("Updating market depth history...")
+    depth_history = DataProcessor.load_market_depth_history()
+    depth_history = DataProcessor.append_market_depth_snapshot(depth_history, depth_snapshot)
+    DataProcessor.save_market_depth_history(depth_history)
+    logger.info("Market depth collection completed successfully.")
+
+
 def run_build() -> None:
     """Builds the HTML report from the latest cached snapshots of all modules."""
     logger.info("--- Starting HTML Site Build ---")
@@ -141,12 +160,20 @@ def run_build() -> None:
     else:
         logger.warning("No cached workers data found.")
 
-    # 4. Load Histories for Charting
+    # 4. Load latest market depth data
+    depth_snapshot, depth_ts = DataProcessor.load_latest_market_depth()
+    if depth_snapshot:
+        logger.info(f"Loaded cached market depth data for {len(depth_snapshot)} items.")
+    else:
+        logger.warning("No cached market depth data found.")
+
+    # 5. Load Histories for Charting
     history = DataProcessor.load_history()
     comp_history = DataProcessor.load_companies_history()
     workers_history = DataProcessor.load_workers_history()
+    depth_history = DataProcessor.load_market_depth_history()
 
-    # 5. Generate Report
+    # 6. Generate Report
     logger.info("Generating report...")
     ReportGenerator.generate(
         history,
@@ -157,6 +184,9 @@ def run_build() -> None:
         workers_snapshot=workers_snapshot,
         workers_timestamp=workers_ts,
         workers_history=workers_history,
+        depth_snapshot=depth_snapshot,
+        depth_timestamp=depth_ts,
+        depth_history=depth_history,
     )
     logger.info("--- HTML Site Build Complete ---")
 
@@ -182,15 +212,15 @@ def main():
     parser = argparse.ArgumentParser(description="Wealthrate Analytics Runner")
     parser.add_argument(
         "--task",
-        choices=["market", "companies", "workers", "build", "market_and_build", "all", "pull_data"],
+        choices=["market", "companies", "workers", "depth", "build", "market_and_build", "all", "pull_data"],
         default="market_and_build",
-        help="Task to execute: 'market', 'companies', 'workers', 'build', 'market_and_build', 'all', or 'pull_data'",
+        help="Task to execute: 'market', 'companies', 'workers', 'depth', 'build', 'market_and_build', 'all', or 'pull_data'",
     )
     args = parser.parse_args()
 
     # Initialize API Client only if needed (build & pull_data tasks don't require API keys!)
     client = None
-    if args.task in ("market", "companies", "workers", "market_and_build", "all"):
+    if args.task in ("market", "companies", "workers", "depth", "market_and_build", "all"):
         try:
             client = init_client()
         except Exception as e:
@@ -205,10 +235,13 @@ def main():
         if args.task in ("companies", "all"):
             run_companies(client)
 
+        if args.task in ("depth", "all"):
+            run_depth(client)
+
         if args.task in ("market", "market_and_build", "all"):
             run_market(client)
 
-        if args.task == "workers":
+        if args.task in ("workers", "all"):
             run_workers(client)
 
         if args.task in ("build", "market_and_build", "all"):
