@@ -9,6 +9,7 @@ LATEST_MARKET_FILE = "latest_market.json"
 LATEST_COMPANIES_FILE = "latest_companies.json"
 LATEST_WORKERS_FILE = "latest_workers.json"
 LATEST_MARKET_DEPTH_FILE = "latest_market_depth.json"
+KNOWN_PLAYERS_FILE = "known_players.json"
 PUBLIC_DIR = "public"
 OUTPUT_HTML = os.path.join(PUBLIC_DIR, "index.html")
 ASSETS_DIR = os.path.join(PUBLIC_DIR, "assets")
@@ -78,6 +79,28 @@ ITEM_PRODUCTION_POINTS = {
     "paper": 1,
 }
 
+# --- Market Depth Extra Items (Unmanufactured tradables with 0 PP) ---
+MARKET_DEPTH_EXTRA_ITEMS = {
+    "scraps": "Scraps",
+    "case1": "Case",
+    "case2": "Elite Case",
+    "woodenCase": "Wooden Case",
+}
+
+# All items displayed in Market Depth tab
+MARKET_DEPTH_ITEMS = {
+    **ITEM_PRETTY_NAMES,
+    **MARKET_DEPTH_EXTRA_ITEMS,
+}
+
+MARKET_DEPTH_PP = {
+    **ITEM_PRODUCTION_POINTS,
+    "scraps": 0,
+    "case1": 0,
+    "case2": 0,
+    "woodenCase": 0,
+}
+
 ITEM_SHORT_NAMES = {
     "coca": "Plant",
     "heavyAmmo": "H. Ammo",
@@ -87,6 +110,8 @@ ITEM_SHORT_NAMES = {
     "petroleum": "Petrol.",
     "concrete": "Concr.",
     "livestock": "L.stock",
+    "woodenCase": "W. Case",
+    "case2": "Elite C.",
 }
 
 # --- Ethics & Item Categories ---
@@ -143,6 +168,11 @@ ITEM_COLORS = {
     # Wood/Paper - Cyan
     "wood": "#00838f",
     "paper": "#4dd0e1",
+    # Market Depth Items: Cases & Scraps
+    "case1": "#ec4899",
+    "case2": "#6366f1",
+    "woodenCase": "#a27b5c",
+    "scraps": "#e2e8f0",
 }
 
 # --- UI Configuration ---
@@ -162,6 +192,7 @@ PRODUCTION_LINES = {
     "Iron Works": ["iron", "steel"],
     "Quarry": ["limestone", "concrete"],
     "Lumber Mill": ["wood", "paper"],
+    "Cases & Scraps": ["case1", "case2", "woodenCase", "scraps"],
 }
 
 # --- History Configuration ---

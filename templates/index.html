@@ -3288,7 +3288,7 @@
 
         function renderTable() {
             const tbody = document.getElementById('tableBody');
-            const data = [...tableData].sort((a, b) => {
+            const data = [...tableData].filter(r => !r.is_depth_only).sort((a, b) => {
                 let v1, v2;
                 if (sortByFidelity && ['min_pp', 'avg_pp', 'max_pp'].includes(currentSort.col)) {
                     const getFidelity = (row, metric) => {
@@ -3404,7 +3404,8 @@
 
         function renderCompTable() {
             const tbody = document.getElementById('compTableBody');
-            const data = [...tableData].sort((a, b) => {
+            const compRows = tableData.filter(r => !r.is_depth_only);
+            const data = [...compRows].sort((a, b) => {
                 let v1, v2;
                 let sortCol = currentCompSort.col;
 
@@ -3419,12 +3420,12 @@
             });
 
             // Global totals across all items in the game
-            const globalTotalComps = tableData.reduce((acc, r) => acc + (r.comp_total_count || 0), 0);
-            const globalTotalWorkers = tableData.reduce((acc, r) => acc + (r.comp_total_workers || 0), 0);
-            const globalBestComps = tableData.reduce((acc, r) => acc + (r.comp_best_count || 0), 0);
-            const globalBestWorkers = tableData.reduce((acc, r) => acc + (r.comp_best_workers || 0), 0);
-            const globalOthersComps = tableData.reduce((acc, r) => acc + (r.comp_others_count || 0), 0);
-            const globalOthersWorkers = tableData.reduce((acc, r) => acc + (r.comp_others_workers || 0), 0);
+            const globalTotalComps = compRows.reduce((acc, r) => acc + (r.comp_total_count || 0), 0);
+            const globalTotalWorkers = compRows.reduce((acc, r) => acc + (r.comp_total_workers || 0), 0);
+            const globalBestComps = compRows.reduce((acc, r) => acc + (r.comp_best_count || 0), 0);
+            const globalBestWorkers = compRows.reduce((acc, r) => acc + (r.comp_best_workers || 0), 0);
+            const globalOthersComps = compRows.reduce((acc, r) => acc + (r.comp_others_count || 0), 0);
+            const globalOthersWorkers = compRows.reduce((acc, r) => acc + (r.comp_others_workers || 0), 0);
 
             const rowsHtml = data.map(row => {
                 let displayName = row.pretty_name;
@@ -3821,7 +3822,7 @@
             const itemsMap = (workersData && workersData.items) || {};
 
             // Prepare list of items with their sorted locations
-            const rowsData = tableData.map(row => {
+            const rowsData = tableData.filter(r => !r.is_depth_only).map(row => {
                 const itemCode = row.item;
                 const rawLocs = [...(itemsMap[itemCode] || [])];
 
@@ -4440,7 +4441,13 @@
 
             // 3. Prepare Data
             let chartLabels = [];
-            const datasets = tableData.map((row, index) => {
+            const chartRows = tableData.filter(row => {
+                if (row.is_depth_only) {
+                    return isDepth && metric !== 'total_pp';
+                }
+                return true;
+            });
+            const datasets = chartRows.map((row, index) => {
                 const filtered = getFilteredData(row, metric, isComp, isWorker, isDepth);
                 if (index === 0) chartLabels = formatLabels(filtered.labels);
 
@@ -4928,6 +4935,12 @@
                 } else {
                     v1 = d1.total_pp || 0;
                     v2 = d2.total_pp || 0;
+                    if (v1 === v2) {
+                        const u1 = d1.total_units || 0;
+                        const u2 = d2.total_units || 0;
+                        if (u1 === u2) return 0;
+                        return currentDepthSort.dir === 'asc' ? (u1 > u2 ? 1 : -1) : (u1 < u2 ? 1 : -1);
+                    }
                 }
 
                 if (v1 === v2) return 0;
@@ -4940,7 +4953,8 @@
                 const d = row.depth_data || {};
                 const totalUnits = d.total_units || 0;
                 const totalPP = d.total_pp || 0;
-                const ppPerUnit = d.pp_per_unit || 1;
+                const isNoPP = Boolean(row.is_depth_only || d.pp_per_unit === 0);
+                const ppPerUnit = isNoPP ? 0 : (d.pp_per_unit || 1);
                 const topSellers = d.top_sellers || [];
                 const ladder = d.ladder || [];
                 const isExpanded = expandedDepthItems.has(itemCode);
@@ -4988,7 +5002,16 @@
 
                 // Merged Volume Column: PP and Units (Price removed per user request)
                 let volumeCellHtml = '';
-                if (ppPerUnit === 1) {
+                if (isNoPP) {
+                    const unitsFormatted = (window.innerWidth <= 768) ? `${formatCompact(totalUnits)} units` : `${totalUnits.toLocaleString()} units`;
+                    volumeCellHtml = `
+                        <div style="text-align: right; line-height: 1.25;">
+                            <div style="font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; font-size: 13.5px;">
+                                ${unitsFormatted}
+                            </div>
+                        </div>
+                    `;
+                } else if (ppPerUnit === 1) {
                     volumeCellHtml = `
                         <div style="text-align: right; line-height: 1.25;">
                             <div style="font-weight: 700; color: var(--subhead-green); font-variant-numeric: tabular-nums; font-size: 13.5px;">

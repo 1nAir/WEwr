@@ -292,6 +292,16 @@ class DataProcessor:
         with open(config.LATEST_MARKET_DEPTH_FILE, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2)
 
+    @classmethod
+    def load_known_players(cls) -> dict[str, Any]:
+        """Loads the known players cache."""
+        return cls._load_json(config.KNOWN_PLAYERS_FILE)
+
+    @classmethod
+    def save_known_players(cls, data: dict[str, Any]) -> None:
+        """Saves the known players cache."""
+        cls._save_json(config.KNOWN_PLAYERS_FILE, data)
+
     # --- Original Spike Cleaner Logic ---
 
     @staticmethod

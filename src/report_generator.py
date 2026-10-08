@@ -132,6 +132,34 @@ class ReportGenerator:
 
             table_data.append(row)
 
+        # Append Market Depth specific extra items (Cases & Scraps)
+        for item_code in config.MARKET_DEPTH_EXTRA_ITEMS:
+            item_depth_data = depth_snapshot.get(item_code, {}) if depth_snapshot else {}
+            item_depth_history = (
+                depth_history["items"].get(item_code, {})
+                if depth_history and "items" in depth_history
+                else {}
+            )
+            row = {
+                "item": item_code,
+                "pretty_name": config.MARKET_DEPTH_EXTRA_ITEMS.get(item_code, item_code),
+                "is_depth_only": True,
+                "min_pp": 0,
+                "avg_pp": 0,
+                "max_pp": 0,
+                "history": {},
+                "comp_history": {},
+                "worker_history": {},
+                "depth_history": item_depth_history,
+                "depth_data": item_depth_data,
+                "labels": history.get("labels", []),
+                "comp_labels": comp_history.get("labels", []),
+                "worker_labels": workers_history.get("labels", []) if workers_history else [],
+                "worker_wages": workers_history.get("wages", []) if workers_history else [],
+                "depth_labels": depth_history.get("labels", []) if depth_history else [],
+            }
+            table_data.append(row)
+
         # Serialize data for JS injection
         table_data_json = json.dumps(table_data)
         workers_data_json = json.dumps(workers_snapshot or {})

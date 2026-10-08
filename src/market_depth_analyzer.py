@@ -1,11 +1,11 @@
-from __future__ import annotations
-
+from datetime import datetime, timezone
 import logging
 from collections import defaultdict
 from typing import Any
 
 from src import config
 from src.api_client import TRPCClient
+from src.data_processor import DataProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -96,32 +96,24 @@ class MarketDepthAnalyzer:
             if not cursor or not items:
                 break
 
-        # 4. Players: start with ranked players
+        # 4. Players: load from known_players cache and refresh with live active ranking
+        known_players = DataProcessor.load_known_players()
+        known_inactive = set(known_players.get("inactive_sellers", []))
+
         ranked_players = self.client.get_users_ranking("userLevel")
-        all_user_ids = {
+        live_active_ids = {
             it["user"] for it in ranked_players if isinstance(it, dict) and it.get("user")
         }
 
-        # 5. Inactive players who have active listings: catch from getTopOrders
-        top_calls = [
-            ("tradingOrder.getTopOrders", {"itemCode": code, "limit": 100})
-            for code in target_items
-        ]
-        top_resps = self.client.batch_call(top_calls, raise_on_error=False)
-        for resp in top_resps:
-            if isinstance(resp, dict):
-                sells = resp.get("result", {}).get("data", {}).get("sellOrders", [])
-                for o in sells:
-                    uid = o.get("user")
-                    if uid:
-                        all_user_ids.add(uid)
+        all_user_ids = live_active_ids.union(known_inactive)
 
         logger.info(
             f"Discovered: {len(country_meta)} countries, {len(party_meta)} parties, "
-            f"{len(mu_meta)} MUs, and {len(all_user_ids)} unique players."
+            f"{len(mu_meta)} MUs, {len(live_active_ids)} active players, "
+            f"and {len(known_inactive)} known inactive sellers. Total users to scan: {len(all_user_ids)}."
         )
 
-        return country_meta, party_meta, mu_meta, all_user_ids
+        return country_meta, party_meta, mu_meta, all_user_ids, live_active_ids, known_inactive
 
     def collect_market_depth(
         self, items: list[str] | None = None
@@ -130,10 +122,10 @@ class MarketDepthAnalyzer:
         Polls all market owners via tradingOrder.getPublicOrdersByOwner in batches.
         Aggregates units, PP, top 3 sellers, and ladder per commodity.
         """
-        target_items = items or list(config.ITEM_PRETTY_NAMES.keys())
+        target_items = items or list(config.MARKET_DEPTH_ITEMS.keys())
 
         # 1. Discover all owners
-        country_meta, party_meta, mu_meta, all_user_ids = self._discover_owners(target_items)
+        country_meta, party_meta, mu_meta, all_user_ids, live_active_ids, known_inactive = self._discover_owners(target_items)
 
         # 2. Build owner query list
         calls = []
@@ -170,6 +162,7 @@ class MarketDepthAnalyzer:
         owner_type_map = {}
 
         seen_order_ids = set()
+        users_with_active_orders = set()
 
         for idx, resp in enumerate(responses):
             if not isinstance(resp, dict) or "result" not in resp:
@@ -180,6 +173,9 @@ class MarketDepthAnalyzer:
 
             data = resp.get("result", {}).get("data", {})
             sells = data.get("sellOrders", [])
+            if sells and o_type == "user":
+                users_with_active_orders.add(owner_id)
+
             for o in sells:
                 oid = o.get("_id")
                 if oid and oid not in seen_order_ids:
@@ -194,6 +190,21 @@ class MarketDepthAnalyzer:
                         item_owner_orders[item_code][owner_id][p] += qty
 
         logger.info(f"Collected {len(seen_order_ids)} unique sell orders across all items.")
+
+        # 3.5 Auto-cleaning: Garbage collect inactive players whose orders are now zero
+        remaining_inactive = {uid for uid in known_inactive if uid in users_with_active_orders}
+        pruned_count = len(known_inactive) - len(remaining_inactive)
+        if pruned_count > 0:
+            logger.info(f"Auto-cleaned {pruned_count} inactive sellers with zero orders remaining.")
+
+        updated_known_players = {
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "active_users_count": len(live_active_ids),
+            "inactive_sellers_count": len(remaining_inactive),
+            "active_users": sorted(live_active_ids),
+            "inactive_sellers": sorted(remaining_inactive),
+        }
+        DataProcessor.save_known_players(updated_known_players)
 
         # 4. Resolve names and avatars for Top 3 sellers per commodity
         users_to_resolve = set()
@@ -277,9 +288,9 @@ class MarketDepthAnalyzer:
 
         for code in target_items:
             sells = item_orders.get(code, [])
-            pp_per_unit = config.ITEM_PRODUCTION_POINTS.get(code, 1)
+            pp_per_unit = config.MARKET_DEPTH_PP.get(code, 0)
             total_units = sum(int(o.get("quantity", 0)) for o in sells)
-            total_pp = total_units * pp_per_unit
+            total_pp = total_units * pp_per_unit if pp_per_unit else 0
 
             # Build ladder sorted by price ascending
             price_map = defaultdict(int)
@@ -293,7 +304,7 @@ class MarketDepthAnalyzer:
                 ladder.append({
                     "price": p,
                     "quantity": qty,
-                    "pp": qty * pp_per_unit,
+                    "pp": qty * pp_per_unit if pp_per_unit else 0,
                 })
 
             # Format top 3 sellers with metadata (avatar, profile link, type, active listings)
