@@ -96,24 +96,66 @@ class MarketDepthAnalyzer:
             if not cursor or not items:
                 break
 
-        # 4. Players: load from known_players cache and refresh with live active ranking
-        known_players = DataProcessor.load_known_players()
-        known_inactive = set(known_players.get("inactive_sellers", []))
+        # 4. Players: load from known_players cache
+        known_data = DataProcessor.load_known_players()
+        if isinstance(known_data, list):
+            cached_player_ids = set(known_data)
+        elif isinstance(known_data, dict):
+            cached_player_ids = set(known_data.get("players", []))
+            if not cached_player_ids:
+                cached_player_ids = set(known_data.get("active_users", [])).union(
+                    known_data.get("inactive_sellers", [])
+                )
+        else:
+            cached_player_ids = set()
 
+        # 5. Live active players from ranking
         ranked_players = self.client.get_users_ranking("userLevel")
         live_active_ids = {
             it["user"] for it in ranked_players if isinstance(it, dict) and it.get("user")
         }
 
-        all_user_ids = live_active_ids.union(known_inactive)
+        # 6. Safety Net: Discover sellers from Top 100 orders across all target commodities
+        top_calls = [
+            ("tradingOrder.getTopOrders", {"itemCode": code, "limit": 100})
+            for code in target_items
+        ]
+        top_resps = self.client.batch_call(
+            top_calls, raise_on_error=False, batch_size=len(target_items)
+        )
+        top_order_uids = set()
+        for resp in top_resps:
+            if isinstance(resp, dict):
+                sells = resp.get("result", {}).get("data", {}).get("sellOrders", [])
+                for o in sells:
+                    uid = o.get("user")
+                    if uid:
+                        top_order_uids.add(uid)
+
+        # Guaranteed players: active players + top-100 sellers (always kept / added to file)
+        guaranteed_players = live_active_ids.union(top_order_uids)
+
+        # Unconfirmed candidates: players in file who are neither in active ranking nor in top-100
+        unconfirmed_candidates = cached_player_ids - guaranteed_players
+
+        # All players to query for orders: guaranteed + candidates to verify
+        all_user_ids = guaranteed_players.union(unconfirmed_candidates)
 
         logger.info(
             f"Discovered: {len(country_meta)} countries, {len(party_meta)} parties, "
-            f"{len(mu_meta)} MUs, {len(live_active_ids)} active players, "
-            f"and {len(known_inactive)} known inactive sellers. Total users to scan: {len(all_user_ids)}."
+            f"{len(mu_meta)} MUs, {len(guaranteed_players)} guaranteed players (active/top100), "
+            f"and {len(unconfirmed_candidates)} candidates to verify from file. "
+            f"Total unique users to scan: {len(all_user_ids)}."
         )
 
-        return country_meta, party_meta, mu_meta, all_user_ids, live_active_ids, known_inactive
+        return (
+            country_meta,
+            party_meta,
+            mu_meta,
+            all_user_ids,
+            guaranteed_players,
+            unconfirmed_candidates,
+        )
 
     def collect_market_depth(
         self, items: list[str] | None = None
@@ -125,7 +167,14 @@ class MarketDepthAnalyzer:
         target_items = items or list(config.MARKET_DEPTH_ITEMS.keys())
 
         # 1. Discover all owners
-        country_meta, party_meta, mu_meta, all_user_ids, live_active_ids, known_inactive = self._discover_owners(target_items)
+        (
+            country_meta,
+            party_meta,
+            mu_meta,
+            all_user_ids,
+            guaranteed_players,
+            unconfirmed_candidates,
+        ) = self._discover_owners(target_items)
 
         # 2. Build owner query list
         calls = []
@@ -191,18 +240,31 @@ class MarketDepthAnalyzer:
 
         logger.info(f"Collected {len(seen_order_ids)} unique sell orders across all items.")
 
-        # 3.5 Auto-cleaning: Garbage collect inactive players whose orders are now zero
-        remaining_inactive = {uid for uid in known_inactive if uid in users_with_active_orders}
-        pruned_count = len(known_inactive) - len(remaining_inactive)
-        if pruned_count > 0:
-            logger.info(f"Auto-cleaned {pruned_count} inactive sellers with zero orders remaining.")
+        # 3.5 Verify candidates and update known_players pool:
+        # Candidates from the file who were not in guaranteed (active/top100) are checked:
+        # If they have >= 1 active orders -> kept in file.
+        # If they have 0 active orders -> removed from file.
+        verified_candidates = {
+            uid for uid in unconfirmed_candidates if uid in users_with_active_orders
+        }
+        removed_candidates = unconfirmed_candidates - verified_candidates
+
+        # Final pool of known players: guaranteed (active + top100) + verified candidates with orders
+        final_players = guaranteed_players.union(verified_candidates)
+
+        logger.info(
+            f"Known players update: {len(guaranteed_players)} guaranteed (active/top100), "
+            f"{len(verified_candidates)} unconfirmed candidates with active orders retained, "
+            f"{len(removed_candidates)} candidates with 0 orders removed. "
+            f"Total saved: {len(final_players)}."
+        )
 
         updated_known_players = {
             "updated_at": datetime.now(timezone.utc).isoformat(),
-            "active_users_count": len(live_active_ids),
-            "inactive_sellers_count": len(remaining_inactive),
-            "active_users": sorted(live_active_ids),
-            "inactive_sellers": sorted(remaining_inactive),
+            "count": len(final_players),
+            "guaranteed_count": len(guaranteed_players),
+            "verified_candidates_count": len(verified_candidates),
+            "players": sorted(final_players),
         }
         DataProcessor.save_known_players(updated_known_players)
 
