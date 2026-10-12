@@ -1,10 +1,10 @@
 {
-  "timestamp": 1791786036,
+  "timestamp": 1791786960,
   "data": {
     "lead": {
-      "total_units": 1864198,
+      "total_units": 1856092,
       "pp_per_unit": 1,
-      "total_pp": 1864198,
+      "total_pp": 1856092,
       "top_sellers": [
         {
           "id": "6813b6d546e731854c7ac83c",
@@ -13,12 +13,12 @@
           "code": "cl",
           "avatar_url": "https://flagcdn.com/w40/cl.png",
           "profile_url": "https://app.warera.io/country/6813b6d546e731854c7ac83c",
-          "quantity": 515035,
-          "share_pct": 27.6,
+          "quantity": 506580,
+          "share_pct": 27.3,
           "orders": [
             {
               "price": 0.099,
-              "quantity": 22268
+              "quantity": 13813
             },
             {
               "price": 0.1,
@@ -66,7 +66,7 @@
           "avatar_url": "https://flagcdn.com/w40/se.png",
           "profile_url": "https://app.warera.io/country/6813b6d446e731854c7ac7f2",
           "quantity": 168623,
-          "share_pct": 9.0,
+          "share_pct": 9.1,
           "orders": [
             {
               "price": 0.101,
@@ -90,8 +90,8 @@
       "ladder": [
         {
           "price": 0.099,
-          "quantity": 190578,
-          "pp": 190578
+          "quantity": 182472,
+          "pp": 182472
         },
         {
           "price": 0.1,
@@ -391,9 +391,9 @@
       ]
     },
     "cookedFish": {
-      "total_units": 13309,
+      "total_units": 13222,
       "pp_per_unit": 40,
-      "total_pp": 532360,
+      "total_pp": 528880,
       "top_sellers": [
         {
           "id": "69a83310ac07f31f07b9571c",
@@ -475,7 +475,7 @@
           "avatar_url": "https://media.warera.io/avatars/69582b6d36aed786b28f0075-1767386998961-3f1k092e.jpg",
           "profile_url": "https://app.warera.io/user/69582b6d36aed786b28f0075",
           "quantity": 1160,
-          "share_pct": 8.7,
+          "share_pct": 8.8,
           "orders": [
             {
               "price": 9.0,
@@ -495,7 +495,7 @@
           "avatar_url": "https://media.warera.io/avatars/69a9dda31cc46b700fb029af-1788425344316-b7lf15l1.jpg",
           "profile_url": "https://app.warera.io/user/69a9dda31cc46b700fb029af",
           "quantity": 1014,
-          "share_pct": 7.6,
+          "share_pct": 7.7,
           "orders": [
             {
               "price": 8.88,
@@ -526,34 +526,29 @@
       ],
       "ladder": [
         {
-          "price": 8.856,
-          "quantity": 45,
-          "pp": 1800
-        },
-        {
-          "price": 8.858,
-          "quantity": 2,
-          "pp": 80
+          "price": 8.865,
+          "quantity": 17,
+          "pp": 680
         },
         {
           "price": 8.866,
-          "quantity": 71,
-          "pp": 2840
+          "quantity": 5,
+          "pp": 200
         },
         {
           "price": 8.867,
-          "quantity": 22,
-          "pp": 880
+          "quantity": 16,
+          "pp": 640
         },
         {
           "price": 8.868,
-          "quantity": 36,
-          "pp": 1440
+          "quantity": 39,
+          "pp": 1560
         },
         {
           "price": 8.869,
-          "quantity": 67,
-          "pp": 2680
+          "quantity": 57,
+          "pp": 2280
         },
         {
           "price": 8.87,
@@ -567,8 +562,8 @@
         },
         {
           "price": 8.873,
-          "quantity": 22,
-          "pp": 880
+          "quantity": 44,
+          "pp": 1760
         },
         {
           "price": 8.874,
@@ -973,10 +968,30 @@
       ]
     },
     "iron": {
-      "total_units": 1078278,
+      "total_units": 1246773,
       "pp_per_unit": 1,
-      "total_pp": 1078278,
+      "total_pp": 1246773,
       "top_sellers": [
+        {
+          "id": "6813b6d446e731854c7ac80b",
+          "name": "Finland",
+          "type": "country",
+          "code": "fi",
+          "avatar_url": "https://flagcdn.com/w40/fi.png",
+          "profile_url": "https://app.warera.io/country/6813b6d446e731854c7ac80b",
+          "quantity": 210123,
+          "share_pct": 16.9,
+          "orders": [
+            {
+              "price": 0.099,
+              "quantity": 200123
+            },
+            {
+              "price": 0.1,
+              "quantity": 10000
+            }
+          ]
+        },
         {
           "id": "683ddd2c24b5a2e114af15c3",
           "name": "Iraq",
@@ -985,7 +1000,7 @@
           "avatar_url": "https://flagcdn.com/w40/iq.png",
           "profile_url": "https://app.warera.io/country/683ddd2c24b5a2e114af15c3",
           "quantity": 200000,
-          "share_pct": 18.5,
+          "share_pct": 16.0,
           "orders": [
             {
               "price": 0.099,
@@ -1001,27 +1016,11 @@
           "avatar_url": "https://media.warera.io/avatars/696a02baee22cba4597ef03f-1768562806604-zzj8cmg1.webp",
           "profile_url": "https://app.warera.io/user/696a02baee22cba4597ef03f",
           "quantity": 123456,
-          "share_pct": 11.4,
+          "share_pct": 9.9,
           "orders": [
             {
               "price": 0.1,
               "quantity": 123456
-            }
-          ]
-        },
-        {
-          "id": "6813b6d446e731854c7ac7a2",
-          "name": "Italy",
-          "type": "country",
-          "code": "it",
-          "avatar_url": "https://flagcdn.com/w40/it.png",
-          "profile_url": "https://app.warera.io/country/6813b6d446e731854c7ac7a2",
-          "quantity": 88808,
-          "share_pct": 8.2,
-          "orders": [
-            {
-              "price": 0.099,
-              "quantity": 88808
             }
           ]
         }
@@ -1029,13 +1028,13 @@
       "ladder": [
         {
           "price": 0.099,
-          "quantity": 714855,
-          "pp": 714855
+          "quantity": 877699,
+          "pp": 877699
         },
         {
           "price": 0.1,
-          "quantity": 240965,
-          "pp": 240965
+          "quantity": 246416,
+          "pp": 246416
         },
         {
           "price": 0.101,
@@ -1046,11 +1045,6 @@
           "price": 0.102,
           "quantity": 3074,
           "pp": 3074
-        },
-        {
-          "price": 0.105,
-          "quantity": 339,
-          "pp": 339
         },
         {
           "price": 0.107,
@@ -1244,8 +1238,8 @@
         },
         {
           "price": 0.99,
-          "quantity": 10000,
-          "pp": 10000
+          "quantity": 10420,
+          "pp": 10420
         },
         {
           "price": 1.0,
@@ -1363,6 +1357,11 @@
           "pp": 1
         },
         {
+          "price": 119.0,
+          "quantity": 119,
+          "pp": 119
+        },
+        {
           "price": 180.0,
           "quantity": 1,
           "pp": 1
@@ -1395,9 +1394,9 @@
       ]
     },
     "lightAmmo": {
-      "total_units": 824402,
+      "total_units": 809933,
       "pp_per_unit": 1,
-      "total_pp": 824402,
+      "total_pp": 809933,
       "top_sellers": [
         {
           "id": "699f7d14c629e138fa86ec9c",
@@ -1407,7 +1406,7 @@
           "avatar_url": "https://media.warera.io/avatars/mu/mu-699f7d14c629e138fa86ec9c-1788019233724-5s4mphx0.png",
           "profile_url": "https://app.warera.io/mu/699f7d14c629e138fa86ec9c",
           "quantity": 143744,
-          "share_pct": 17.4,
+          "share_pct": 17.7,
           "orders": [
             {
               "price": 0.202,
@@ -1423,7 +1422,7 @@
           "avatar_url": "https://media.warera.io/avatars/68794abb74d5fe43c4bab46a-1767258740339-cfqpkt6f.jpg",
           "profile_url": "https://app.warera.io/user/68794abb74d5fe43c4bab46a",
           "quantity": 100000,
-          "share_pct": 12.1,
+          "share_pct": 12.3,
           "orders": [
             {
               "price": 0.209,
@@ -1483,13 +1482,13 @@
       "ladder": [
         {
           "price": 0.201,
-          "quantity": 14278,
-          "pp": 14278
+          "quantity": 5719,
+          "pp": 5719
         },
         {
           "price": 0.202,
-          "quantity": 319073,
-          "pp": 319073
+          "quantity": 319163,
+          "pp": 319163
         },
         {
           "price": 0.203,
@@ -1660,11 +1659,6 @@
           "price": 0.29,
           "quantity": 664,
           "pp": 664
-        },
-        {
-          "price": 0.345,
-          "quantity": 6000,
-          "pp": 6000
         },
         {
           "price": 0.4,
@@ -1839,9 +1833,9 @@
       ]
     },
     "limestone": {
-      "total_units": 2084744,
+      "total_units": 2077611,
       "pp_per_unit": 1,
-      "total_pp": 2084744,
+      "total_pp": 2077611,
       "top_sellers": [
         {
           "id": "69b6886f7903e4b84cd2646f",
@@ -1851,7 +1845,7 @@
           "avatar_url": "https://media.warera.io/avatars/69b6886f7903e4b84cd2646f-1790851897648-a13thrrk.jpg",
           "profile_url": "https://app.warera.io/user/69b6886f7903e4b84cd2646f",
           "quantity": 290319,
-          "share_pct": 13.9,
+          "share_pct": 14.0,
           "orders": [
             {
               "price": 0.091,
@@ -1895,8 +1889,8 @@
       "ladder": [
         {
           "price": 0.091,
-          "quantity": 883807,
-          "pp": 883807
+          "quantity": 876643,
+          "pp": 876643
         },
         {
           "price": 0.092,
@@ -1905,8 +1899,8 @@
         },
         {
           "price": 0.093,
-          "quantity": 93746,
-          "pp": 93746
+          "quantity": 93777,
+          "pp": 93777
         },
         {
           "price": 0.094,
@@ -2241,9 +2235,9 @@
       ]
     },
     "steel": {
-      "total_units": 177330,
+      "total_units": 177468,
       "pp_per_unit": 10,
-      "total_pp": 1773300,
+      "total_pp": 1774680,
       "top_sellers": [
         {
           "id": "68da3f28f8b282f7101a8273",
@@ -2289,7 +2283,7 @@
           "avatar_url": "https://media.warera.io/avatars/698493ae74ed5d90ee0eec49-1771604115252-7d6kghpi.png",
           "profile_url": "https://app.warera.io/user/698493ae74ed5d90ee0eec49",
           "quantity": 14633,
-          "share_pct": 8.3,
+          "share_pct": 8.2,
           "orders": [
             {
               "price": 1.9,
@@ -2300,9 +2294,24 @@
       ],
       "ladder": [
         {
+          "price": 1.852,
+          "quantity": 244,
+          "pp": 2440
+        },
+        {
+          "price": 1.853,
+          "quantity": 415,
+          "pp": 4150
+        },
+        {
+          "price": 1.854,
+          "quantity": 26,
+          "pp": 260
+        },
+        {
           "price": 1.855,
-          "quantity": 1555,
-          "pp": 15550
+          "quantity": 1280,
+          "pp": 12800
         },
         {
           "price": 1.858,
@@ -2456,8 +2465,8 @@
         },
         {
           "price": 1.899,
-          "quantity": 3278,
-          "pp": 32780
+          "quantity": 3006,
+          "pp": 30060
         },
         {
           "price": 1.9,
@@ -2702,9 +2711,9 @@
       ]
     },
     "livestock": {
-      "total_units": 38689,
+      "total_units": 38448,
       "pp_per_unit": 20,
-      "total_pp": 773780,
+      "total_pp": 768960,
       "top_sellers": [
         {
           "id": "69aa91fc5df9982a98fac65a",
@@ -2714,7 +2723,7 @@
           "avatar_url": "https://media.warera.io/avatars/69aa91fc5df9982a98fac65a-1789625983065-q4e8u6xy.png",
           "profile_url": "https://app.warera.io/user/69aa91fc5df9982a98fac65a",
           "quantity": 15156,
-          "share_pct": 39.2,
+          "share_pct": 39.4,
           "orders": [
             {
               "price": 1.6,
@@ -2730,7 +2739,7 @@
           "avatar_url": "https://media.warera.io/avatars/6919a2eb45ce8539d0500fe4-1763306264575-uo17t8on.png",
           "profile_url": "https://app.warera.io/user/6919a2eb45ce8539d0500fe4",
           "quantity": 3326,
-          "share_pct": 8.6,
+          "share_pct": 8.7,
           "orders": [
             {
               "price": 1.747,
@@ -2757,19 +2766,9 @@
       ],
       "ladder": [
         {
-          "price": 1.58,
-          "quantity": 3,
-          "pp": 60
-        },
-        {
-          "price": 1.581,
-          "quantity": 124,
-          "pp": 2480
-        },
-        {
           "price": 1.582,
-          "quantity": 392,
-          "pp": 7840
+          "quantity": 382,
+          "pp": 7640
         },
         {
           "price": 1.583,
@@ -2795,11 +2794,6 @@
           "price": 1.588,
           "quantity": 263,
           "pp": 5260
-        },
-        {
-          "price": 1.589,
-          "quantity": 22,
-          "pp": 440
         },
         {
           "price": 1.59,
@@ -2833,8 +2827,8 @@
         },
         {
           "price": 1.599,
-          "quantity": 578,
-          "pp": 11560
+          "quantity": 500,
+          "pp": 10000
         },
         {
           "price": 1.6,
@@ -2880,11 +2874,6 @@
           "price": 1.64,
           "quantity": 24,
           "pp": 480
-        },
-        {
-          "price": 1.645,
-          "quantity": 4,
-          "pp": 80
         },
         {
           "price": 1.649,
@@ -3154,9 +3143,9 @@
       ]
     },
     "concrete": {
-      "total_units": 155789,
+      "total_units": 155725,
       "pp_per_unit": 10,
-      "total_pp": 1557890,
+      "total_pp": 1557250,
       "top_sellers": [
         {
           "id": "6813b6d446e731854c7ac7f2",
@@ -3314,7 +3303,7 @@
           "avatar_url": "https://media.warera.io/avatars/69635dc2d83cd4e381a66dce-1772936032606-9p25nwh7.jpg",
           "profile_url": "https://app.warera.io/user/69635dc2d83cd4e381a66dce",
           "quantity": 8800,
-          "share_pct": 5.6,
+          "share_pct": 5.7,
           "orders": [
             {
               "price": 1.849,
@@ -3325,14 +3314,19 @@
       ],
       "ladder": [
         {
+          "price": 1.81,
+          "quantity": 1591,
+          "pp": 15910
+        },
+        {
           "price": 1.814,
-          "quantity": 60,
-          "pp": 600
+          "quantity": 39,
+          "pp": 390
         },
         {
           "price": 1.815,
-          "quantity": 2052,
-          "pp": 20520
+          "quantity": 418,
+          "pp": 4180
         },
         {
           "price": 1.817,
@@ -3962,9 +3956,9 @@
       ]
     },
     "fish": {
-      "total_units": 21974,
+      "total_units": 21910,
       "pp_per_unit": 40,
-      "total_pp": 878960,
+      "total_pp": 876400,
       "top_sellers": [
         {
           "id": "6a7430d6b7780fb7aeb4ce6d",
@@ -3990,7 +3984,7 @@
           "avatar_url": "https://media.warera.io/avatars/6993b905cd957d3e93bc35a6-1780488064672-ex6t4dmc-static.gif",
           "profile_url": "https://app.warera.io/user/6993b905cd957d3e93bc35a6",
           "quantity": 2378,
-          "share_pct": 10.8,
+          "share_pct": 10.9,
           "orders": [
             {
               "price": 3.854,
@@ -4033,14 +4027,9 @@
       ],
       "ladder": [
         {
-          "price": 3.851,
-          "quantity": 5,
-          "pp": 200
-        },
-        {
           "price": 3.852,
-          "quantity": 82,
-          "pp": 3280
+          "quantity": 30,
+          "pp": 1200
         },
         {
           "price": 3.853,
@@ -4091,11 +4080,6 @@
           "price": 3.867,
           "quantity": 167,
           "pp": 6680
-        },
-        {
-          "price": 3.868,
-          "quantity": 7,
-          "pp": 280
         },
         {
           "price": 3.87,
@@ -4540,9 +4524,9 @@
       ]
     },
     "steak": {
-      "total_units": 17501,
+      "total_units": 17466,
       "pp_per_unit": 20,
-      "total_pp": 350020,
+      "total_pp": 349320,
       "top_sellers": [
         {
           "id": "69a9dda31cc46b700fb029af",
@@ -4584,7 +4568,7 @@
           "avatar_url": "https://media.warera.io/avatars/697868f8461612acb7ad888a-1782485208235-wjcobq9n.webp",
           "profile_url": "https://app.warera.io/user/697868f8461612acb7ad888a",
           "quantity": 3014,
-          "share_pct": 17.2,
+          "share_pct": 17.3,
           "orders": [
             {
               "price": 4.1,
@@ -4631,9 +4615,19 @@
       ],
       "ladder": [
         {
+          "price": 4.089,
+          "quantity": 22,
+          "pp": 440
+        },
+        {
           "price": 4.09,
-          "quantity": 130,
-          "pp": 2600
+          "quantity": 85,
+          "pp": 1700
+        },
+        {
+          "price": 4.091,
+          "quantity": 49,
+          "pp": 980
         },
         {
           "price": 4.094,
@@ -4642,8 +4636,8 @@
         },
         {
           "price": 4.095,
-          "quantity": 67,
-          "pp": 1340
+          "quantity": 6,
+          "pp": 120
         },
         {
           "price": 4.096,
@@ -4968,9 +4962,9 @@
       ]
     },
     "petroleum": {
-      "total_units": 441623,
+      "total_units": 443476,
       "pp_per_unit": 1,
-      "total_pp": 441623,
+      "total_pp": 443476,
       "top_sellers": [
         {
           "id": "69d2943b880d0f7753007334",
@@ -5028,8 +5022,8 @@
       "ladder": [
         {
           "price": 0.103,
-          "quantity": 40690,
-          "pp": 40690
+          "quantity": 43106,
+          "pp": 43106
         },
         {
           "price": 0.104,
@@ -5038,8 +5032,8 @@
         },
         {
           "price": 0.105,
-          "quantity": 29976,
-          "pp": 29976
+          "quantity": 29413,
+          "pp": 29413
         },
         {
           "price": 0.106,
@@ -5369,9 +5363,9 @@
       ]
     },
     "ammo": {
-      "total_units": 97931,
+      "total_units": 98350,
       "pp_per_unit": 4,
-      "total_pp": 391724,
+      "total_pp": 393400,
       "top_sellers": [
         {
           "id": "681e55d5f6f19b81b6315f01",
@@ -5397,7 +5391,7 @@
           "avatar_url": "https://flagcdn.com/w40/es.png",
           "profile_url": "https://app.warera.io/country/6813b6d446e731854c7ac7a8",
           "quantity": 5451,
-          "share_pct": 5.6,
+          "share_pct": 5.5,
           "orders": [
             {
               "price": 0.85,
@@ -5406,12 +5400,12 @@
           ]
         },
         {
-          "id": "682362134d7cb6c6b797d758",
-          "name": "Miku_Kridanik",
+          "id": "68236317fccf9b2223baa161",
+          "name": "LynnMinmay_Kridanik",
           "type": "user",
           "code": null,
-          "avatar_url": "https://media.warera.io/avatars/682362134d7cb6c6b797d758-1768952218084-xx72d6nj.jpg",
-          "profile_url": "https://app.warera.io/user/682362134d7cb6c6b797d758",
+          "avatar_url": "https://media.warera.io/avatars/68236317fccf9b2223baa161-1756259357365-5jtp004q.png",
+          "profile_url": "https://app.warera.io/user/68236317fccf9b2223baa161",
           "quantity": 5000,
           "share_pct": 5.1,
           "orders": [
@@ -5424,9 +5418,19 @@
       ],
       "ladder": [
         {
+          "price": 0.818,
+          "quantity": 30,
+          "pp": 120
+        },
+        {
+          "price": 0.819,
+          "quantity": 37,
+          "pp": 148
+        },
+        {
           "price": 0.82,
-          "quantity": 1364,
-          "pp": 5456
+          "quantity": 1122,
+          "pp": 4488
         },
         {
           "price": 0.821,
@@ -5450,8 +5454,8 @@
         },
         {
           "price": 0.825,
-          "quantity": 88,
-          "pp": 352
+          "quantity": 702,
+          "pp": 2808
         },
         {
           "price": 0.826,
@@ -5650,8 +5654,8 @@
         },
         {
           "price": 0.897,
-          "quantity": 120,
-          "pp": 480
+          "quantity": 100,
+          "pp": 400
         },
         {
           "price": 0.898,
@@ -5836,9 +5840,9 @@
       ]
     },
     "oil": {
-      "total_units": 834037,
+      "total_units": 831819,
       "pp_per_unit": 1,
-      "total_pp": 834037,
+      "total_pp": 831819,
       "top_sellers": [
         {
           "id": "6997269c5215be8ca6e9d9be",
@@ -5848,7 +5852,7 @@
           "avatar_url": "https://media.warera.io/avatars/6997269c5215be8ca6e9d9be-1771515540263-ecfflawu.jpg",
           "profile_url": "https://app.warera.io/user/6997269c5215be8ca6e9d9be",
           "quantity": 160177,
-          "share_pct": 19.2,
+          "share_pct": 19.3,
           "orders": [
             {
               "price": 0.21,
@@ -5916,13 +5920,13 @@
       "ladder": [
         {
           "price": 0.209,
-          "quantity": 10042,
-          "pp": 10042
+          "quantity": 3599,
+          "pp": 3599
         },
         {
           "price": 0.21,
-          "quantity": 128836,
-          "pp": 128836
+          "quantity": 133061,
+          "pp": 133061
         },
         {
           "price": 0.211,
@@ -6167,9 +6171,9 @@
       ]
     },
     "coca": {
-      "total_units": 1441666,
+      "total_units": 1435666,
       "pp_per_unit": 1,
-      "total_pp": 1441666,
+      "total_pp": 1435666,
       "top_sellers": [
         {
           "id": "682a6a132b76380956602044",
@@ -6179,7 +6183,7 @@
           "avatar_url": "https://media.warera.io/avatars/682a6a132b76380956602044-1787442806471-k4qq4cfs.webp",
           "profile_url": "https://app.warera.io/user/682a6a132b76380956602044",
           "quantity": 666587,
-          "share_pct": 46.2,
+          "share_pct": 46.4,
           "orders": [
             {
               "price": 0.085,
@@ -6194,12 +6198,12 @@
           "code": null,
           "avatar_url": "https://media.warera.io/avatars/696df52f9f7ad20fb2f7412a-1787066685623-km7zbk3a.jpg",
           "profile_url": "https://app.warera.io/user/696df52f9f7ad20fb2f7412a",
-          "quantity": 147877,
-          "share_pct": 10.3,
+          "quantity": 141877,
+          "share_pct": 9.9,
           "orders": [
             {
               "price": 0.084,
-              "quantity": 147877
+              "quantity": 141877
             }
           ]
         },
@@ -6211,7 +6215,7 @@
           "avatar_url": "https://media.warera.io/avatars/6919a2eb45ce8539d0500fe4-1763306264575-uo17t8on.png",
           "profile_url": "https://app.warera.io/user/6919a2eb45ce8539d0500fe4",
           "quantity": 134400,
-          "share_pct": 9.3,
+          "share_pct": 9.4,
           "orders": [
             {
               "price": 0.088,
@@ -6227,8 +6231,8 @@
       "ladder": [
         {
           "price": 0.084,
-          "quantity": 159855,
-          "pp": 159855
+          "quantity": 153855,
+          "pp": 153855
         },
         {
           "price": 0.085,
@@ -6583,9 +6587,9 @@
       ]
     },
     "cocain": {
-      "total_units": 2319,
+      "total_units": 2333,
       "pp_per_unit": 200,
-      "total_pp": 463800,
+      "total_pp": 466600,
       "top_sellers": [
         {
           "id": "6813b6d446e731854c7ac7eb",
@@ -6595,7 +6599,7 @@
           "avatar_url": "https://flagcdn.com/w40/tr.png",
           "profile_url": "https://app.warera.io/country/6813b6d446e731854c7ac7eb",
           "quantity": 618,
-          "share_pct": 26.6,
+          "share_pct": 26.5,
           "orders": [
             {
               "price": 42.0,
@@ -6611,7 +6615,7 @@
           "avatar_url": "https://flagcdn.com/w40/fr.png",
           "profile_url": "https://app.warera.io/country/6813b6d446e731854c7ac79a",
           "quantity": 164,
-          "share_pct": 7.1,
+          "share_pct": 7.0,
           "orders": [
             {
               "price": 41.86,
@@ -6650,19 +6654,29 @@
       ],
       "ladder": [
         {
+          "price": 41.677,
+          "quantity": 10,
+          "pp": 2000
+        },
+        {
+          "price": 41.688,
+          "quantity": 1,
+          "pp": 200
+        },
+        {
+          "price": 41.689,
+          "quantity": 17,
+          "pp": 3400
+        },
+        {
           "price": 41.69,
-          "quantity": 14,
-          "pp": 2800
+          "quantity": 6,
+          "pp": 1200
         },
         {
           "price": 41.691,
           "quantity": 2,
           "pp": 400
-        },
-        {
-          "price": 41.692,
-          "quantity": 11,
-          "pp": 2200
         },
         {
           "price": 41.693,
@@ -6678,11 +6692,6 @@
           "price": 41.695,
           "quantity": 54,
           "pp": 10800
-        },
-        {
-          "price": 41.696,
-          "quantity": 2,
-          "pp": 400
         },
         {
           "price": 41.698,
@@ -6821,8 +6830,8 @@
         },
         {
           "price": 41.8,
-          "quantity": 9,
-          "pp": 1800
+          "quantity": 12,
+          "pp": 2400
         },
         {
           "price": 41.806,
@@ -7011,8 +7020,8 @@
         },
         {
           "price": 43.0,
-          "quantity": 31,
-          "pp": 6200
+          "quantity": 35,
+          "pp": 7000
         },
         {
           "price": 43.1,
@@ -7217,9 +7226,9 @@
       ]
     },
     "bread": {
-      "total_units": 20020,
+      "total_units": 19974,
       "pp_per_unit": 10,
-      "total_pp": 200200,
+      "total_pp": 199740,
       "top_sellers": [
         {
           "id": "696b4ff6d2ddf1f3d75ca007",
@@ -7229,7 +7238,7 @@
           "avatar_url": "https://media.warera.io/avatars/696b4ff6d2ddf1f3d75ca007-1790913530291-e65fffjg.png",
           "profile_url": "https://app.warera.io/user/696b4ff6d2ddf1f3d75ca007",
           "quantity": 5006,
-          "share_pct": 25.0,
+          "share_pct": 25.1,
           "orders": [
             {
               "price": 3.3,
@@ -7272,14 +7281,9 @@
       ],
       "ladder": [
         {
-          "price": 1.979,
-          "quantity": 13,
-          "pp": 130
-        },
-        {
           "price": 1.98,
-          "quantity": 251,
-          "pp": 2510
+          "quantity": 218,
+          "pp": 2180
         },
         {
           "price": 1.983,
@@ -7524,9 +7528,9 @@
       ]
     },
     "heavyAmmo": {
-      "total_units": 32709,
+      "total_units": 33309,
       "pp_per_unit": 16,
-      "total_pp": 523344,
+      "total_pp": 532944,
       "top_sellers": [
         {
           "id": "696b4ff6d2ddf1f3d75ca007",
@@ -7536,7 +7540,7 @@
           "avatar_url": "https://media.warera.io/avatars/696b4ff6d2ddf1f3d75ca007-1790913530291-e65fffjg.png",
           "profile_url": "https://app.warera.io/user/696b4ff6d2ddf1f3d75ca007",
           "quantity": 4118,
-          "share_pct": 12.6,
+          "share_pct": 12.4,
           "orders": [
             {
               "price": 3.48,
@@ -7552,7 +7556,7 @@
           "avatar_url": "https://media.warera.io/avatars/696427114731ec7d73bb7b28-1768197399783-alul2lar.jpg",
           "profile_url": "https://app.warera.io/user/696427114731ec7d73bb7b28",
           "quantity": 2018,
-          "share_pct": 6.2,
+          "share_pct": 6.1,
           "orders": [
             {
               "price": 3.4,
@@ -7568,7 +7572,7 @@
           "avatar_url": "https://media.warera.io/avatars/69df604874e82e4c54606671-1777309992939-futob4yq.jpg",
           "profile_url": "https://app.warera.io/user/69df604874e82e4c54606671",
           "quantity": 1711,
-          "share_pct": 5.2,
+          "share_pct": 5.1,
           "orders": [
             {
               "price": 3.699,
@@ -7578,6 +7582,21 @@
         }
       ],
       "ladder": [
+        {
+          "price": 3.199,
+          "quantity": 323,
+          "pp": 5168
+        },
+        {
+          "price": 3.2,
+          "quantity": 25,
+          "pp": 400
+        },
+        {
+          "price": 3.248,
+          "quantity": 33,
+          "pp": 528
+        },
         {
           "price": 3.249,
           "quantity": 5,
@@ -7589,9 +7608,19 @@
           "pp": 96
         },
         {
-          "price": 3.256,
+          "price": 3.253,
+          "quantity": 100,
+          "pp": 1600
+        },
+        {
+          "price": 3.254,
           "quantity": 41,
           "pp": 656
+        },
+        {
+          "price": 3.255,
+          "quantity": 119,
+          "pp": 1904
         },
         {
           "price": 3.257,
@@ -8101,9 +8130,9 @@
       ]
     },
     "grain": {
-      "total_units": 2288745,
+      "total_units": 2338826,
       "pp_per_unit": 1,
-      "total_pp": 2288745,
+      "total_pp": 2338826,
       "top_sellers": [
         {
           "id": "697fea462a2dd3cbd8555472",
@@ -8113,7 +8142,7 @@
           "avatar_url": "https://media.warera.io/avatars/697fea462a2dd3cbd8555472-1772798863817-zazxck7a.jpg",
           "profile_url": "https://app.warera.io/user/697fea462a2dd3cbd8555472",
           "quantity": 702016,
-          "share_pct": 30.7,
+          "share_pct": 30.0,
           "orders": [
             {
               "price": 0.079,
@@ -8133,7 +8162,7 @@
           "avatar_url": "https://media.warera.io/avatars/69183a5bdb65494c1bbd14b5-1774478172065-r3z3p7ey.png",
           "profile_url": "https://app.warera.io/user/69183a5bdb65494c1bbd14b5",
           "quantity": 259362,
-          "share_pct": 11.3,
+          "share_pct": 11.1,
           "orders": [
             {
               "price": 0.083,
@@ -8149,7 +8178,7 @@
           "avatar_url": "https://flagcdn.com/w40/lv.png",
           "profile_url": "https://app.warera.io/country/6813b6d446e731854c7ac7c0",
           "quantity": 200000,
-          "share_pct": 8.7,
+          "share_pct": 8.6,
           "orders": [
             {
               "price": 0.082,
@@ -8201,8 +8230,8 @@
         },
         {
           "price": 0.09,
-          "quantity": 8046,
-          "pp": 8046
+          "quantity": 58127,
+          "pp": 58127
         },
         {
           "price": 0.091,
@@ -8497,9 +8526,9 @@
       ]
     },
     "wood": {
-      "total_units": 401488,
+      "total_units": 398791,
       "pp_per_unit": 1,
-      "total_pp": 401488,
+      "total_pp": 398791,
       "top_sellers": [
         {
           "id": "6813b6d546e731854c7ac84b",
@@ -8509,7 +8538,7 @@
           "avatar_url": "https://flagcdn.com/w40/dz.png",
           "profile_url": "https://app.warera.io/country/6813b6d546e731854c7ac84b",
           "quantity": 100509,
-          "share_pct": 25.0,
+          "share_pct": 25.2,
           "orders": [
             {
               "price": 0.11,
@@ -8525,7 +8554,7 @@
           "avatar_url": "https://media.warera.io/avatars/mu/mu-69bb39bbd079dc7ca5d47276-1783925365955-a9pfi2cg.png",
           "profile_url": "https://app.warera.io/mu/69bb39bbd079dc7ca5d47276",
           "quantity": 80000,
-          "share_pct": 19.9,
+          "share_pct": 20.1,
           "orders": [
             {
               "price": 0.109,
@@ -8541,7 +8570,7 @@
           "avatar_url": "https://media.warera.io/avatars/69df5f192862fd757a800261-1776374249507-64vxbhs4.png",
           "profile_url": "https://app.warera.io/user/69df5f192862fd757a800261",
           "quantity": 25801,
-          "share_pct": 6.4,
+          "share_pct": 6.5,
           "orders": [
             {
               "price": 0.108,
@@ -8553,8 +8582,8 @@
       "ladder": [
         {
           "price": 0.108,
-          "quantity": 100635,
-          "pp": 100635
+          "quantity": 97881,
+          "pp": 97881
         },
         {
           "price": 0.109,
@@ -8563,8 +8592,8 @@
         },
         {
           "price": 0.11,
-          "quantity": 114437,
-          "pp": 114437
+          "quantity": 114494,
+          "pp": 114494
         },
         {
           "price": 0.111,
@@ -8754,9 +8783,9 @@
       ]
     },
     "paper": {
-      "total_units": 423731,
+      "total_units": 423379,
       "pp_per_unit": 1,
-      "total_pp": 423731,
+      "total_pp": 423379,
       "top_sellers": [
         {
           "id": "69a0478a4fd0aba6a1707341",
@@ -8810,13 +8839,13 @@
       "ladder": [
         {
           "price": 0.211,
-          "quantity": 12277,
-          "pp": 12277
+          "quantity": 14288,
+          "pp": 14288
         },
         {
           "price": 0.212,
-          "quantity": 115440,
-          "pp": 115440
+          "quantity": 113077,
+          "pp": 113077
         },
         {
           "price": 0.213,
@@ -9006,7 +9035,7 @@
       ]
     },
     "scraps": {
-      "total_units": 728101,
+      "total_units": 734702,
       "pp_per_unit": 0,
       "total_pp": 0,
       "top_sellers": [
@@ -9018,7 +9047,7 @@
           "avatar_url": "https://media.warera.io/avatars/69752a2237c8a5424d02a3f9-1780229276076-uj2cvrbb.jpg",
           "profile_url": "https://app.warera.io/user/69752a2237c8a5424d02a3f9",
           "quantity": 100347,
-          "share_pct": 13.8,
+          "share_pct": 13.7,
           "orders": [
             {
               "price": 0.247,
@@ -9062,12 +9091,12 @@
       "ladder": [
         {
           "price": 0.246,
-          "quantity": 93827,
+          "quantity": 104518,
           "pp": 0
         },
         {
           "price": 0.247,
-          "quantity": 351855,
+          "quantity": 348639,
           "pp": 0
         },
         {
@@ -9082,7 +9111,7 @@
         },
         {
           "price": 0.25,
-          "quantity": 81064,
+          "quantity": 81190,
           "pp": 0
         },
         {
@@ -9257,7 +9286,7 @@
         },
         {
           "price": 1.0,
-          "quantity": 14241,
+          "quantity": 13241,
           "pp": 0
         },
         {
@@ -9443,7 +9472,7 @@
       ]
     },
     "case1": {
-      "total_units": 38296,
+      "total_units": 37534,
       "pp_per_unit": 0,
       "total_pp": 0,
       "top_sellers": [
@@ -9455,7 +9484,7 @@
           "avatar_url": "https://media.warera.io/avatars/69b3f6587972e334e341fa49-1773816661642-y7les117.jpg",
           "profile_url": "https://app.warera.io/user/69b3f6587972e334e341fa49",
           "quantity": 2173,
-          "share_pct": 5.7,
+          "share_pct": 5.8,
           "orders": [
             {
               "price": 5.5,
@@ -9471,7 +9500,7 @@
           "avatar_url": "https://media.warera.io/avatars/683cd40c0774933ec819dc9c-1787265669126-abwkr6v2-static.gif",
           "profile_url": "https://app.warera.io/user/683cd40c0774933ec819dc9c",
           "quantity": 2085,
-          "share_pct": 5.4,
+          "share_pct": 5.6,
           "orders": [
             {
               "price": 4.0,
@@ -9487,7 +9516,7 @@
           "avatar_url": "https://media.warera.io/avatars/69afedc9a403356a8a54d4ac-1773140358245-lpxz4wyt.png",
           "profile_url": "https://app.warera.io/user/69afedc9a403356a8a54d4ac",
           "quantity": 1936,
-          "share_pct": 5.1,
+          "share_pct": 5.2,
           "orders": [
             {
               "price": 3.899,
@@ -9498,43 +9527,23 @@
       ],
       "ladder": [
         {
-          "price": 3.827,
-          "quantity": 515,
-          "pp": 0
-        },
-        {
-          "price": 3.828,
-          "quantity": 174,
-          "pp": 0
-        },
-        {
-          "price": 3.829,
-          "quantity": 52,
-          "pp": 0
-        },
-        {
-          "price": 3.83,
-          "quantity": 140,
-          "pp": 0
-        },
-        {
-          "price": 3.831,
-          "quantity": 10,
-          "pp": 0
-        },
-        {
           "price": 3.832,
-          "quantity": 40,
+          "quantity": 19,
           "pp": 0
         },
         {
           "price": 3.833,
-          "quantity": 67,
+          "quantity": 19,
+          "pp": 0
+        },
+        {
+          "price": 3.834,
+          "quantity": 13,
           "pp": 0
         },
         {
           "price": 3.835,
-          "quantity": 187,
+          "quantity": 429,
           "pp": 0
         },
         {
@@ -9749,7 +9758,7 @@
         },
         {
           "price": 3.9,
-          "quantity": 1036,
+          "quantity": 981,
           "pp": 0
         },
         {
@@ -9819,7 +9828,7 @@
         },
         {
           "price": 3.95,
-          "quantity": 871,
+          "quantity": 837,
           "pp": 0
         },
         {
@@ -9909,7 +9918,7 @@
         },
         {
           "price": 4.0,
-          "quantity": 10671,
+          "quantity": 10691,
           "pp": 0
         },
         {
@@ -10029,7 +10038,7 @@
         },
         {
           "price": 5.0,
-          "quantity": 1947,
+          "quantity": 1959,
           "pp": 0
         },
         {
@@ -10240,7 +10249,7 @@
       ]
     },
     "case2": {
-      "total_units": 6938,
+      "total_units": 6961,
       "pp_per_unit": 0,
       "total_pp": 0,
       "top_sellers": [
@@ -10252,7 +10261,7 @@
           "avatar_url": "https://media.warera.io/avatars/69768bb93af9f649084a5f79-1769460259417-rdd2s3eg.jpg",
           "profile_url": "https://app.warera.io/user/69768bb93af9f649084a5f79",
           "quantity": 845,
-          "share_pct": 12.2,
+          "share_pct": 12.1,
           "orders": [
             {
               "price": 26.0,
@@ -10311,13 +10320,23 @@
       ],
       "ladder": [
         {
-          "price": 23.383,
+          "price": 23.38,
+          "quantity": 4,
+          "pp": 0
+        },
+        {
+          "price": 23.381,
+          "quantity": 23,
+          "pp": 0
+        },
+        {
+          "price": 23.382,
           "quantity": 2,
           "pp": 0
         },
         {
-          "price": 23.384,
-          "quantity": 23,
+          "price": 23.383,
+          "quantity": 19,
           "pp": 0
         },
         {
@@ -11203,7 +11222,7 @@
       ]
     },
     "woodenCase": {
-      "total_units": 9413,
+      "total_units": 9332,
       "pp_per_unit": 0,
       "total_pp": 0,
       "top_sellers": [
@@ -11215,7 +11234,7 @@
           "avatar_url": "https://media.warera.io/avatars/697b6f761a0bc85db3f6335d-1791620613230-rsg1c5fk.png",
           "profile_url": "https://app.warera.io/user/697b6f761a0bc85db3f6335d",
           "quantity": 5000,
-          "share_pct": 53.1,
+          "share_pct": 53.6,
           "orders": [
             {
               "price": 9.98,
@@ -11235,7 +11254,7 @@
           "avatar_url": "https://flagcdn.com/w40/mt.png",
           "profile_url": "https://app.warera.io/country/6873d0ea1758b40e712b5f3d",
           "quantity": 500,
-          "share_pct": 5.3,
+          "share_pct": 5.4,
           "orders": [
             {
               "price": 34.851,
@@ -11251,7 +11270,7 @@
           "avatar_url": "https://media.warera.io/avatars/68d310cd471352ce358a0f78-1786567321212-70qy5xt9.jpg",
           "profile_url": "https://app.warera.io/user/68d310cd471352ce358a0f78",
           "quantity": 400,
-          "share_pct": 4.2,
+          "share_pct": 4.3,
           "orders": [
             {
               "price": 8.0,
@@ -11278,23 +11297,18 @@
       ],
       "ladder": [
         {
-          "price": 6.855,
-          "quantity": 6,
+          "price": 6.853,
+          "quantity": 24,
           "pp": 0
         },
         {
-          "price": 6.856,
-          "quantity": 45,
-          "pp": 0
-        },
-        {
-          "price": 6.857,
-          "quantity": 39,
+          "price": 6.858,
+          "quantity": 4,
           "pp": 0
         },
         {
           "price": 6.859,
-          "quantity": 23,
+          "quantity": 5,
           "pp": 0
         },
         {
@@ -11305,6 +11319,11 @@
         {
           "price": 6.864,
           "quantity": 5,
+          "pp": 0
+        },
+        {
+          "price": 6.865,
+          "quantity": 1,
           "pp": 0
         },
         {
@@ -11529,7 +11548,7 @@
         },
         {
           "price": 6.97,
-          "quantity": 39,
+          "quantity": 35,
           "pp": 0
         },
         {
@@ -11834,7 +11853,7 @@
         },
         {
           "price": 20.0,
-          "quantity": 225,
+          "quantity": 227,
           "pp": 0
         },
         {
