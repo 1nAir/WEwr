@@ -1,21 +1,21 @@
 {
-  "timestamp": 1792347810,
+  "timestamp": 1792349012,
   "data": {
     "lead": {
-      "comp_best_count": 5470,
-      "comp_best_workers": 813,
-      "comp_best_ae": 34061,
-      "comp_others_count": 1434,
+      "comp_best_count": 5480,
+      "comp_best_workers": 811,
+      "comp_best_ae": 34128,
+      "comp_others_count": 1430,
       "comp_others_workers": 178,
-      "comp_others_ae": 8172,
-      "comp_total_count": 6904,
-      "comp_total_workers": 991,
-      "comp_total_ae": 42233,
+      "comp_others_ae": 8148,
+      "comp_total_count": 6910,
+      "comp_total_workers": 989,
+      "comp_total_ae": 42276,
       "comp_best_regions_count": 37,
       "locations": [
         {
-          "company_count": 5470,
-          "worker_count": 813,
+          "company_count": 5480,
+          "worker_count": 811,
           "country_name": "Latvia",
           "region_name": "All regions",
           "total_bonus": 55.75,
@@ -46,6 +46,16 @@
         {
           "company_count": 1,
           "worker_count": 0,
+          "country_name": "Iran",
+          "region_name": "Caspian Sea Coast",
+          "total_bonus": 40.0,
+          "has_deposit": true,
+          "tax_percent": 1,
+          "rank": 3
+        },
+        {
+          "company_count": 1,
+          "worker_count": 0,
           "country_name": "Oman",
           "region_name": "Northern Oman",
           "total_bonus": 40.0,
@@ -61,16 +71,6 @@
           "total_bonus": 40.0,
           "has_deposit": true,
           "tax_percent": 5,
-          "rank": 3
-        },
-        {
-          "company_count": 1,
-          "worker_count": 0,
-          "country_name": "Iran",
-          "region_name": "Caspian Sea Coast",
-          "total_bonus": 40.0,
-          "has_deposit": true,
-          "tax_percent": 1,
           "rank": 3
         },
         {
@@ -124,7 +124,7 @@
           "rank": 8
         },
         {
-          "company_count": 674,
+          "company_count": 672,
           "worker_count": 91,
           "country_name": "Sweden",
           "region_name": "All regions",
@@ -160,27 +160,27 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 626,
+          "company_count": 624,
           "worker_count": 74,
           "is_zero_group": true
         }
       ]
     },
     "cookedFish": {
-      "comp_best_count": 2413,
-      "comp_best_workers": 857,
-      "comp_best_ae": 15034,
-      "comp_others_count": 1482,
+      "comp_best_count": 2417,
+      "comp_best_workers": 855,
+      "comp_best_ae": 15063,
+      "comp_others_count": 1479,
       "comp_others_workers": 252,
-      "comp_others_ae": 8823,
-      "comp_total_count": 3895,
-      "comp_total_workers": 1109,
-      "comp_total_ae": 23857,
+      "comp_others_ae": 8804,
+      "comp_total_count": 3896,
+      "comp_total_workers": 1107,
+      "comp_total_ae": 23867,
       "comp_best_regions_count": 30,
       "locations": [
         {
           "company_count": 1933,
-          "worker_count": 587,
+          "worker_count": 585,
           "country_name": "Poland",
           "region_name": "All regions",
           "total_bonus": 20.0,
@@ -189,7 +189,7 @@
           "rank": 1
         },
         {
-          "company_count": 480,
+          "company_count": 484,
           "worker_count": 270,
           "country_name": "Germany",
           "region_name": "All regions",
@@ -199,7 +199,7 @@
           "rank": 1
         },
         {
-          "company_count": 755,
+          "company_count": 753,
           "worker_count": 134,
           "country_name": "Jamaica",
           "region_name": "All regions",
@@ -255,26 +255,26 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 564,
+          "company_count": 563,
           "worker_count": 85,
           "is_zero_group": true
         }
       ]
     },
     "iron": {
-      "comp_best_count": 12158,
+      "comp_best_count": 12164,
       "comp_best_workers": 1316,
-      "comp_best_ae": 74729,
-      "comp_others_count": 11713,
-      "comp_others_workers": 2200,
-      "comp_others_ae": 72151,
-      "comp_total_count": 23871,
-      "comp_total_workers": 3516,
-      "comp_total_ae": 146880,
+      "comp_best_ae": 74757,
+      "comp_others_count": 11704,
+      "comp_others_workers": 2201,
+      "comp_others_ae": 72111,
+      "comp_total_count": 23868,
+      "comp_total_workers": 3517,
+      "comp_total_ae": 146868,
       "comp_best_regions_count": 23,
       "locations": [
         {
-          "company_count": 12158,
+          "company_count": 12164,
           "worker_count": 1316,
           "country_name": "Brazil",
           "region_name": "All regions",
@@ -284,8 +284,8 @@
           "rank": 1
         },
         {
-          "company_count": 9868,
-          "worker_count": 2023,
+          "company_count": 9861,
+          "worker_count": 2024,
           "country_name": "Thailand",
           "region_name": "All regions",
           "total_bonus": 60.0,
@@ -450,27 +450,27 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 1444,
+          "company_count": 1442,
           "worker_count": 136,
           "is_zero_group": true
         }
       ]
     },
     "lightAmmo": {
-      "comp_best_count": 3333,
-      "comp_best_workers": 542,
-      "comp_best_ae": 20698,
-      "comp_others_count": 473,
+      "comp_best_count": 3331,
+      "comp_best_workers": 540,
+      "comp_best_ae": 20689,
+      "comp_others_count": 471,
       "comp_others_workers": 94,
-      "comp_others_ae": 2806,
-      "comp_total_count": 3806,
-      "comp_total_workers": 636,
-      "comp_total_ae": 23504,
+      "comp_others_ae": 2794,
+      "comp_total_count": 3802,
+      "comp_total_workers": 634,
+      "comp_total_ae": 23483,
       "comp_best_regions_count": 6,
       "locations": [
         {
-          "company_count": 3333,
-          "worker_count": 542,
+          "company_count": 3331,
+          "worker_count": 540,
           "country_name": "El Salvador",
           "region_name": "All regions",
           "total_bonus": 50.5,
@@ -515,27 +515,27 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 138,
+          "company_count": 136,
           "worker_count": 8,
           "is_zero_group": true
         }
       ]
     },
     "limestone": {
-      "comp_best_count": 1444,
-      "comp_best_workers": 150,
-      "comp_best_ae": 8550,
-      "comp_others_count": 3860,
-      "comp_others_workers": 336,
-      "comp_others_ae": 21315,
+      "comp_best_count": 1452,
+      "comp_best_workers": 156,
+      "comp_best_ae": 8599,
+      "comp_others_count": 3852,
+      "comp_others_workers": 329,
+      "comp_others_ae": 21259,
       "comp_total_count": 5304,
-      "comp_total_workers": 486,
-      "comp_total_ae": 29865,
+      "comp_total_workers": 485,
+      "comp_total_ae": 29858,
       "comp_best_regions_count": 1,
       "locations": [
         {
-          "company_count": 1444,
-          "worker_count": 150,
+          "company_count": 1452,
+          "worker_count": 156,
           "country_name": "Morocco",
           "region_name": "La\u00e2youne-Sakia El Hamra",
           "total_bonus": 41.5,
@@ -544,8 +544,8 @@
           "rank": 1
         },
         {
-          "company_count": 409,
-          "worker_count": 49,
+          "company_count": 413,
+          "worker_count": 48,
           "country_name": "Lebanon",
           "region_name": "South Lebanon",
           "total_bonus": 37.0,
@@ -555,7 +555,7 @@
         },
         {
           "company_count": 703,
-          "worker_count": 50,
+          "worker_count": 55,
           "country_name": "Bhutan",
           "region_name": "Trashigang",
           "total_bonus": 33.0,
@@ -614,7 +614,7 @@
           "rank": 7
         },
         {
-          "company_count": 10,
+          "company_count": 9,
           "worker_count": 1,
           "country_name": "Morocco",
           "region_name": "All regions",
@@ -660,26 +660,26 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 2701,
-          "worker_count": 232,
+          "company_count": 2690,
+          "worker_count": 221,
           "is_zero_group": true
         }
       ]
     },
     "steel": {
-      "comp_best_count": 18485,
+      "comp_best_count": 18489,
       "comp_best_workers": 2863,
-      "comp_best_ae": 115447,
-      "comp_others_count": 3603,
-      "comp_others_workers": 349,
-      "comp_others_ae": 20867,
-      "comp_total_count": 22088,
-      "comp_total_workers": 3212,
-      "comp_total_ae": 136314,
+      "comp_best_ae": 115483,
+      "comp_others_count": 3600,
+      "comp_others_workers": 348,
+      "comp_others_ae": 20850,
+      "comp_total_count": 22089,
+      "comp_total_workers": 3211,
+      "comp_total_ae": 136333,
       "comp_best_regions_count": 18,
       "locations": [
         {
-          "company_count": 18485,
+          "company_count": 18489,
           "worker_count": 2863,
           "country_name": "Gabon",
           "region_name": "All regions",
@@ -699,7 +699,7 @@
           "rank": 2
         },
         {
-          "company_count": 369,
+          "company_count": 368,
           "worker_count": 40,
           "country_name": "Zimbabwe",
           "region_name": "All regions",
@@ -709,7 +709,7 @@
           "rank": 3
         },
         {
-          "company_count": 303,
+          "company_count": 304,
           "worker_count": 26,
           "country_name": "Portugal",
           "region_name": "All regions",
@@ -745,27 +745,27 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 2852,
-          "worker_count": 273,
+          "company_count": 2849,
+          "worker_count": 272,
           "is_zero_group": true
         }
       ]
     },
     "livestock": {
-      "comp_best_count": 739,
-      "comp_best_workers": 110,
-      "comp_best_ae": 4418,
-      "comp_others_count": 524,
-      "comp_others_workers": 74,
-      "comp_others_ae": 2862,
-      "comp_total_count": 1263,
-      "comp_total_workers": 184,
-      "comp_total_ae": 7280,
+      "comp_best_count": 741,
+      "comp_best_workers": 114,
+      "comp_best_ae": 4429,
+      "comp_others_count": 523,
+      "comp_others_workers": 75,
+      "comp_others_ae": 2857,
+      "comp_total_count": 1264,
+      "comp_total_workers": 189,
+      "comp_total_ae": 7286,
       "comp_best_regions_count": 1,
       "locations": [
         {
-          "company_count": 739,
-          "worker_count": 110,
+          "company_count": 741,
+          "worker_count": 114,
           "country_name": "Nicaragua",
           "region_name": "Western Nicaragua",
           "total_bonus": 70.0,
@@ -816,21 +816,21 @@
         {
           "company_count": 1,
           "worker_count": 0,
-          "country_name": "Australia",
-          "region_name": "South Australia",
-          "total_bonus": 35.0,
-          "has_deposit": true,
-          "tax_percent": 6,
-          "rank": 6
-        },
-        {
-          "company_count": 1,
-          "worker_count": 0,
           "country_name": "Niger",
           "region_name": "Tunis",
           "total_bonus": 35.0,
           "has_deposit": true,
           "tax_percent": 4,
+          "rank": 6
+        },
+        {
+          "company_count": 1,
+          "worker_count": 0,
+          "country_name": "Australia",
+          "region_name": "South Australia",
+          "total_bonus": 35.0,
+          "has_deposit": true,
+          "tax_percent": 6,
           "rank": 6
         },
         {
@@ -844,16 +844,6 @@
           "rank": 7
         },
         {
-          "company_count": 1,
-          "worker_count": 0,
-          "country_name": "Lithuania",
-          "region_name": "Moldova",
-          "total_bonus": 30.0,
-          "has_deposit": true,
-          "tax_percent": 7,
-          "rank": 8
-        },
-        {
           "company_count": 4,
           "worker_count": 0,
           "country_name": "Taiwan",
@@ -861,17 +851,7 @@
           "total_bonus": 5.0,
           "has_deposit": false,
           "tax_percent": 5,
-          "rank": 9
-        },
-        {
-          "company_count": 1,
-          "worker_count": 0,
-          "country_name": "United Kingdom",
-          "region_name": "All regions",
-          "total_bonus": 5.0,
-          "has_deposit": false,
-          "tax_percent": 5,
-          "rank": 9
+          "rank": 8
         },
         {
           "company_count": 1,
@@ -881,7 +861,17 @@
           "total_bonus": 5.0,
           "has_deposit": false,
           "tax_percent": 5,
-          "rank": 9
+          "rank": 8
+        },
+        {
+          "company_count": 1,
+          "worker_count": 0,
+          "country_name": "United Kingdom",
+          "region_name": "All regions",
+          "total_bonus": 5.0,
+          "has_deposit": false,
+          "tax_percent": 5,
+          "rank": 8
         },
         {
           "rank": null,
@@ -891,26 +881,26 @@
           "has_deposit": false,
           "tax_percent": null,
           "company_count": 483,
-          "worker_count": 66,
+          "worker_count": 67,
           "is_zero_group": true
         }
       ]
     },
     "concrete": {
-      "comp_best_count": 4786,
-      "comp_best_workers": 425,
-      "comp_best_ae": 27877,
-      "comp_others_count": 980,
+      "comp_best_count": 4787,
+      "comp_best_workers": 427,
+      "comp_best_ae": 27886,
+      "comp_others_count": 979,
       "comp_others_workers": 104,
-      "comp_others_ae": 4824,
+      "comp_others_ae": 4817,
       "comp_total_count": 5766,
-      "comp_total_workers": 529,
-      "comp_total_ae": 32701,
+      "comp_total_workers": 531,
+      "comp_total_ae": 32703,
       "comp_best_regions_count": 13,
       "locations": [
         {
-          "company_count": 4786,
-          "worker_count": 425,
+          "company_count": 4787,
+          "worker_count": 427,
           "country_name": "Venezuela",
           "region_name": "All regions",
           "total_bonus": 56.0,
@@ -941,7 +931,7 @@
         {
           "company_count": 1,
           "worker_count": 0,
-          "country_name": "Belize",
+          "country_name": "North Macedonia",
           "region_name": "All regions",
           "total_bonus": 5.0,
           "has_deposit": false,
@@ -951,7 +941,7 @@
         {
           "company_count": 1,
           "worker_count": 0,
-          "country_name": "North Macedonia",
+          "country_name": "Belize",
           "region_name": "All regions",
           "total_bonus": 5.0,
           "has_deposit": false,
@@ -965,7 +955,7 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 927,
+          "company_count": 926,
           "worker_count": 98,
           "is_zero_group": true
         }
@@ -973,19 +963,19 @@
     },
     "fish": {
       "comp_best_count": 462,
-      "comp_best_workers": 312,
-      "comp_best_ae": 2731,
-      "comp_others_count": 3362,
+      "comp_best_workers": 309,
+      "comp_best_ae": 2735,
+      "comp_others_count": 3361,
       "comp_others_workers": 687,
-      "comp_others_ae": 20255,
-      "comp_total_count": 3824,
-      "comp_total_workers": 999,
+      "comp_others_ae": 20251,
+      "comp_total_count": 3823,
+      "comp_total_workers": 996,
       "comp_total_ae": 22986,
       "comp_best_regions_count": 1,
       "locations": [
         {
           "company_count": 462,
-          "worker_count": 312,
+          "worker_count": 309,
           "country_name": "Greenland",
           "region_name": "Southern Greenland",
           "total_bonus": 70.0,
@@ -994,7 +984,7 @@
           "rank": 1
         },
         {
-          "company_count": 2482,
+          "company_count": 2483,
           "worker_count": 552,
           "country_name": "Iceland",
           "region_name": "Northeastern Iceland",
@@ -1004,7 +994,7 @@
           "rank": 2
         },
         {
-          "company_count": 195,
+          "company_count": 194,
           "worker_count": 34,
           "country_name": "Vatican",
           "region_name": "All regions",
@@ -1050,27 +1040,27 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 600,
+          "company_count": 599,
           "worker_count": 83,
           "is_zero_group": true
         }
       ]
     },
     "steak": {
-      "comp_best_count": 640,
-      "comp_best_workers": 97,
-      "comp_best_ae": 3910,
-      "comp_others_count": 862,
-      "comp_others_workers": 117,
-      "comp_others_ae": 5064,
-      "comp_total_count": 1502,
-      "comp_total_workers": 214,
-      "comp_total_ae": 8974,
+      "comp_best_count": 643,
+      "comp_best_workers": 100,
+      "comp_best_ae": 3923,
+      "comp_others_count": 861,
+      "comp_others_workers": 116,
+      "comp_others_ae": 5059,
+      "comp_total_count": 1504,
+      "comp_total_workers": 216,
+      "comp_total_ae": 8982,
       "comp_best_regions_count": 16,
       "locations": [
         {
-          "company_count": 640,
-          "worker_count": 97,
+          "company_count": 643,
+          "worker_count": 100,
           "country_name": "Australia",
           "region_name": "All regions",
           "total_bonus": 20.0,
@@ -1079,8 +1069,8 @@
           "rank": 1
         },
         {
-          "company_count": 539,
-          "worker_count": 84,
+          "company_count": 538,
+          "worker_count": 83,
           "country_name": "Armenia",
           "region_name": "All regions",
           "total_bonus": 15.5,
@@ -1112,20 +1102,20 @@
       ]
     },
     "petroleum": {
-      "comp_best_count": 2638,
-      "comp_best_workers": 897,
-      "comp_best_ae": 15800,
-      "comp_others_count": 480,
-      "comp_others_workers": 72,
-      "comp_others_ae": 2499,
-      "comp_total_count": 3118,
-      "comp_total_workers": 969,
-      "comp_total_ae": 18299,
+      "comp_best_count": 2640,
+      "comp_best_workers": 900,
+      "comp_best_ae": 15812,
+      "comp_others_count": 476,
+      "comp_others_workers": 66,
+      "comp_others_ae": 2474,
+      "comp_total_count": 3116,
+      "comp_total_workers": 966,
+      "comp_total_ae": 18286,
       "comp_best_regions_count": 12,
       "locations": [
         {
-          "company_count": 2598,
-          "worker_count": 839,
+          "company_count": 2599,
+          "worker_count": 840,
           "country_name": "Syria",
           "region_name": "All regions",
           "total_bonus": 50.0,
@@ -1134,8 +1124,8 @@
           "rank": 1
         },
         {
-          "company_count": 40,
-          "worker_count": 58,
+          "company_count": 41,
+          "worker_count": 60,
           "country_name": "Lebanon",
           "region_name": "Jerusalem",
           "total_bonus": 50.0,
@@ -1164,8 +1154,8 @@
           "rank": 3
         },
         {
-          "company_count": 130,
-          "worker_count": 32,
+          "company_count": 127,
+          "worker_count": 27,
           "country_name": "Lebanon",
           "region_name": "Cyprus",
           "total_bonus": 32.0,
@@ -1234,8 +1224,8 @@
           "rank": 9
         },
         {
-          "company_count": 43,
-          "worker_count": 4,
+          "company_count": 42,
+          "worker_count": 3,
           "country_name": "Lebanon",
           "region_name": "All regions",
           "total_bonus": 10.0,
@@ -1277,20 +1267,20 @@
       ]
     },
     "ammo": {
-      "comp_best_count": 404,
-      "comp_best_workers": 279,
-      "comp_best_ae": 2436,
-      "comp_others_count": 1473,
+      "comp_best_count": 409,
+      "comp_best_workers": 282,
+      "comp_best_ae": 2464,
+      "comp_others_count": 1471,
       "comp_others_workers": 384,
-      "comp_others_ae": 8716,
-      "comp_total_count": 1877,
-      "comp_total_workers": 663,
-      "comp_total_ae": 11152,
+      "comp_others_ae": 8708,
+      "comp_total_count": 1880,
+      "comp_total_workers": 666,
+      "comp_total_ae": 11172,
       "comp_best_regions_count": 25,
       "locations": [
         {
-          "company_count": 404,
-          "worker_count": 279,
+          "company_count": 409,
+          "worker_count": 282,
           "country_name": "Pakistan",
           "region_name": "All regions",
           "total_bonus": 60.0,
@@ -1299,8 +1289,8 @@
           "rank": 1
         },
         {
-          "company_count": 671,
-          "worker_count": 283,
+          "company_count": 673,
+          "worker_count": 286,
           "country_name": "Costa Rica",
           "region_name": "All regions",
           "total_bonus": 40.0,
@@ -1345,27 +1335,27 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 575,
-          "worker_count": 69,
+          "company_count": 571,
+          "worker_count": 66,
           "is_zero_group": true
         }
       ]
     },
     "oil": {
       "comp_best_count": 1839,
-      "comp_best_workers": 625,
-      "comp_best_ae": 11064,
-      "comp_others_count": 1084,
-      "comp_others_workers": 127,
-      "comp_others_ae": 6159,
-      "comp_total_count": 2923,
-      "comp_total_workers": 752,
-      "comp_total_ae": 17223,
+      "comp_best_workers": 629,
+      "comp_best_ae": 11062,
+      "comp_others_count": 1081,
+      "comp_others_workers": 126,
+      "comp_others_ae": 6143,
+      "comp_total_count": 2920,
+      "comp_total_workers": 755,
+      "comp_total_ae": 17205,
       "comp_best_regions_count": 15,
       "locations": [
         {
           "company_count": 1839,
-          "worker_count": 625,
+          "worker_count": 629,
           "country_name": "Mali",
           "region_name": "All regions",
           "total_bonus": 55.0,
@@ -1374,8 +1364,8 @@
           "rank": 1
         },
         {
-          "company_count": 777,
-          "worker_count": 86,
+          "company_count": 775,
+          "worker_count": 85,
           "country_name": "Chile",
           "region_name": "All regions",
           "total_bonus": 45.0,
@@ -1410,26 +1400,26 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 302,
+          "company_count": 301,
           "worker_count": 37,
           "is_zero_group": true
         }
       ]
     },
     "coca": {
-      "comp_best_count": 294,
+      "comp_best_count": 295,
       "comp_best_workers": 42,
-      "comp_best_ae": 1707,
-      "comp_others_count": 1204,
-      "comp_others_workers": 233,
-      "comp_others_ae": 7116,
+      "comp_best_ae": 1710,
+      "comp_others_count": 1203,
+      "comp_others_workers": 232,
+      "comp_others_ae": 7112,
       "comp_total_count": 1498,
-      "comp_total_workers": 275,
-      "comp_total_ae": 8823,
+      "comp_total_workers": 274,
+      "comp_total_ae": 8822,
       "comp_best_regions_count": 1,
       "locations": [
         {
-          "company_count": 294,
+          "company_count": 295,
           "worker_count": 42,
           "country_name": "Burundi",
           "region_name": "Burundi",
@@ -1439,7 +1429,7 @@
           "rank": 1
         },
         {
-          "company_count": 386,
+          "company_count": 390,
           "worker_count": 98,
           "country_name": "Myanmar",
           "region_name": "Nay Pyi Taw",
@@ -1469,8 +1459,8 @@
           "rank": 4
         },
         {
-          "company_count": 180,
-          "worker_count": 41,
+          "company_count": 178,
+          "worker_count": 40,
           "country_name": "Gambia",
           "region_name": "Gambia",
           "total_bonus": 39.0,
@@ -1499,16 +1489,6 @@
           "rank": 5
         },
         {
-          "company_count": 1,
-          "worker_count": 0,
-          "country_name": "Ghana",
-          "region_name": "Northern Ghana",
-          "total_bonus": 39.0,
-          "has_deposit": true,
-          "tax_percent": 7,
-          "rank": 5
-        },
-        {
           "company_count": 26,
           "worker_count": 4,
           "country_name": "Mozambique",
@@ -1525,27 +1505,27 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 431,
+          "company_count": 429,
           "worker_count": 54,
           "is_zero_group": true
         }
       ]
     },
     "cocain": {
-      "comp_best_count": 1807,
-      "comp_best_workers": 407,
-      "comp_best_ae": 11053,
+      "comp_best_count": 1808,
+      "comp_best_workers": 406,
+      "comp_best_ae": 11059,
       "comp_others_count": 336,
       "comp_others_workers": 59,
       "comp_others_ae": 1805,
-      "comp_total_count": 2143,
-      "comp_total_workers": 466,
-      "comp_total_ae": 12858,
+      "comp_total_count": 2144,
+      "comp_total_workers": 465,
+      "comp_total_ae": 12864,
       "comp_best_regions_count": 13,
       "locations": [
         {
-          "company_count": 1807,
-          "worker_count": 407,
+          "company_count": 1808,
+          "worker_count": 406,
           "country_name": "DR Congo",
           "region_name": "All regions",
           "total_bonus": 25.0,
@@ -1576,21 +1556,21 @@
         {
           "company_count": 6,
           "worker_count": 1,
-          "country_name": "Lesotho",
-          "region_name": "All regions",
-          "total_bonus": 5.0,
-          "has_deposit": false,
-          "tax_percent": 4,
-          "rank": 3
-        },
-        {
-          "company_count": 6,
-          "worker_count": 1,
           "country_name": "Tanzania",
           "region_name": "All regions",
           "total_bonus": 5.0,
           "has_deposit": false,
           "tax_percent": 5,
+          "rank": 3
+        },
+        {
+          "company_count": 6,
+          "worker_count": 1,
+          "country_name": "Lesotho",
+          "region_name": "All regions",
+          "total_bonus": 5.0,
+          "has_deposit": false,
+          "tax_percent": 4,
           "rank": 3
         },
         {
@@ -1620,12 +1600,12 @@
       "comp_best_count": 234,
       "comp_best_workers": 56,
       "comp_best_ae": 1310,
-      "comp_others_count": 247,
+      "comp_others_count": 246,
       "comp_others_workers": 43,
-      "comp_others_ae": 1259,
-      "comp_total_count": 481,
+      "comp_others_ae": 1253,
+      "comp_total_count": 480,
       "comp_total_workers": 99,
-      "comp_total_ae": 2569,
+      "comp_total_ae": 2563,
       "comp_best_regions_count": 9,
       "locations": [
         {
@@ -1679,7 +1659,7 @@
           "rank": 2
         },
         {
-          "company_count": 7,
+          "company_count": 6,
           "worker_count": 1,
           "country_name": "Bahamas",
           "region_name": "All regions",
@@ -1702,20 +1682,20 @@
       ]
     },
     "heavyAmmo": {
-      "comp_best_count": 1098,
-      "comp_best_workers": 209,
-      "comp_best_ae": 6799,
-      "comp_others_count": 481,
-      "comp_others_workers": 62,
-      "comp_others_ae": 2640,
+      "comp_best_count": 1099,
+      "comp_best_workers": 210,
+      "comp_best_ae": 6806,
+      "comp_others_count": 480,
+      "comp_others_workers": 61,
+      "comp_others_ae": 2635,
       "comp_total_count": 1579,
       "comp_total_workers": 271,
-      "comp_total_ae": 9439,
+      "comp_total_ae": 9441,
       "comp_best_regions_count": 3,
       "locations": [
         {
-          "company_count": 1098,
-          "worker_count": 209,
+          "company_count": 1099,
+          "worker_count": 210,
           "country_name": "Bangladesh",
           "region_name": "All regions",
           "total_bonus": 35.0,
@@ -1760,8 +1740,8 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 338,
-          "worker_count": 54,
+          "company_count": 337,
+          "worker_count": 53,
           "is_zero_group": true
         }
       ]
@@ -1843,19 +1823,19 @@
     },
     "wood": {
       "comp_best_count": 130,
-      "comp_best_workers": 101,
+      "comp_best_workers": 102,
       "comp_best_ae": 766,
-      "comp_others_count": 767,
-      "comp_others_workers": 190,
-      "comp_others_ae": 4633,
-      "comp_total_count": 897,
-      "comp_total_workers": 291,
-      "comp_total_ae": 5399,
+      "comp_others_count": 766,
+      "comp_others_workers": 188,
+      "comp_others_ae": 4629,
+      "comp_total_count": 896,
+      "comp_total_workers": 290,
+      "comp_total_ae": 5395,
       "comp_best_regions_count": 2,
       "locations": [
         {
           "company_count": 73,
-          "worker_count": 80,
+          "worker_count": 81,
           "country_name": "Brunei",
           "region_name": "Kuala Lumpur",
           "total_bonus": 40.0,
@@ -1875,7 +1855,7 @@
         },
         {
           "company_count": 176,
-          "worker_count": 56,
+          "worker_count": 55,
           "country_name": "Germany",
           "region_name": "Northeastern Italy",
           "total_bonus": 38.0,
@@ -1895,7 +1875,7 @@
         },
         {
           "company_count": 44,
-          "worker_count": 23,
+          "worker_count": 22,
           "country_name": "Central Africa",
           "region_name": "Coastal Gabon",
           "total_bonus": 31.0,
@@ -1930,7 +1910,7 @@
           "total_bonus": 0.0,
           "has_deposit": false,
           "tax_percent": null,
-          "company_count": 255,
+          "company_count": 254,
           "worker_count": 26,
           "is_zero_group": true
         }
@@ -1938,19 +1918,19 @@
     },
     "paper": {
       "comp_best_count": 867,
-      "comp_best_workers": 525,
+      "comp_best_workers": 523,
       "comp_best_ae": 5262,
       "comp_others_count": 91,
       "comp_others_workers": 17,
       "comp_others_ae": 468,
       "comp_total_count": 958,
-      "comp_total_workers": 542,
+      "comp_total_workers": 540,
       "comp_total_ae": 5730,
       "comp_best_regions_count": 9,
       "locations": [
         {
           "company_count": 867,
-          "worker_count": 525,
+          "worker_count": 523,
           "country_name": "Liberia",
           "region_name": "All regions",
           "total_bonus": 50.0,
