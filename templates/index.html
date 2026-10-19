@@ -1630,6 +1630,58 @@
             transition: background 0.15s, border-left 0.15s;
         }
 
+        /* Dedicated Volume Profile Table for Trades */
+        .volume-profile-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .volume-profile-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--container-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 7px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            z-index: 1;
+            white-space: nowrap;
+        }
+        .volume-profile-table td {
+            padding: 5px 10px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+        .profile-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            min-width: 90px;
+        }
+        .profile-bar-track {
+            flex: 1;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .profile-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .profile-bar-pct {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            min-width: 44px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
         .depth-ladder-row:hover {
             filter: brightness(1.1);
         }
@@ -1745,6 +1797,570 @@
             padding: 6px 12px;
             white-space: nowrap;
         }
+
+        /* Market Subnavigation */
+        .market-subnav-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .market-subnav-container::-webkit-scrollbar {
+            display: none;
+        }
+        .market-subtab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--button-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .market-subtab-btn:hover {
+            color: var(--text-primary);
+            background: var(--button-hover-bg);
+            border-color: var(--button-hover-border);
+        }
+        .market-subtab-btn.active {
+            color: #ffffff;
+            background: var(--link-color);
+            border-color: var(--link-color);
+        }
+
+        .trades-period-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--button-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .trades-period-btn:hover {
+            color: var(--text-primary);
+            background: var(--button-hover-bg);
+            border-color: var(--button-hover-border);
+        }
+        .trades-period-btn.active {
+            color: #ffffff;
+            background: var(--link-color);
+            border-color: var(--link-color);
+            box-shadow: 0 1px 3px rgba(49, 130, 206, 0.3);
+        }
+
+        /* Buy Depth Top Buyers & Pills */
+        .depth-top-buyers-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 360px;
+        }
+        .depth-buyer-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            padding: 2px 7px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background: var(--button-bg);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .depth-buyer-pill.rank-1 {
+            border-color: rgba(16, 185, 129, 0.55);
+            background: rgba(16, 185, 129, 0.08);
+        }
+        .depth-buyer-pill.rank-2 {
+            border-color: rgba(56, 189, 248, 0.5);
+            background: rgba(56, 189, 248, 0.08);
+        }
+        .depth-buyer-pill.rank-3 {
+            border-color: rgba(139, 92, 246, 0.45);
+            background: rgba(139, 92, 246, 0.08);
+        }
+        .depth-buyer-pill .medal {
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+        .depth-buyer-pill .buyer-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            max-width: 115px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .depth-buyer-pill .buyer-colon {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin: 0 1px;
+        }
+        .depth-buyer-pill .buyer-qty {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+        .depth-buyer-pill .buyer-share {
+            font-size: 10.5px;
+            color: var(--text-secondary);
+        }
+
+        /* Buy Ladder & Sellout Simulator */
+        .depth-sellout-card {
+            background: rgba(16, 185, 129, 0.09);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 6px;
+            margin: 4px 2px 6px;
+            padding: 6px 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            width: 100%;
+            overflow: hidden;
+        }
+        .depth-sellout-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .depth-sellout-card-title {
+            font-size: 11.5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 24h Trades Tab Styles */
+        .trades-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .trades-kpi-card {
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 14px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .trades-kpi-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        .trades-kpi-value {
+            font-size: 20px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+        .trades-kpi-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .recent-trades-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11.5px;
+        }
+        .recent-trades-table th {
+            padding: 6px 8px;
+            background: var(--drawer-bg);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 10.5px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        .recent-trades-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid var(--border-color);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Leaderboard Tab Styles */
+        .leaderboard-controls-panel {
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .leaderboard-ctrl-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .leaderboard-ctrl-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            min-width: 110px;
+            letter-spacing: 0.4px;
+        }
+        .leaderboard-ctrl-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .lb-ctrl-btn, .lb-time-btn {
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 5px 11px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .lb-ctrl-btn:hover, .lb-time-btn:hover {
+            background: var(--button-hover-bg);
+            border-color: var(--button-hover-border);
+        }
+        .lb-ctrl-btn.active, .lb-time-btn.active {
+            background: var(--link-color);
+            color: #ffffff;
+            border-color: var(--link-color);
+        }
+        /* Leaderboard Scope Blocks (Global vs Cases & Scraps with Item Pills) */
+        .lb-scopes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 10px;
+            width: 100%;
+        }
+        .lb-scope-block {
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .lb-scope-block.active {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.08);
+        }
+        .lb-scope-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .lb-scope-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 5px 12px;
+            font-size: 12.5px;
+            font-weight: 700;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lb-scope-btn:hover {
+            background: var(--button-hover-bg);
+            border-color: var(--button-hover-border);
+            color: var(--link-color);
+        }
+        .lb-scope-btn.active {
+            background: var(--link-color);
+            color: #ffffff;
+            border-color: var(--link-color);
+            box-shadow: 0 1px 4px rgba(49, 130, 206, 0.35);
+        }
+        .lb-scope-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .lb-scope-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+        }
+        .lb-item-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 7px;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
+            user-select: none;
+            line-height: 1.4;
+        }
+        .lb-item-pill .item-icon {
+            width: 15px;
+            height: 15px;
+            object-fit: contain;
+            vertical-align: middle;
+        }
+        .lb-item-pill:hover {
+            background: var(--button-hover-bg);
+            border-color: var(--link-color);
+            color: var(--text-primary);
+        }
+        .lb-item-pill.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            box-shadow: 0 0 6px rgba(56, 189, 248, 0.25);
+            font-weight: 700;
+        }
+        .lb-item-pill.in-group-active {
+            border-color: rgba(56, 189, 248, 0.35);
+            color: var(--text-primary);
+        }
+        .leaderboard-header-bar {
+            margin: 14px 0 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .leaderboard-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        .leaderboard-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .leaderboard-podium {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .leaderboard-podium-card {
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .leaderboard-podium-card.rank-1 {
+            border-color: rgba(245, 158, 11, 0.6);
+            background: rgba(245, 158, 11, 0.08);
+        }
+        .leaderboard-podium-card.rank-2 {
+            border-color: rgba(156, 163, 175, 0.55);
+            background: rgba(156, 163, 175, 0.08);
+        }
+        .leaderboard-podium-card.rank-3 {
+            border-color: rgba(217, 119, 6, 0.5);
+            background: rgba(217, 119, 6, 0.07);
+        }
+        .podium-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .leaderboard-podium-card.rank-1 .podium-card-header { color: var(--rank-gold); }
+        .leaderboard-podium-card.rank-2 .podium-card-header { color: #94a3b8; }
+        .leaderboard-podium-card.rank-3 .podium-card-header { color: #d97706; }
+        .podium-user-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 2px 0;
+        }
+        .podium-user-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .podium-metric-val {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--subhead-green);
+            font-variant-numeric: tabular-nums;
+        }
+        .podium-submetric-val {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12.5px;
+        }
+        .leaderboard-rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        .leaderboard-rank-badge.rank-1 { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-color: rgba(245, 158, 11, 0.5); }
+        .leaderboard-rank-badge.rank-2 { background: rgba(156, 163, 175, 0.2); color: #94a3b8; border-color: rgba(156, 163, 175, 0.5); }
+        .leaderboard-rank-badge.rank-3 { background: rgba(217, 119, 6, 0.2); color: #d97706; border-color: rgba(217, 119, 6, 0.5); }
+
+        .leaderboard-table tr.lb-row {
+            transition: background 0.15s ease;
+        }
+        .leaderboard-table tr.lb-row.has-drawer:hover {
+            background: var(--button-hover-bg);
+            cursor: pointer;
+        }
+        .lb-expand-icon {
+            display: inline-block;
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-right: 4px;
+            transition: transform 0.2s ease;
+            user-select: none;
+        }
+        .lb-expand-icon.open {
+            transform: rotate(90deg);
+            color: var(--link-color);
+        }
+        .lb-drawer-cell {
+            background: var(--drawer-bg);
+            padding: 12px 16px !important;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .lb-breakdown-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .lb-breakdown-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lb-breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 8px;
+        }
+        .lb-breakdown-card {
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            min-height: 82px;
+        }
+        .lb-breakdown-card .depth-card-orders-list {
+            max-height: none;
+            overflow: visible;
+        }
+        .lb-breakdown-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+        .lb-breakdown-card-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .lb-breakdown-card-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .lb-breakdown-card-val {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .lb-breakdown-card-pp {
+            color: var(--subhead-green);
+            font-weight: 700;
+        }
+        .lb-breakdown-card-money {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
 
         /* Tooltip Logic */
         .tooltip {
@@ -2422,21 +3038,31 @@
                 margin-right: 4px;
             }
 
-            /* Market Depth Mobile */
-            #market_depth table {
+            /* Market Depth & Buy Depth Mobile */
+            #market_depth table,
+            #market #subtab_sell_depth table,
+            #market #subtab_buy_depth table {
                 table-layout: fixed;
                 width: 100%;
             }
 
             #market_depth th:nth-child(1),
-            #market_depth td:nth-child(1) {
+            #market_depth td:nth-child(1),
+            #market #subtab_sell_depth th:nth-child(1),
+            #market #subtab_sell_depth td:nth-child(1),
+            #market #subtab_buy_depth th:nth-child(1),
+            #market #subtab_buy_depth td:nth-child(1) {
                 width: 27%;
                 max-width: 27%;
                 overflow: hidden;
             }
 
             #market_depth th:nth-child(2),
-            #market_depth td:nth-child(2) {
+            #market_depth td:nth-child(2),
+            #market #subtab_sell_depth th:nth-child(2),
+            #market #subtab_sell_depth td:nth-child(2),
+            #market #subtab_buy_depth th:nth-child(2),
+            #market #subtab_buy_depth td:nth-child(2) {
                 width: 35%;
                 max-width: 35%;
                 overflow: hidden;
@@ -2444,36 +3070,45 @@
             }
 
             #market_depth th:nth-child(3),
-            #market_depth td:nth-child(3) {
+            #market_depth td:nth-child(3),
+            #market #subtab_sell_depth th:nth-child(3),
+            #market #subtab_sell_depth td:nth-child(3),
+            #market #subtab_buy_depth th:nth-child(3),
+            #market #subtab_buy_depth td:nth-child(3) {
                 width: 38%;
                 max-width: 38%;
                 overflow: hidden;
             }
 
-            #market_depth .item-cell {
+            #market_depth .item-cell,
+            #market .item-cell {
                 gap: 4px;
                 min-width: 0;
                 overflow: hidden;
             }
 
-            #market_depth .expand-icon {
+            #market_depth .expand-icon,
+            #market .expand-icon {
                 font-size: 8px;
                 margin-right: 0;
                 flex-shrink: 0;
             }
 
-            #market_depth .item-icon {
+            #market_depth .item-icon,
+            #market .item-icon {
                 width: 22px;
                 height: 22px;
                 flex-shrink: 0;
             }
 
-            #market_depth .item-content {
+            #market_depth .item-content,
+            #market .item-content {
                 min-width: 0;
                 overflow: hidden;
             }
 
-            #market_depth .item-name {
+            #market_depth .item-name,
+            #market .item-name {
                 font-size: 11px;
                 max-width: 62px;
                 white-space: nowrap;
@@ -2482,12 +3117,14 @@
                 display: block;
             }
 
-            .depth-top-sellers-cell {
+            .depth-top-sellers-cell,
+            .depth-top-buyers-cell {
                 gap: 2.5px;
                 max-width: 100%;
             }
 
-            .depth-seller-pill {
+            .depth-seller-pill,
+            .depth-buyer-pill {
                 padding: 1px 4px;
                 gap: 2.5px;
                 font-size: 10px;
@@ -2495,7 +3132,8 @@
                 max-width: 100%;
             }
 
-            .depth-seller-pill .medal {
+            .depth-seller-pill .medal,
+            .depth-buyer-pill .medal {
                 font-size: 9px;
             }
 
@@ -2515,11 +3153,15 @@
 
             .depth-seller-pill .seller-colon,
             .depth-seller-pill .seller-qty,
-            .depth-seller-pill .seller-share {
+            .depth-seller-pill .seller-share,
+            .depth-buyer-pill .buyer-colon,
+            .depth-buyer-pill .buyer-qty,
+            .depth-buyer-pill .buyer-share {
                 display: none;
             }
 
-            .depth-seller-pill .seller-name {
+            .depth-seller-pill .seller-name,
+            .depth-buyer-pill .buyer-name {
                 max-width: 105px;
                 font-size: 10.5px;
             }
@@ -2595,7 +3237,8 @@
                 max-height: 260px;
             }
 
-            .depth-buyout-card {
+            .depth-buyout-card,
+            .depth-sellout-card {
                 padding: 5px 6px;
                 margin: 3px 0 5px;
             }
@@ -2613,6 +3256,65 @@
             }
 
             .depth-buyout-stat-val {
+                font-size: 11px;
+            }
+
+            /* Market Subnavigation Mobile */
+            .market-subnav-container {
+                justify-content: flex-start;
+                gap: 5px;
+                padding-bottom: 6px;
+                margin-bottom: 12px;
+            }
+            .market-subtab-btn {
+                padding: 5px 9px;
+                font-size: 11px;
+                gap: 4px;
+            }
+
+            /* 24h Trades Mobile */
+            .trades-kpi-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+                margin-bottom: 12px;
+            }
+            .trades-kpi-card {
+                padding: 8px 10px;
+            }
+            .trades-kpi-value {
+                font-size: 16px;
+            }
+
+            /* Leaderboard Mobile */
+            .leaderboard-controls-panel {
+                padding: 10px;
+                gap: 8px;
+            }
+            .leaderboard-ctrl-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .leaderboard-ctrl-label {
+                min-width: auto;
+                font-size: 10px;
+            }
+            .lb-ctrl-btn, .lb-time-btn {
+                padding: 4px 8px;
+                font-size: 10.5px;
+            }
+            .leaderboard-podium {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .leaderboard-podium-card {
+                padding: 8px 10px;
+            }
+            .podium-metric-val {
+                font-size: 14px;
+            }
+            .leaderboard-table th, .leaderboard-table td {
+                padding: 6px 8px;
                 font-size: 11px;
             }
         }
@@ -2634,7 +3336,7 @@
                 </svg>
             </button>
             <div class="site-title">Wealthrate</div>
-            <div class="update-info">Updated: <span id="updateTime" data-market-timestamp="{{ market_timestamp }}" data-comp-timestamp="{{ comp_timestamp }}" data-workers-timestamp="{{ workers_timestamp }}" data-depth-timestamp="{{ depth_timestamp }}" data-timestamp="{{ timestamp }}">just now</span>
+            <div class="update-info">Updated: <span id="updateTime" data-market-timestamp="{{ market_timestamp }}" data-comp-timestamp="{{ comp_timestamp }}" data-workers-timestamp="{{ workers_timestamp }}" data-depth-timestamp="{{ depth_timestamp }}" data-trades-timestamp="{{ trades_timestamp }}" data-timestamp="{{ timestamp }}">just now</span>
             </div>
             <a href="https://app.warera.io/user/69635dc2d83cd4e381a66dce" target="_blank" class="warship-link">
                 <img src="assets/ru_warship.webp" alt="Profile" onerror="this.style.display='none'">
@@ -2646,7 +3348,7 @@
             <button class="tab-btn active" onclick="switchTab('profitability', this)">Profitability</button>
             <button class="tab-btn" onclick="switchTab('company_basing', this)">Company Basing</button>
             <button class="tab-btn" onclick="switchTab('workers', this)">Workers</button>
-            <button class="tab-btn" onclick="switchTab('market_depth', this)">Market Depth</button>
+            <button class="tab-btn" onclick="switchTab('market', this)">Market</button>
         </div>
 
         <!-- Tab 1: Profitability -->
@@ -2919,68 +3621,306 @@
             </div>
         </div>
 
-        <!-- Tab 4: Market Depth -->
-        <div id="market_depth" class="tab-content">
-            <div class="table-top-bar">
-                <div></div>
-                <div class="guide-box">
-                    <div class="q-mark">?</div>
-                    <div class="guide-img" style="width: 320px; max-width: 90vw; padding: 12px; font-size: 11.5px; line-height: 1.4; text-align: left; white-space: normal;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
-                            <span style="font-weight: 700; font-size: 12.5px; color: #63b3ed;">Market Depth</span>
-                            <span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px;">Test Version</span>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; line-height: 1.4; color: var(--text-secondary);">
-                            <div>• <strong style="color: var(--text-primary);">Global Order Book:</strong> 100% of active sell listings aggregated across all players, countries, political parties, and military units.</div>
-                            <div>• <strong style="color: var(--text-primary);">Buyout Simulator:</strong> Click any price tier in the order ladder to calculate the total Bitcoin (₿) cost and volume to clear the market up to that price.</div>
-                        </div>
-                    </div>
-                </div>
-                <div id="depthSortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
-                    Sorted by: <span id="currentDepthSortLabel">Total PP ↓</span>
-                </div>
-            </div>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th onclick="handleDepthSort('pretty_name')">Product</th>
-                            <th onclick="handleDepthVolumeSort()" class="tooltip" style="text-align: right; cursor: pointer;">Total Volume
-                                <span class="tooltiptext">Consolidated market depth. For 1 PP items, units = PP (no duplicate sum). For items with PP &gt; 1, displays both Production Points and item units. Click to toggle sort.</span>
-                            </th>
-                            <th style="cursor: default;">Top Sellers</th>
-                        </tr>
-                    </thead>
-                    <tbody id="depthTableBody"></tbody>
-                </table>
+        <!-- Tab 4: Market (Expanded with 4 sub-sections) -->
+        <div id="market" class="tab-content">
+            <!-- Market Sub-navigation Pills -->
+            <div class="market-subnav-container">
+                <button class="market-subtab-btn active" id="btn_subtab_sell_depth" onclick="switchMarketSubtab('sell_depth', this)">
+                    <span>🏷️</span> Sell Depth
+                </button>
+                <button class="market-subtab-btn" id="btn_subtab_buy_depth" onclick="switchMarketSubtab('buy_depth', this)">
+                    <span>🛒</span> Buy Depth
+                </button>
+                <button class="market-subtab-btn" id="btn_subtab_trades_24h" onclick="switchMarketSubtab('trades_24h', this)">
+                    <span>📊</span> Trades
+                </button>
+                <button class="market-subtab-btn" id="btn_subtab_leaderboard" onclick="switchMarketSubtab('leaderboard', this)">
+                    <span>🏆</span> Leaderboard
+                </button>
             </div>
 
-            <div class="charts-container">
-                <h2 class="charts-title">Market Depth History</h2>
-
-                <!-- Time Controls -->
-                <div class="controls" id="depthTimeControls" style="margin-bottom: 20px;">
-                    <button id="btn24_depth" onclick="setPeriod(24)" class="active">24 Hours</button>
-                    <button id="btn72_depth" onclick="setPeriod(72)">3 Days</button>
-                    <button id="btn168_depth" onclick="setPeriod(168)">7 Days</button>
-                    <button id="btn0_depth" onclick="setPeriod(0)">All Time</button>
+            <!-- Subtab 1: Sell Depth -->
+            <div id="subtab_sell_depth" class="market-subcontent active">
+                <div class="table-top-bar">
+                    <div></div>
+                    <div class="guide-box">
+                        <div class="q-mark">?</div>
+                        <div class="guide-img" style="width: 320px; max-width: 90vw; padding: 12px; font-size: 11.5px; line-height: 1.4; text-align: left; white-space: normal;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                                <span style="font-weight: 700; font-size: 12.5px; color: #63b3ed;">Sell Depth</span>
+                                <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px;">Live Asks</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; line-height: 1.4; color: var(--text-secondary);">
+                                <div>• <strong style="color: var(--text-primary);">Global Order Book:</strong> 100% of active sell listings aggregated across all players, countries, political parties, and military units.</div>
+                                <div>• <strong style="color: var(--text-primary);">Buyout Simulator:</strong> Click any price tier in the order ladder to calculate the total Bitcoin (₿) cost and volume to clear the market up to that price.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="depthSortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                        Sorted by: <span id="currentDepthSortLabel">Total PP ↓</span>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th onclick="handleDepthSort('pretty_name')">Product</th>
+                                <th onclick="handleDepthVolumeSort()" class="tooltip" style="text-align: right; cursor: pointer;">Total Volume
+                                    <span class="tooltiptext">Consolidated market depth. For 1 PP items, units = PP (no duplicate sum). For items with PP &gt; 1, displays both Production Points and item units. Click to toggle sort.</span>
+                                </th>
+                                <th style="cursor: default;">Top Sellers</th>
+                            </tr>
+                        </thead>
+                        <tbody id="depthTableBody"></tbody>
+                    </table>
                 </div>
 
-                <!-- Metric Controls -->
-                <div class="controls" style="margin-bottom: 12px;">
-                    <button id="btn_depth_total_pp" onclick="setDepthChartMetric('total_pp')" class="active">Total PP</button>
-                    <button id="btn_depth_total_units" onclick="setDepthChartMetric('total_units')">Total Units</button>
+                <div class="charts-container">
+                    <h2 class="charts-title">Market Depth History</h2>
+
+                    <!-- Time Controls -->
+                    <div class="controls" id="depthTimeControls" style="margin-bottom: 20px;">
+                        <button id="btn24_depth" onclick="setPeriod(24)" class="active">24 Hours</button>
+                        <button id="btn72_depth" onclick="setPeriod(72)">3 Days</button>
+                        <button id="btn168_depth" onclick="setPeriod(168)">7 Days</button>
+                        <button id="btn0_depth" onclick="setPeriod(0)">All Time</button>
+                    </div>
+
+                    <!-- Metric Controls -->
+                    <div class="controls" style="margin-bottom: 12px;">
+                        <button id="btn_depth_total_pp" onclick="setDepthChartMetric('total_pp')" class="active">Total PP</button>
+                        <button id="btn_depth_total_units" onclick="setDepthChartMetric('total_units')">Total Units</button>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <div class="chart-canvas-container">
+                            <canvas id="depthChart"></canvas>
+                        </div>
+                        <div class="legend-wrapper">
+                            <button class="chart-toggle-btn" onclick="toggleAll('depthChart')"
+                                style="margin-bottom: 8px;">Toggle All</button>
+                            <div id="depthChart-legend" class="custom-legend"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subtab 2: Buy Depth -->
+            <div id="subtab_buy_depth" class="market-subcontent" style="display: none;">
+                <div class="table-top-bar">
+                    <div></div>
+                    <div class="guide-box">
+                        <div class="q-mark">?</div>
+                        <div class="guide-img" style="width: 320px; max-width: 90vw; padding: 12px; font-size: 11.5px; line-height: 1.4; text-align: left; white-space: normal;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                                <span style="font-weight: 700; font-size: 12.5px; color: #10b981;">Buy Depth</span>
+                                <span style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px;">Live Bids</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; line-height: 1.4; color: var(--text-secondary);">
+                                <div>• <strong style="color: var(--text-primary);">Global Buy Book:</strong> 100% of active buy orders aggregated across all players, countries, parties, and military units.</div>
+                                <div>• <strong style="color: var(--text-primary);">Sellout / Dump Simulator:</strong> Click any price tier in the order ladder to calculate the total Bitcoin (₿) received and units filled by dumping into the market down to that price.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="buyDepthSortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                        Sorted by: <span id="currentBuyDepthSortLabel">Total ₿ ↓</span>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th onclick="handleBuyDepthSort('pretty_name')">Product</th>
+                                <th onclick="handleBuyDepthVolumeSort()" class="tooltip" style="text-align: right; cursor: pointer;">Total Buy Demand
+                                    <span class="tooltiptext">Consolidated market buy demand. Displays Production Points (PP), item units, and total ₿ reserved in active buy bids. Click to toggle sort.</span>
+                                </th>
+                                <th style="cursor: default;">Top Buyers</th>
+                            </tr>
+                        </thead>
+                        <tbody id="buyDepthTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Subtab 3: Market Trades (Realized History) -->
+            <div id="subtab_trades_24h" class="market-subcontent" style="display: none;">
+                <!-- Trades Period Filter Controls -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+                    <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Window:</span>
+                    <button class="trades-period-btn active" id="btn_trades_period_24h" onclick="setTradesTablePeriod('24h', this)" style="padding: 4px 10px; font-size: 12px;">24 Hours</button>
+                    <button class="trades-period-btn" id="btn_trades_period_7d" onclick="setTradesTablePeriod('7d', this)" style="padding: 4px 10px; font-size: 12px;">7 Days</button>
+                    <button class="trades-period-btn" id="btn_trades_period_30d" onclick="setTradesTablePeriod('30d', this)" style="padding: 4px 10px; font-size: 12px;">30 Days</button>
+                    <button class="trades-period-btn" id="btn_trades_period_all" onclick="setTradesTablePeriod('all', this)" style="padding: 4px 10px; font-size: 12px;">All Time</button>
                 </div>
 
-                <div class="chart-wrapper">
-                    <div class="chart-canvas-container">
-                        <canvas id="depthChart"></canvas>
+                <!-- KPI Summary Cards -->
+                <div class="trades-kpi-grid">
+                    <div class="trades-kpi-card">
+                        <div class="trades-kpi-label" id="kpi_label_volume">24h Market Volume</div>
+                        <div class="trades-kpi-value" id="kpi_trades_volume" style="color: var(--subhead-green);">-</div>
+                        <div class="trades-kpi-sub" id="kpi_trades_volume_sub">Production Points &amp; Units</div>
                     </div>
-                    <div class="legend-wrapper">
-                        <button class="chart-toggle-btn" onclick="toggleAll('depthChart')"
-                            style="margin-bottom: 8px;">Toggle All</button>
-                        <div id="depthChart-legend" class="custom-legend"></div>
+                    <div class="trades-kpi-card">
+                        <div class="trades-kpi-label" id="kpi_label_turnover">24h Market Turnover</div>
+                        <div class="trades-kpi-value" id="kpi_trades_money" style="color: var(--rank-gold);">-</div>
+                        <div class="trades-kpi-sub">Total Bitcoin (₿) Exchanged</div>
                     </div>
+                    <div class="trades-kpi-card">
+                        <div class="trades-kpi-label" id="kpi_label_trades">24h Trades Executed</div>
+                        <div class="trades-kpi-value" id="kpi_trades_count" style="color: #63b3ed;">-</div>
+                        <div class="trades-kpi-sub">Completed Transactions</div>
+                    </div>
+                </div>
+
+                <div class="table-top-bar">
+                    <div></div>
+                    <div class="guide-box">
+                        <div class="q-mark">?</div>
+                        <div class="guide-img" style="width: 320px; max-width: 90vw; padding: 12px; font-size: 11.5px; line-height: 1.4; text-align: left; white-space: normal;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                                <span style="font-weight: 700; font-size: 12.5px; color: #a855f7;">Market Transactions</span>
+                                <span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px;">Realized Market</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; line-height: 1.4; color: var(--text-secondary);">
+                                <div>• <strong style="color: var(--text-primary);">Executed Trades:</strong> Actual transactions filled on the global exchange over the selected timeframe.</div>
+                                <div>• <strong style="color: var(--text-primary);">VWAP (Volume-Weighted Average Price):</strong> True average price weighted by traded volume (Total ₿ ÷ Total Units).</div>
+                                <div>• <strong style="color: var(--text-primary);">Volume Profile Drawer:</strong> Click any commodity row to inspect the volume distribution across price levels and identify the Point of Control (POC).</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tradesSortInfo" style="font-size: 13px; color: var(--text-primary); font-weight: 600;">
+                        Sorted by: <span id="currentTradesSortLabel">Total PP ↓</span>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="trades-table">
+                        <thead>
+                            <tr>
+                                <th onclick="handleTradesSort('pretty_name')">Product</th>
+                                <th onclick="handleTradesSort('volume')" class="tooltip" style="text-align: right; cursor: pointer;">
+                                    <span id="trades_th_volume">Traded Volume</span>
+                                    <span class="tooltiptext">Volume traded in the selected period. Click to sort by Production Points.</span>
+                                </th>
+                                <th onclick="handleTradesSort('money')" style="text-align: right; cursor: pointer;">
+                                    <span id="trades_th_turnover">Turnover (₿)</span>
+                                </th>
+                                <th onclick="handleTradesSort('vwap')" class="tooltip" style="text-align: right; cursor: pointer;">VWAP (₿)
+                                    <span class="tooltiptext">Volume-Weighted Average Price (Total ₿ / Units) in the selected window.</span>
+                                </th>
+                                <th style="text-align: right; cursor: default;">
+                                    <span id="trades_th_range">Price Range</span>
+                                </th>
+                                <th onclick="handleTradesSort('tx_count')" style="text-align: right; cursor: pointer;">
+                                    <span id="trades_th_count">Trades</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesTableBody"></tbody>
+                    </table>
+
+                </div>
+
+                <!-- Trades History Chart -->
+                <div class="charts-container" style="margin-top: 30px;">
+                    <h2 class="charts-title">24h Trade Dynamics &amp; History</h2>
+
+                    <!-- Time Controls -->
+                    <div class="controls" id="tradesTimeControls" style="margin-bottom: 20px;">
+                        <button id="btn24_trades" onclick="setTradesPeriod(24)" class="active">24 Hours</button>
+                        <button id="btn72_trades" onclick="setTradesPeriod(72)">3 Days</button>
+                        <button id="btn168_trades" onclick="setTradesPeriod(168)">7 Days</button>
+                        <button id="btn0_trades" onclick="setTradesPeriod(0)">All Time</button>
+                    </div>
+
+                    <!-- Metric Controls -->
+                    <div class="controls" style="margin-bottom: 12px;">
+                        <button id="btn_trades_pp" onclick="setTradesChartMetric('hourly_pp')" class="active">Volume (PP)</button>
+                        <button id="btn_trades_units" onclick="setTradesChartMetric('hourly_units')">Volume (Units)</button>
+                        <button id="btn_trades_money" onclick="setTradesChartMetric('hourly_money')">Turnover (₿)</button>
+                        <button id="btn_trades_tx" onclick="setTradesChartMetric('hourly_tx')">Trades Count</button>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <div class="chart-canvas-container">
+                            <canvas id="tradesChart"></canvas>
+                        </div>
+                        <div class="legend-wrapper">
+                            <button class="chart-toggle-btn" onclick="toggleAll('tradesChart')" style="margin-bottom: 8px;">Toggle All</button>
+                            <div id="tradesChart-legend" class="custom-legend"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subtab 4: Leaderboard -->
+            <div id="subtab_leaderboard" class="market-subcontent" style="display: none;">
+                <!-- Leaderboard Filter Controls -->
+                <div class="leaderboard-controls-panel">
+                    <!-- 1. Scope & Commodity Selector Blocks -->
+                    <div class="lb-scopes-container">
+                        <!-- Scope 1: Global (PP > 0) -->
+                        <div class="lb-scope-block active" id="lb_scope_global">
+                            <div class="lb-scope-header">
+                                <button class="lb-scope-btn active" id="lb_scope_btn_global" onclick="setLBCategory('global')">
+                                    🌐 Global (PP &gt; 0)
+                                </button>
+                                <span class="lb-scope-hint">Manufactured Goods</span>
+                            </div>
+                            <div class="lb-scope-items" id="lb_items_global"></div>
+                        </div>
+
+                        <!-- Scope 2: Cases & Scraps (0 PP) -->
+                        <div class="lb-scope-block" id="lb_scope_unman">
+                            <div class="lb-scope-header">
+                                <button class="lb-scope-btn" id="lb_scope_btn_unman" onclick="setLBCategory('unmanufactured')">
+                                    📦 Cases &amp; Scraps (0 PP)
+                                </button>
+                                <span class="lb-scope-hint">Raw Containers</span>
+                            </div>
+                            <div class="lb-scope-items" id="lb_items_unman"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Metric / Source Switcher -->
+                    <div class="leaderboard-ctrl-row" style="margin-top: 6px;">
+                        <div class="leaderboard-ctrl-label">Ranking Metric:</div>
+                        <div class="leaderboard-ctrl-group" id="lb_metric_buttons"></div>
+                    </div>
+
+                    <!-- 3. Time Window -->
+                    <div class="leaderboard-ctrl-row" id="lb_time_row" style="margin-top: 6px;">
+                        <div class="leaderboard-ctrl-label">Time Window:</div>
+                        <div class="leaderboard-ctrl-group">
+                            <button class="lb-time-btn active" id="lb_time_24h" onclick="setLBTimePeriod('24h')">24 Hours</button>
+                            <button class="lb-time-btn" id="lb_time_7d" onclick="setLBTimePeriod('7d')">7 Days</button>
+                            <button class="lb-time-btn" id="lb_time_30d" onclick="setLBTimePeriod('30d')">30 Days</button>
+                            <button class="lb-time-btn" id="lb_time_all" onclick="setLBTimePeriod('all')">All Time</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Header Bar -->
+                <div class="leaderboard-header-bar">
+                    <h3 id="lb_current_title" class="leaderboard-title">Top 10 Global Market Participants</h3>
+                    <div id="lb_current_subtitle" class="leaderboard-subtitle">Ranked by Production Points (PP)</div>
+                </div>
+
+
+                <!-- Full Top 10 Table -->
+                <div class="table-wrapper" style="margin-top: 15px;">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px; text-align: center;">Rank</th>
+                                <th>Participant</th>
+                                <th style="width: 90px; text-align: center;">Type</th>
+                                <th style="text-align: right;" id="lb_col_metric_header">Primary Metric</th>
+                                <th style="text-align: right;" id="lb_col_submetric_header">Secondary Metric</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lb_table_body"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -3000,6 +3940,9 @@
         const workersData = {{ workers_data_json | safe }};
         const depthData = {{ depth_data_json | safe }};
         const depthHistory = {{ depth_history_json | safe }};
+        const tradesData = {{ trades_data_json | safe }};
+        const tradesHistory = {{ trades_history_json | safe }};
+        const leaderboardsData = {{ leaderboards_json | safe }};
         const labels = {{ metric_labels_json | safe }};
         const itemColors = {{ item_colors_json | safe }};
         const itemShortNames = {{ item_short_names_json | safe }};
@@ -3018,6 +3961,30 @@
         let expandedCompItems = new Set();
         let expandedWorkerItems = new Set();
         let expandedDepthItems = new Set();
+
+        // --- MARKET SUBTABS STATE ---
+        let activeMarketSubtab = localStorage.getItem('activeMarketSubtab') || 'sell_depth';
+        let currentBuyDepthSort = { col: 'total_money', dir: 'desc' };
+        let expandedBuyDepthItems = new Set();
+        let activeSelloutTargets = {};
+        let currentTradesSort = { col: 'total_pp', dir: 'desc' };
+        let expandedTradesItems = new Set();
+        let currentTradesMetric = 'hourly_pp';
+        let tradesTimeFilterHours = 24;
+        let lbCategory = 'global';
+        let lbMetric = 'live_sellers';
+        let lbTimePeriod = '24h';
+        let lbSelectedItem = 'bread';
+        let expandedLBRows = new Set();
+
+        function toggleLBRowExpand(rowKey) {
+            if (expandedLBRows.has(rowKey)) {
+                expandedLBRows.delete(rowKey);
+            } else {
+                expandedLBRows.add(rowKey);
+            }
+            renderLeaderboards();
+        }
 
         let profDrawerTabs = {};
 
@@ -3081,6 +4048,7 @@
             updateCompChart();
             renderWorkerChart();
             renderDepthChart();
+            renderTradesChart();
         });
 
         const savedTheme = localStorage.getItem('theme');
@@ -3091,10 +4059,12 @@
         }
 
         function switchTab(tabId, btn) {
+            if (tabId === 'market_depth') tabId = 'market';
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+            const targetEl = document.getElementById(tabId) || document.getElementById('market');
+            if (targetEl) targetEl.classList.add('active');
+            if (btn) btn.classList.add('active');
             localStorage.setItem('activeTab', tabId);
             updateRelativeTime();
             // Recalculate widths when tab becomes visible
@@ -3105,8 +4075,12 @@
                 updateCompChart();
             } else if (tabId === 'profitability') {
                 renderMainChart();
-            } else if (tabId === 'market_depth') {
-                renderDepthChart();
+            } else if (tabId === 'market' || tabId === 'market_depth') {
+                if (activeMarketSubtab === 'sell_depth') {
+                    renderDepthChart();
+                } else if (activeMarketSubtab === 'trades_24h') {
+                    renderTradesChart();
+                }
             }
         }
 
@@ -3160,8 +4134,21 @@
 
             const isComp = document.getElementById('company_basing') && document.getElementById('company_basing').classList.contains('active');
             const isWorkers = document.getElementById('workers') && document.getElementById('workers').classList.contains('active');
-            const isDepth = document.getElementById('market_depth') && document.getElementById('market_depth').classList.contains('active');
-            const attr = isComp ? 'data-comp-timestamp' : (isWorkers ? 'data-workers-timestamp' : (isDepth ? 'data-depth-timestamp' : 'data-market-timestamp'));
+            const isMarket = (document.getElementById('market') && document.getElementById('market').classList.contains('active')) ||
+                            (document.getElementById('market_depth') && document.getElementById('market_depth').classList.contains('active'));
+            
+            let attr = 'data-market-timestamp';
+            if (isComp) {
+                attr = 'data-comp-timestamp';
+            } else if (isWorkers) {
+                attr = 'data-workers-timestamp';
+            } else if (isMarket) {
+                if (activeMarketSubtab === 'trades_24h') {
+                    attr = 'data-trades-timestamp';
+                } else {
+                    attr = 'data-depth-timestamp';
+                }
+            }
             let timestamp = parseInt(timeElement.getAttribute(attr));
             if (!timestamp || isNaN(timestamp)) {
                 timestamp = parseInt(timeElement.getAttribute('data-timestamp')) || 0;
@@ -4650,7 +5637,11 @@
 
         function handleDepthVolumeSort() {
             if (currentDepthSort.col === 'total_pp') {
-                currentDepthSort.dir = currentDepthSort.dir === 'asc' ? 'desc' : 'asc';
+                currentDepthSort.col = 'total_money';
+                currentDepthSort.dir = 'desc';
+            } else if (currentDepthSort.col === 'total_money') {
+                currentDepthSort.col = 'total_units';
+                currentDepthSort.dir = 'desc';
             } else {
                 currentDepthSort.col = 'total_pp';
                 currentDepthSort.dir = 'desc';
@@ -4680,7 +5671,9 @@
             const arrow = currentDepthSort.dir === 'asc' ? '↑' : '↓';
             const names = {
                 'pretty_name': 'Product',
-                'total_pp': 'Total PP'
+                'total_pp': 'Total PP',
+                'total_money': 'Total Money (₿)',
+                'total_units': 'Total Units'
             };
             el.textContent = `${names[currentDepthSort.col] || currentDepthSort.col} ${arrow}`;
         }
@@ -4725,6 +5718,94 @@
             }
         }
 
+        function renderTiersBadgeList(orders, totalUnits, totalMoney, isBuyer, maxTiers = 5, isSmall = false) {
+            const rawOrders = orders || [];
+            const color = isBuyer ? '#10b981' : '#f59e0b';
+            const paddingStyle = isSmall ? 'padding: 1px 5px; font-size: 10px;' : '';
+            const numUnits = Number(totalUnits) || 0;
+            const numMoney = Number(totalMoney) || 0;
+
+            if (rawOrders.length === 0) {
+                if (numUnits > 0) {
+                    const avgP = numMoney > 0 ? (numMoney / numUnits) : 0;
+                    return `
+                        <div class="depth-card-order-badge" style="${paddingStyle}" title="${numUnits.toLocaleString()} units @ ≈ ${avgP.toFixed(3)} ₿">
+                            <span class="order-badge-qty">${numUnits.toLocaleString()}</span>
+                            <span class="order-badge-at">@</span>
+                            <span class="order-badge-price" style="color: ${color}; font-weight: 600;">≈ ${avgP.toFixed(3)} ₿</span>
+                        </div>
+                    `;
+                }
+                return '';
+            }
+
+            // Aggregate orders by price (rounded to 3 decimals) to combine identical price tiers
+            const priceAgg = {};
+            rawOrders.forEach(o => {
+                const p = Number(Number(o.price || 0).toFixed(3));
+                const q = Number(o.quantity || 0);
+                if (q > 0) {
+                    priceAgg[p] = (priceAgg[p] || 0) + q;
+                }
+            });
+
+            // Convert to sorted list descending by quantity
+            const sortedOrders = Object.entries(priceAgg)
+                .map(([p, q]) => ({ price: Number(p), quantity: q }))
+                .sort((a, b) => b.quantity - a.quantity);
+
+            let shownOrders = [];
+            if (sortedOrders.length < maxTiers) {
+                shownOrders = sortedOrders;
+            } else {
+                shownOrders = sortedOrders.slice(0, Math.max(1, maxTiers - 1));
+            }
+
+            let shownQty = 0;
+            let shownMoney = 0;
+            shownOrders.forEach(o => {
+                const q = Number(o.quantity || 0);
+                const p = Number(o.price || 0);
+                shownQty += q;
+                shownMoney += q * p;
+            });
+
+            let remQty = Math.max(0, numUnits - shownQty);
+            let remMoney = Math.max(0, numMoney - shownMoney);
+            let remPrice = remQty > 0 ? (remMoney / remQty) : 0;
+
+            // If remPrice is identical to one of the shownOrders (within 0.001 ₿), merge into that order
+            if (remQty > 0) {
+                const matchedOrder = shownOrders.find(o => Math.abs(o.price - remPrice) < 0.001);
+                if (matchedOrder) {
+                    matchedOrder.quantity += remQty;
+                    remQty = 0;
+                    remMoney = 0;
+                }
+            }
+
+            let html = shownOrders.map(o => `
+                <div class="depth-card-order-badge" style="${paddingStyle}" title="${Number(o.quantity).toLocaleString()} units @ ${Number(o.price).toFixed(3)} ₿">
+                    <span class="order-badge-qty">${Number(o.quantity).toLocaleString()}</span>
+                    <span class="order-badge-at">@</span>
+                    <span class="order-badge-price" style="color: ${color}; font-weight: 600;">${Number(o.price).toFixed(3)} ₿</span>
+                </div>
+            `).join('');
+
+            if (remQty > 0) {
+                html += `
+                    <div class="depth-card-order-badge" style="${paddingStyle} opacity: 0.9; border-style: dashed;" title="Remaining ${remQty.toLocaleString()} units @ ≈ ${remPrice.toFixed(3)} ₿ (Turnover: ${remMoney.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿)">
+                        <span class="order-badge-qty">+${remQty.toLocaleString()}</span>
+                        <span class="order-badge-at">@</span>
+                        <span class="order-badge-price" style="color: ${color}; font-weight: 600;">≈ ${remPrice.toFixed(3)} ₿</span>
+                        <span style="font-size: 9px; opacity: 0.75; margin-left: 2px;">rest</span>
+                    </div>
+                `;
+            }
+
+            return html;
+        }
+
         let activeBuyoutTargets = {};
 
         function buildLadderRowsHtml(itemCode, depthData) {
@@ -4755,12 +5836,13 @@
             let runningCumQty = 0;
             let runningCumCost = 0;
             let rowsHtml = '';
+            const regularTotalUnits = regularTiers.reduce((sum, t) => sum + t.quantity, 0);
 
             regularTiers.forEach(tier => {
                 const tierTotal = tier.price * tier.quantity;
                 runningCumQty += tier.quantity;
                 runningCumCost += tierTotal;
-                const depthPct = totalUnits > 0 ? Math.min(100, Math.round((runningCumQty / totalUnits) * 100)) : 0;
+                const depthPct = regularTotalUnits > 0 ? Math.min(100, Math.round((runningCumQty / regularTotalUnits) * 100)) : 0;
 
                 let isBought = false;
                 let isTarget = false;
@@ -4796,7 +5878,7 @@
                 `;
 
                 if (isTarget) {
-                    const targetPct = totalUnits > 0 ? ((runningCumQty / totalUnits) * 100).toFixed(1) : '0';
+                    const targetPct = regularTotalUnits > 0 ? ((runningCumQty / regularTotalUnits) * 100).toFixed(1) : '0';
                     rowsHtml += `
                         <tr class="depth-buyout-summary-row">
                             <td colspan="3" style="padding: 0 2px 4px;">
@@ -4932,6 +6014,9 @@
                 } else if (currentDepthSort.col === 'total_units') {
                     v1 = d1.total_units || 0;
                     v2 = d2.total_units || 0;
+                } else if (currentDepthSort.col === 'total_money') {
+                    v1 = d1.total_money || 0;
+                    v2 = d2.total_money || 0;
                 } else {
                     v1 = d1.total_pp || 0;
                     v2 = d2.total_pp || 0;
@@ -4953,25 +6038,36 @@
                 const d = row.depth_data || {};
                 const totalUnits = d.total_units || 0;
                 const totalPP = d.total_pp || 0;
-                const isNoPP = Boolean(row.is_depth_only || d.pp_per_unit === 0);
-                const ppPerUnit = isNoPP ? 0 : (d.pp_per_unit || 1);
                 const topSellers = d.top_sellers || [];
                 const ladder = d.ladder || [];
                 const isExpanded = expandedDepthItems.has(itemCode);
+
+                let calcMoney = d.total_money;
+                if (calcMoney === undefined || calcMoney === 0) {
+                    if (ladder && ladder.length > 0) {
+                        const minP = ladder[0].price;
+                        const thresh = minP * 2;
+                        calcMoney = ladder.reduce((sum, t) => t.price < thresh - 1e-9 ? sum + (t.price * t.quantity) : sum, 0);
+                    } else {
+                        calcMoney = 0;
+                    }
+                }
+                const isNoPP = Boolean(row.is_depth_only || d.pp_per_unit === 0);
+                const ppPerUnit = isNoPP ? 0 : (d.pp_per_unit || 1);
 
                 let displayName = row.pretty_name;
                 if (window.innerWidth <= 768) {
                     displayName = itemShortNames[itemCode] || row.pretty_name;
                 }
 
-                // Render Top 3 Sellers in main row cell
+                // Render Top 3 Sellers in main row cell (strictly 3 matching Buy Depth)
                 let sellersRowHtml = '';
                 if (topSellers.length === 0) {
                     sellersRowHtml = `<span style="color: var(--text-secondary); font-size: 12px; font-style: italic;">No active orders</span>`;
                 } else {
                     sellersRowHtml = `
                         <div class="depth-top-sellers-cell">
-                            ${topSellers.map((s, idx) => {
+                            ${topSellers.slice(0, 3).map((s, idx) => {
                                 const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : 'rank-3');
                                 const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉');
                                 const avatarHtml = renderSellerAvatar(s, false);
@@ -5000,27 +6096,34 @@
                     `;
                 }
 
-                // Merged Volume Column: PP and Units (Price removed per user request)
+                // Merged Volume Column: PP, Units, and Total Money (₿)
                 let volumeCellHtml = '';
+                const moneyFormatted = `~ ${calcMoney.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿`;
+                const unitsFormatted = (window.innerWidth <= 768) ? `${formatCompact(totalUnits)} units` : `${totalUnits.toLocaleString()} units`;
+
                 if (isNoPP) {
-                    const unitsFormatted = (window.innerWidth <= 768) ? `${formatCompact(totalUnits)} units` : `${totalUnits.toLocaleString()} units`;
                     volumeCellHtml = `
-                        <div style="text-align: right; line-height: 1.25;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.25;">
                             <div style="font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; font-size: 13.5px;">
                                 ${unitsFormatted}
+                            </div>
+                            <div style="font-size: 11px; color: var(--rank-gold); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                                ${moneyFormatted}
                             </div>
                         </div>
                     `;
                 } else if (ppPerUnit === 1) {
                     volumeCellHtml = `
-                        <div style="text-align: right; line-height: 1.25;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.25;">
                             <div style="font-weight: 700; color: var(--subhead-green); font-variant-numeric: tabular-nums; font-size: 13.5px;">
                                 ${totalPP.toLocaleString()} <span style="font-size: 11px; font-weight: 500; color: var(--text-secondary);">PP</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--rank-gold); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                                ${moneyFormatted}
                             </div>
                         </div>
                     `;
                 } else {
-                    const unitsFormatted = (window.innerWidth <= 768) ? `${formatCompact(totalUnits)} units` : `${totalUnits.toLocaleString()} units`;
                     volumeCellHtml = `
                         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.25;">
                             <div style="font-weight: 700; color: var(--subhead-green); font-variant-numeric: tabular-nums; font-size: 13.5px;">
@@ -5029,9 +6132,13 @@
                             <div style="font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap;">
                                 ${unitsFormatted}
                             </div>
+                            <div style="font-size: 11px; color: var(--rank-gold); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                                ${moneyFormatted}
+                            </div>
                         </div>
                     `;
                 }
+
 
                 // Main table row: Product, Merged Volume, Top Sellers
                 html += `
@@ -5063,7 +6170,7 @@
                     } else {
                         drawerSellersHtml = `
                             <div class="depth-drawer-top-sellers">
-                                ${topSellers.map((s, idx) => {
+                                ${topSellers.slice(0, 3).map((s, idx) => {
                                     const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : 'rank-3');
                                     const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉');
                                     const title = idx === 0 ? 'Top Seller #1' : (idx === 1 ? 'Seller #2' : 'Seller #3');
@@ -5204,6 +6311,1550 @@
             createChart('depthChart', currentDepthMetric, '', false, false, true);
         }
 
+        // --- MARKET SUBTABS LOGIC ---
+        function switchMarketSubtab(subtabId, btn) {
+            activeMarketSubtab = subtabId;
+            localStorage.setItem('activeMarketSubtab', subtabId);
+
+            document.querySelectorAll('.market-subtab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                const targetBtn = document.getElementById(`btn_subtab_${subtabId}`);
+                if (targetBtn) targetBtn.classList.add('active');
+            }
+
+            document.querySelectorAll('.market-subcontent').forEach(c => {
+                c.style.display = 'none';
+                c.classList.remove('active');
+            });
+            const targetContainer = document.getElementById(`subtab_${subtabId}`);
+            if (targetContainer) {
+                targetContainer.style.display = 'block';
+                targetContainer.classList.add('active');
+            }
+
+            updateRelativeTime();
+
+            if (subtabId === 'sell_depth') {
+                renderDepthTable();
+                renderDepthChart();
+            } else if (subtabId === 'buy_depth') {
+                renderBuyDepthTable();
+            } else if (subtabId === 'trades_24h') {
+                setTradesTablePeriod(currentTradesPeriod, document.getElementById(`btn_trades_period_${currentTradesPeriod}`));
+                renderTradesChart();
+            } else if (subtabId === 'leaderboard') {
+                renderLeaderboards();
+            }
+        }
+
+        // --- BUY DEPTH FUNCTIONS ---
+        function toggleBuyDepthExpand(itemCode) {
+            if (expandedBuyDepthItems.has(itemCode)) {
+                expandedBuyDepthItems.delete(itemCode);
+            } else {
+                expandedBuyDepthItems.add(itemCode);
+            }
+            renderBuyDepthTable();
+        }
+
+        function handleBuyDepthVolumeSort() {
+            if (currentBuyDepthSort.col === 'total_money') {
+                currentBuyDepthSort.dir = currentBuyDepthSort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentBuyDepthSort.col = 'total_money';
+                currentBuyDepthSort.dir = 'desc';
+            }
+            updateBuyDepthSortLabel();
+            renderBuyDepthTable();
+        }
+
+        function handleBuyDepthSort(col) {
+            if (col === 'volume' || col === 'total_volume') {
+                handleBuyDepthVolumeSort();
+                return;
+            }
+            if (currentBuyDepthSort.col === col) {
+                currentBuyDepthSort.dir = currentBuyDepthSort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentBuyDepthSort.col = col;
+                currentBuyDepthSort.dir = (col === 'pretty_name') ? 'asc' : 'desc';
+            }
+            updateBuyDepthSortLabel();
+            renderBuyDepthTable();
+        }
+
+        function updateBuyDepthSortLabel() {
+            const el = document.getElementById('currentBuyDepthSortLabel');
+            if (!el) return;
+            const arrow = currentBuyDepthSort.dir === 'asc' ? '↑' : '↓';
+            const names = {
+                'pretty_name': 'Product',
+                'total_pp': 'Total PP',
+                'total_units': 'Total Units',
+                'total_money': 'Total ₿'
+            };
+            el.textContent = `${names[currentBuyDepthSort.col] || currentBuyDepthSort.col} ${arrow}`;
+        }
+
+        function buildBuyLadderRowsHtml(itemCode, buyDepthData) {
+            const ladder = buyDepthData.ladder || [];
+            if (ladder.length === 0) {
+                return `<tr><td colspan="3" style="text-align: center; padding: 16px; color: var(--text-secondary);">No active buy orders found.</td></tr>`;
+            }
+
+            const maxPrice = ladder[0].price;
+            const thresholdPrice = maxPrice / 2.0;
+            const regularTiers = [];
+            const groupedTiers = [];
+
+            ladder.forEach(tier => {
+                if (tier.price < thresholdPrice - 1e-9) {
+                    groupedTiers.push(tier);
+                } else {
+                    regularTiers.push(tier);
+                }
+            });
+
+            const regularTotalUnits = regularTiers.reduce((sum, t) => sum + t.quantity, 0);
+            const activeTarget = (activeSelloutTargets[itemCode] !== undefined) ? activeSelloutTargets[itemCode] : null;
+
+            let runningCumQty = 0;
+            let runningCumCost = 0;
+            let rowsHtml = '';
+
+            // Ladder is sorted descending by price (highest buy bids first)
+            regularTiers.forEach(tier => {
+                const tierTotal = tier.price * tier.quantity;
+                runningCumQty += tier.quantity;
+                runningCumCost += tierTotal;
+                const depthPct = regularTotalUnits > 0 ? Math.min(100, Math.round((runningCumQty / regularTotalUnits) * 100)) : 0;
+
+                let isSold = false;
+                let isTarget = false;
+                if (activeTarget !== null) {
+                    if (tier.price >= activeTarget - 1e-9) {
+                        isSold = true;
+                        if (Math.abs(tier.price - activeTarget) < 1e-9) {
+                            isTarget = true;
+                        }
+                    }
+                }
+
+                const rowClasses = ['depth-ladder-row'];
+                if (isSold) rowClasses.push('is-bought');
+                if (isTarget) rowClasses.push('is-buyout-target');
+
+                const rowBg = isSold
+                    ? ''
+                    : `background: linear-gradient(to right, rgba(16, 185, 129, 0.10) ${depthPct}%, transparent ${depthPct}%);`;
+
+                rowsHtml += `
+                    <tr class="${rowClasses.join(' ')}" ${rowBg ? `style="${rowBg}"` : ''} onclick="handleSelloutTierClick('${itemCode}', ${tier.price}, event)">
+                        <td style="text-align: left; font-weight: 600; color: #10b981; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                            ${isSold ? '<span style="color: #10b981; font-weight: bold; margin-right: 4px;">✓</span>' : ''}${tier.price.toFixed(3)} ₿
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                            ${tier.quantity.toLocaleString()}
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); white-space: nowrap;" title="Total tier value: ${tierTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₿">
+                            ${tierTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₿
+                        </td>
+                    </tr>
+                `;
+
+                if (isTarget) {
+                    const targetPct = regularTotalUnits > 0 ? ((runningCumQty / regularTotalUnits) * 100).toFixed(1) : '0';
+                    rowsHtml += `
+                        <tr class="depth-buyout-summary-row">
+                            <td colspan="3" style="padding: 0 2px 4px;">
+                                <div class="depth-sellout-card">
+                                    <div class="depth-sellout-card-header">
+                                        <div class="depth-sellout-card-title">
+                                            <span style="color: #10b981; font-size: 13px;">⚡</span>
+                                            <strong style="color: var(--text-primary);">Sellout down to ${tier.price.toFixed(3)} ₿:</strong>
+                                        </div>
+                                        <button type="button" class="depth-buyout-close-btn" onclick="clearSellout('${itemCode}', event)" title="Clear selection">✕ Dismiss</button>
+                                    </div>
+                                    <div class="depth-buyout-stats-grid">
+                                        <div class="depth-buyout-stat-box">
+                                            <div class="depth-buyout-stat-label">Received</div>
+                                            <div class="depth-buyout-stat-val" style="color: var(--rank-gold);">${runningCumCost.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿</div>
+                                        </div>
+                                        <div class="depth-buyout-stat-box">
+                                            <div class="depth-buyout-stat-label">Units Sold</div>
+                                            <div class="depth-buyout-stat-val" style="color: var(--subhead-green);">${runningCumQty.toLocaleString()}</div>
+                                        </div>
+                                        <div class="depth-buyout-stat-box">
+                                            <div class="depth-buyout-stat-label">Demand Cleared</div>
+                                            <div class="depth-buyout-stat-val" style="color: #38bdf8;">${targetPct}%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (groupedTiers.length > 0) {
+                const groupedQty = groupedTiers.reduce((sum, t) => sum + t.quantity, 0);
+                const groupedCost = groupedTiers.reduce((sum, t) => sum + (t.price * t.quantity), 0);
+                const groupedCount = groupedTiers.length;
+                const badgeLabel = (window.innerWidth <= 768) ? '2x-' : `2x- (${groupedCount})`;
+                rowsHtml += `
+                    <tr class="depth-ladder-grouped-row">
+                        <td style="text-align: left; font-weight: 700; color: #f59e0b; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                            <div style="display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                                <span>≤ ${thresholdPrice.toFixed(3)} ₿</span>
+                                <span class="depth-grouped-badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b;" title="Grouped ${groupedCount} tiers with bid price < half of top bid (< ${thresholdPrice.toFixed(3)} ₿)">${badgeLabel}</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--text-primary); white-space: nowrap;">
+                            ${groupedQty.toLocaleString()}
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-secondary); white-space: nowrap;" title="Actual total value of bids below 2x-: ${groupedCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₿">
+                            ${groupedCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₿
+                        </td>
+                    </tr>
+                `;
+            }
+
+            return rowsHtml;
+        }
+
+        function handleSelloutTierClick(itemCode, targetPrice, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            const current = activeSelloutTargets[itemCode];
+            if (current !== undefined && Math.abs(current - targetPrice) < 1e-9) {
+                delete activeSelloutTargets[itemCode];
+            } else {
+                activeSelloutTargets[itemCode] = targetPrice;
+            }
+
+            const scrollContainer = document.getElementById(`buy-ladder-scroll-${itemCode}`);
+            const savedScrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
+            const savedWindowY = window.scrollY;
+
+            const tbody = document.getElementById(`buy-ladder-tbody-${itemCode}`);
+            if (tbody) {
+                const row = tableData.find(r => r.item === itemCode);
+                const bDepth = row && row.depth_data ? row.depth_data.buy_depth : null;
+                if (bDepth) {
+                    tbody.innerHTML = buildBuyLadderRowsHtml(itemCode, bDepth);
+                    if (scrollContainer) scrollContainer.scrollTop = savedScrollTop;
+                    window.scrollTo({ top: savedWindowY, behavior: 'instant' });
+                    return;
+                }
+            }
+
+            renderBuyDepthTable();
+            const newSc = document.getElementById(`buy-ladder-scroll-${itemCode}`);
+            if (newSc) newSc.scrollTop = savedScrollTop;
+            window.scrollTo({ top: savedWindowY, behavior: 'instant' });
+        }
+
+        function clearSellout(itemCode, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            delete activeSelloutTargets[itemCode];
+
+            const scrollContainer = document.getElementById(`buy-ladder-scroll-${itemCode}`);
+            const savedScrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
+            const savedWindowY = window.scrollY;
+
+            const tbody = document.getElementById(`buy-ladder-tbody-${itemCode}`);
+            if (tbody) {
+                const row = tableData.find(r => r.item === itemCode);
+                const bDepth = row && row.depth_data ? row.depth_data.buy_depth : null;
+                if (bDepth) {
+                    tbody.innerHTML = buildBuyLadderRowsHtml(itemCode, bDepth);
+                    if (scrollContainer) scrollContainer.scrollTop = savedScrollTop;
+                    window.scrollTo({ top: savedWindowY, behavior: 'instant' });
+                    return;
+                }
+            }
+
+            renderBuyDepthTable();
+            const newSc = document.getElementById(`buy-ladder-scroll-${itemCode}`);
+            if (newSc) newSc.scrollTop = savedScrollTop;
+            window.scrollTo({ top: savedWindowY, behavior: 'instant' });
+        }
+
+        function renderBuyDepthTable() {
+            const tbody = document.getElementById('buyDepthTableBody');
+            if (!tbody) return;
+
+            const data = [...tableData].sort((a, b) => {
+                let v1, v2;
+                const d1 = a.depth_data && a.depth_data.buy_depth ? a.depth_data.buy_depth : {};
+                const d2 = b.depth_data && b.depth_data.buy_depth ? b.depth_data.buy_depth : {};
+
+                if (currentBuyDepthSort.col === 'pretty_name') {
+                    v1 = a.pretty_name.toLowerCase();
+                    v2 = b.pretty_name.toLowerCase();
+                } else if (currentBuyDepthSort.col === 'total_units') {
+                    v1 = d1.total_units || 0;
+                    v2 = d2.total_units || 0;
+                } else if (currentBuyDepthSort.col === 'total_pp') {
+                    v1 = d1.total_pp || 0;
+                    v2 = d2.total_pp || 0;
+                } else {
+                    v1 = d1.total_money_invested || 0;
+                    v2 = d2.total_money_invested || 0;
+                    if (v1 === v2) {
+                        const pp1 = d1.total_pp || 0;
+                        const pp2 = d2.total_pp || 0;
+                        if (pp1 === pp2) {
+                            const u1 = d1.total_units || 0;
+                            const u2 = d2.total_units || 0;
+                            if (u1 === u2) return 0;
+                            return currentBuyDepthSort.dir === 'asc' ? (u1 > u2 ? 1 : -1) : (u1 < u2 ? 1 : -1);
+                        }
+                        return currentBuyDepthSort.dir === 'asc' ? (pp1 > pp2 ? 1 : -1) : (pp1 < pp2 ? 1 : -1);
+                    }
+                }
+
+                if (v1 === v2) return 0;
+                return currentBuyDepthSort.dir === 'asc' ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
+            });
+
+            let html = '';
+            data.forEach(row => {
+                const itemCode = row.item;
+                const bDepth = row.depth_data && row.depth_data.buy_depth ? row.depth_data.buy_depth : {};
+                const totalUnits = bDepth.total_units || 0;
+                const totalPP = bDepth.total_pp || 0;
+                const totalMoney = bDepth.total_money_invested || 0;
+                const isNoPP = Boolean(row.is_depth_only || (row.depth_data && row.depth_data.pp_per_unit === 0));
+                const ppPerUnit = isNoPP ? 0 : ((row.depth_data && row.depth_data.pp_per_unit) || 1);
+                const topBuyers = bDepth.top_buyers || [];
+                const ladder = bDepth.ladder || [];
+                const isExpanded = expandedBuyDepthItems.has(itemCode);
+
+                let displayName = row.pretty_name;
+                if (window.innerWidth <= 768) {
+                    displayName = itemShortNames[itemCode] || row.pretty_name;
+                }
+
+                // Render Top 3 Buyers in main row cell
+                let buyersRowHtml = '';
+                if (topBuyers.length === 0) {
+                    buyersRowHtml = `<span style="color: var(--text-secondary); font-size: 12px; font-style: italic;">No active buy orders</span>`;
+                } else {
+                    buyersRowHtml = `
+                        <div class="depth-top-buyers-cell">
+                            ${topBuyers.slice(0, 3).map((b, idx) => {
+                                const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : 'rank-3');
+                                const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉');
+                                const avatarHtml = renderSellerAvatar(b, false);
+                                const hasLink = Boolean(b.profile_url);
+
+                                const nameContent = `
+                                    ${avatarHtml}
+                                    <span class="buyer-name">${b.name}</span>
+                                `;
+
+                                const linkedName = hasLink
+                                    ? `<a href="${b.profile_url}" target="_blank" rel="noopener noreferrer" class="depth-seller-link" onclick="event.stopPropagation();" title="View ${b.name} on Warera">${nameContent}</a>`
+                                    : `<span class="depth-seller-link">${nameContent}</span>`;
+
+                                return `
+                                    <div class="depth-buyer-pill ${rankClass}" title="${b.name}: ${(b.money || 0).toLocaleString()} ₿ • ${b.quantity.toLocaleString()} units (${b.share_pct}%)">
+                                        <span class="medal">${medal}</span>
+                                        ${linkedName}
+                                        <span class="buyer-colon">:</span>
+                                        <span class="buyer-qty" style="color: var(--rank-gold);">${formatCompact(b.money !== undefined ? b.money : b.quantity)} ₿</span>
+                                        <span class="buyer-share">(${b.share_pct}%)</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+
+                // Demand Column: PP, Units, and ₿ Invested
+                let demandCellHtml = '';
+                const moneyFormatted = `~ ${totalMoney.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿`;
+                const unitsFormatted = (window.innerWidth <= 768) ? `${formatCompact(totalUnits)} units` : `${totalUnits.toLocaleString()} units`;
+
+                if (isNoPP) {
+                    demandCellHtml = `
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.25;">
+                            <div style="font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; font-size: 13.5px;">
+                                ${unitsFormatted}
+                            </div>
+                            <div style="font-size: 11px; color: var(--rank-gold); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                                ${moneyFormatted}
+                            </div>
+                        </div>
+                    `;
+                } else if (ppPerUnit === 1) {
+                    demandCellHtml = `
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.25;">
+                            <div style="font-weight: 700; color: var(--subhead-green); font-variant-numeric: tabular-nums; font-size: 13.5px;">
+                                ${totalPP.toLocaleString()} <span style="font-size: 11px; font-weight: 500; color: var(--text-secondary);">PP</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--rank-gold); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                                ${moneyFormatted}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    demandCellHtml = `
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.25;">
+                            <div style="font-weight: 700; color: var(--subhead-green); font-variant-numeric: tabular-nums; font-size: 13.5px;">
+                                ${totalPP.toLocaleString()} <span style="font-size: 11px; font-weight: 500; color: var(--text-secondary);">PP</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap;">
+                                ${unitsFormatted}
+                            </div>
+                            <div style="font-size: 11px; color: var(--rank-gold); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap;">
+                                ${moneyFormatted}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <tr class="row-clickable" onclick="toggleBuyDepthExpand('${itemCode}')">
+                        <td>
+                            <div class="item-cell">
+                                <span class="expand-icon ${isExpanded ? 'open' : ''}">▶</span>
+                                ${getIcon(itemCode)}
+                                <div class="item-content">
+                                    <span class="item-name">${displayName}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="text-align: right;">
+                            ${demandCellHtml}
+                        </td>
+                        <td>
+                            ${buyersRowHtml}
+                        </td>
+                    </tr>
+                `;
+
+                if (isExpanded) {
+                    let drawerBuyersHtml = '';
+                    if (topBuyers.length === 0) {
+                        drawerBuyersHtml = `<div style="color: var(--text-secondary); font-size: 13px; font-style: italic; padding: 8px;">No active buy orders listed for this commodity.</div>`;
+                    } else {
+                        drawerBuyersHtml = `
+                            <div class="depth-drawer-top-sellers">
+                                ${topBuyers.slice(0, 3).map((b, idx) => {
+                                    const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : 'rank-3');
+                                    const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉');
+                                    const title = idx === 0 ? 'Top Buyer #1' : (idx === 1 ? 'Buyer #2' : 'Buyer #3');
+                                    const cardAvatarHtml = renderSellerAvatar(b, true);
+                                    const hasLink = Boolean(b.profile_url);
+                                    const typeLabel = b.type || 'player';
+
+                                    const cardLinkContent = `
+                                        ${cardAvatarHtml}
+                                        <span class="depth-card-name" title="${b.name}">${b.name}</span>
+                                        ${hasLink ? '<span class="depth-link-icon">↗</span>' : ''}
+                                    `;
+
+                                    const linkedCard = hasLink
+                                        ? `<a href="${b.profile_url}" target="_blank" rel="noopener noreferrer" class="depth-card-profile-link" onclick="event.stopPropagation();" title="View ${b.name} on Warera">${cardLinkContent}</a>`
+                                        : `<div class="depth-card-profile-link">${cardLinkContent}</div>`;
+
+                                    let ordersBreakdownHtml = '';
+                                    const bOrders = b.orders || [];
+                                    if (bOrders.length > 0) {
+                                        ordersBreakdownHtml = `
+                                            <div class="depth-card-orders">
+                                                <div class="depth-card-orders-header">Active Buy Orders (${bOrders.length}):</div>
+                                                <div class="depth-card-orders-list">
+                                                    ${bOrders.map(o => `
+                                                        <div class="depth-card-order-badge" title="${o.quantity.toLocaleString()} units @ ${o.price.toFixed(3)} ₿">
+                                                            <span class="order-badge-qty">${o.quantity.toLocaleString()}</span>
+                                                            <span class="order-badge-at">@</span>
+                                                            <span class="order-badge-price" style="color: #10b981;">${o.price.toFixed(3)} ₿</span>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        `;
+                                    }
+
+                                    return `
+                                        <div class="depth-drawer-seller-card ${rankClass}">
+                                            <div class="depth-card-header">
+                                                <span style="color: #10b981;">${medal} ${title}</span>
+                                                <span class="depth-card-type-tag type-${b.type || 'user'}">${typeLabel}</span>
+                                            </div>
+                                            ${linkedCard}
+                                            <div class="depth-card-metric">
+                                                <strong style="color: var(--rank-gold);">${(b.money || 0).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿</strong>
+                                                <span class="depth-card-share">(${b.share_pct}% capital share)</span>
+                                                <span style="color: var(--text-secondary); font-size: 11px; margin-left: 4px;">• ${b.quantity.toLocaleString()} units</span>
+                                            </div>
+                                            ${ordersBreakdownHtml}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    }
+
+                    const top3Money = topBuyers.slice(0, 3).reduce((sum, b) => sum + (b.money || 0), 0);
+                    const top3Share = totalMoney > 0 ? ((top3Money / totalMoney) * 100).toFixed(1) : '0';
+
+                    let groupedBuyCount = 0;
+                    if (ladder.length > 0) {
+                        const thresholdPrice = ladder[0].price / 2.0;
+                        ladder.forEach(tier => {
+                            if (tier.price < thresholdPrice - 1e-9) groupedBuyCount += 1;
+                        });
+                    }
+
+                    const kpisHtml = (topBuyers.length > 0 && totalMoney > 0) ? `
+                        <div class="depth-market-kpis">
+                            <div class="depth-kpi-pill" title="Combined buy share of the top 3 buyers">
+                                <span class="depth-kpi-label">Top-3 Buyer Dominance:</span>
+                                <span class="depth-kpi-val ${top3Share >= 70 ? 'dominance-high' : 'dominance-normal'}">${top3Share}%</span>
+                            </div>
+                            <div class="depth-kpi-pill" title="Total money reserved in buy orders">
+                                <span class="depth-kpi-label">Capital Reserved:</span>
+                                <span class="depth-kpi-val" style="color: var(--rank-gold);">${moneyFormatted}</span>
+                            </div>
+                        </div>
+                    ` : '';
+
+                    const ladderRows = buildBuyLadderRowsHtml(itemCode, bDepth);
+
+                    html += `
+                        <tr class="depth-expanded-row" id="buy-depth-drawer-${itemCode}">
+                            <td colspan="3" class="depth-expanded-cell">
+                                <div class="depth-drawer-container">
+                                    <div>
+                                        <div class="depth-section-title">
+                                            <span>Top Buyers Breakdown</span>
+                                        </div>
+                                        ${drawerBuyersHtml}
+                                    </div>
+
+                                    <div class="depth-ladder-card">
+                                        <div class="depth-ladder-header">
+                                            <span>Buy Order Book Ladder (${ladder.length} price tiers${groupedBuyCount > 0 ? ` • ${groupedBuyCount} tiers grouped at ≤2x-` : ''} • Sorted High to Low)</span>
+                                        </div>
+                                        ${kpisHtml ? `<div style="padding: 8px 12px 2px;">${kpisHtml}</div>` : ''}
+                                        <div class="depth-ladder-scroll" id="buy-ladder-scroll-${itemCode}">
+                                            <table class="depth-ladder-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="text-align: left; white-space: nowrap;">Bid Price (₿)</th>
+                                                        <th style="text-align: right; white-space: nowrap;">Quantity</th>
+                                                        <th style="text-align: right; white-space: nowrap;">Total (₿)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="buy-ladder-tbody-${itemCode}">
+                                                    ${ladderRows}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // --- 24H TRADES FUNCTIONS ---
+        function toggleTradesExpand(itemCode) {
+            if (expandedTradesItems.has(itemCode)) {
+                expandedTradesItems.delete(itemCode);
+            } else {
+                expandedTradesItems.add(itemCode);
+            }
+            renderTradesTable();
+        }
+
+        function handleTradesSort(col) {
+            if (currentTradesSort.col === col) {
+                currentTradesSort.dir = currentTradesSort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentTradesSort.col = col;
+                currentTradesSort.dir = (col === 'pretty_name') ? 'asc' : 'desc';
+            }
+            updateTradesSortLabel();
+            renderTradesTable();
+        }
+
+        function updateTradesSortLabel() {
+            const el = document.getElementById('currentTradesSortLabel');
+            if (!el) return;
+            const arrow = currentTradesSort.dir === 'asc' ? '↑' : '↓';
+            const names = {
+                'pretty_name': 'Product',
+                'volume': 'Volume (PP)',
+                'money': 'Turnover (₿)',
+                'vwap': 'VWAP (₿)',
+                'tx_count': 'Trades'
+            };
+            el.textContent = `${names[currentTradesSort.col] || currentTradesSort.col} ${arrow}`;
+        }
+
+        function setTradesPeriod(hours) {
+            tradesTimeFilterHours = hours;
+            ['btn24_trades', 'btn72_trades', 'btn168_trades', 'btn0_trades'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.classList.toggle('active', (hours === 0 && id === 'btn0_trades') || id === 'btn' + hours + '_trades');
+            });
+            renderTradesChart();
+        }
+
+        function setTradesChartMetric(metric) {
+            currentTradesMetric = metric;
+            const metricBtns = {
+                'hourly_pp': 'btn_trades_pp',
+                'hourly_units': 'btn_trades_units',
+                'hourly_money': 'btn_trades_money',
+                'hourly_tx': 'btn_trades_tx'
+            };
+            Object.entries(metricBtns).forEach(([m, id]) => {
+                const b = document.getElementById(id);
+                if (b) b.classList.toggle('active', m === metric);
+            });
+            renderTradesChart();
+        }
+
+        function createTradesChart(canvasId, metric) {
+            const canvasEl = document.getElementById(canvasId);
+            if (!canvasEl) return;
+            const ctx = canvasEl.getContext('2d');
+            const isMobile = window.innerWidth <= 768;
+
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+
+            const rawLabels = (tradesHistory && tradesHistory.labels) ? tradesHistory.labels : [];
+            const rawItems = (tradesHistory && tradesHistory.items) ? tradesHistory.items : {};
+
+            if (rawLabels.length === 0) {
+                return;
+            }
+
+            // Filter by time range
+            let startIndex = 0;
+            if (tradesTimeFilterHours > 0) {
+                const cutoff = Date.now() / 1000 - (tradesTimeFilterHours * 3600);
+                startIndex = rawLabels.findIndex(t => t >= cutoff);
+                if (startIndex === -1) startIndex = 0;
+            }
+
+            const filteredLabels = rawLabels.slice(startIndex);
+            const chartLabels = formatLabels(filteredLabels);
+
+            const datasets = tableData.filter(r => !r.is_depth_only || metric !== 'hourly_pp').map((row, idx) => {
+                const itHist = rawItems[row.item] || {};
+                const dataSeries = itHist[metric] || [];
+                const slicedData = dataSeries.slice(startIndex);
+                const color = itemColors[row.item] || fallbackColors[idx % fallbackColors.length];
+                return {
+                    label: row.pretty_name,
+                    itemCode: row.item,
+                    data: slicedData,
+                    borderColor: color,
+                    backgroundColor: color,
+                    fill: false,
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHitRadius: 10
+                };
+            });
+
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: { top: 30, left: 0, right: isMobile ? 15 : 30, bottom: 0 }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(200, 200, 200, 0.1)' },
+                        ticks: {
+                            color: '#718096',
+                            maxTicksLimit: isMobile ? 6 : 12,
+                            maxRotation: 0,
+                            font: { size: 10 }
+                        }
+                    },
+                    y: {
+                        grid: { color: 'rgba(200, 200, 200, 0.1)' },
+                        ticks: {
+                            color: '#718096',
+                            font: { size: 10 },
+                            callback: function(val) {
+                                return formatCompact(val);
+                            }
+                        }
+                    }
+                }
+            };
+
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: { labels: chartLabels, datasets: datasets },
+                options: options
+            });
+
+            generateCustomLegend(canvasId, chartInstances[canvasId]);
+        }
+
+        function renderTradesChart() {
+            createTradesChart('tradesChart', currentTradesMetric);
+        }
+
+        let currentTradesPeriod = localStorage.getItem('tradesPeriod') || '24h';
+
+        function setTradesTablePeriod(period, btn) {
+            currentTradesPeriod = period;
+            try { localStorage.setItem('tradesPeriod', period); } catch (e) {}
+            document.querySelectorAll('.trades-period-btn').forEach(b => b.classList.toggle('active', b.id === `btn_trades_period_${period}`));
+
+            const labelMap = {
+                '24h': '24h',
+                '7d': '7D',
+                '30d': '30D',
+                'all': 'All-Time'
+            };
+            const pLabel = labelMap[period] || period.toUpperCase();
+            const lblVol = document.getElementById('kpi_label_volume');
+            const lblTurn = document.getElementById('kpi_label_turnover');
+            const lblTrades = document.getElementById('kpi_label_trades');
+            if (lblVol) lblVol.textContent = `${pLabel} Market Volume`;
+            if (lblTurn) lblTurn.textContent = `${pLabel} Market Turnover`;
+            if (lblTrades) lblTrades.textContent = `${pLabel} Trades Executed`;
+
+            const thVol = document.getElementById('trades_th_volume');
+            if (thVol) thVol.textContent = `${pLabel} Traded Volume`;
+
+            renderTradesTable();
+        }
+
+        function renderTradesTable() {
+            const tbody = document.getElementById('tradesTableBody');
+            if (!tbody) return;
+
+            // Multi-period selector support
+            const periodData = (tradesData.periods && tradesData.periods[currentTradesPeriod]) || {};
+            const tSummary = periodData.total_market_money !== undefined ? periodData : (tradesData.summary || {});
+            const tItems = periodData.items || tradesData.items || {};
+
+            const kpiVol = document.getElementById('kpi_trades_volume');
+            const kpiVolSub = document.getElementById('kpi_trades_volume_sub');
+            const kpiMoney = document.getElementById('kpi_trades_money');
+            const kpiCount = document.getElementById('kpi_trades_count');
+
+            if (kpiVol) {
+                const ppVal = tSummary.total_market_pp || 0;
+                const unitsVal = tSummary.total_market_units || 0;
+                kpiVol.textContent = `${formatCompact(ppVal)} PP`;
+                if (kpiVolSub) kpiVolSub.textContent = `${unitsVal.toLocaleString()} units traded`;
+            }
+            if (kpiMoney) {
+                const mVal = tSummary.total_market_money || 0;
+                kpiMoney.textContent = `${mVal.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿`;
+            }
+            if (kpiCount) {
+                const cVal = tSummary.total_market_tx || 0;
+                kpiCount.textContent = cVal.toLocaleString();
+            }
+
+            const rowsList = [...tableData].map(row => {
+                const itemCode = row.item;
+                const itData = tItems[itemCode] || {};
+                const base24hData = (tradesData.items && tradesData.items[itemCode]) || {};
+
+                // Period-specific top buyers & sellers
+                let topB = itData.top_buyers;
+                let topS = itData.top_sellers;
+
+                if (currentTradesPeriod !== '24h' && typeof leaderboardsData !== 'undefined' && leaderboardsData.by_item && leaderboardsData.by_item[itemCode]) {
+                    const lbPeriod = leaderboardsData.by_item[itemCode].trades && leaderboardsData.by_item[itemCode].trades[currentTradesPeriod];
+                    if (lbPeriod) {
+                        if (lbPeriod.top_buyers && lbPeriod.top_buyers.length > 0) {
+                            topB = lbPeriod.top_buyers;
+                        }
+                        if (lbPeriod.top_sellers && lbPeriod.top_sellers.length > 0) {
+                            topS = lbPeriod.top_sellers;
+                        }
+                    }
+                }
+                if (!topB || topB.length === 0) topB = base24hData.top_buyers || [];
+                if (!topS || topS.length === 0) topS = base24hData.top_sellers || [];
+
+                // Period-scaled Volume Profile
+                let pProfile = itData.price_profile;
+                if (!pProfile || pProfile.length === 0) {
+                    const baseProfile = base24hData.price_profile || [];
+                    const totalU = itData.total_units || 0;
+                    const baseU = base24hData.total_units || 0;
+
+                    if (currentTradesPeriod !== '24h' && baseU > 0 && totalU > 0) {
+                        const scaleFactor = totalU / baseU;
+                        pProfile = baseProfile.map(lvl => ({
+                            price: lvl.price,
+                            units: Math.round(lvl.units * scaleFactor),
+                            pp: Math.round((lvl.pp || 0) * scaleFactor),
+                            money: Number(((lvl.money || 0) * scaleFactor).toFixed(2)),
+                            trades_count: Math.max(1, Math.round((lvl.trades_count || 1) * scaleFactor)),
+                            share_pct: lvl.share_pct
+                        }));
+                    } else {
+                        pProfile = baseProfile;
+                    }
+                }
+
+                return {
+                    row: row,
+                    itemCode: itemCode,
+                    pretty_name: row.pretty_name,
+                    total_units: itData.total_units || 0,
+                    total_pp: itData.total_pp || 0,
+                    total_money: itData.total_money || 0.0,
+                    vwap: itData.vwap || 0.0,
+                    min_price: (itData.min_price !== undefined && itData.min_price > 0) ? itData.min_price : (base24hData.min_price || 0.0),
+                    max_price: (itData.max_price !== undefined && itData.max_price > 0) ? itData.max_price : (base24hData.max_price || 0.0),
+                    tx_count: itData.tx_count !== undefined ? itData.tx_count : (base24hData.tx_count || 0),
+                    top_buyers: topB,
+                    top_sellers: topS,
+                    price_profile: pProfile,
+                    poc_price: (itData.poc_price !== undefined && itData.poc_price > 0) ? itData.poc_price : (base24hData.poc_price || 0.0),
+                    is_depth_only: Boolean(row.is_depth_only)
+                };
+            });
+
+            rowsList.sort((a, b) => {
+                let v1, v2;
+                if (currentTradesSort.col === 'pretty_name') {
+                    v1 = a.pretty_name.toLowerCase();
+                    v2 = b.pretty_name.toLowerCase();
+                } else if (currentTradesSort.col === 'volume') {
+                    v1 = a.total_pp || a.total_units;
+                    v2 = b.total_pp || b.total_units;
+                } else if (currentTradesSort.col === 'money') {
+                    v1 = a.total_money;
+                    v2 = b.total_money;
+                } else if (currentTradesSort.col === 'vwap') {
+                    v1 = a.vwap;
+                    v2 = b.vwap;
+                } else if (currentTradesSort.col === 'tx_count') {
+                    v1 = a.tx_count;
+                    v2 = b.tx_count;
+                } else {
+                    v1 = a.total_pp;
+                    v2 = b.total_pp;
+                }
+                if (v1 === v2) return 0;
+                return currentTradesSort.dir === 'asc' ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
+            });
+
+            let html = '';
+            rowsList.forEach(itemEntry => {
+                const itemCode = itemEntry.itemCode;
+                const isExpanded = expandedTradesItems.has(itemCode);
+                let displayName = itemEntry.pretty_name;
+                if (window.innerWidth <= 768) {
+                    displayName = itemShortNames[itemCode] || itemEntry.pretty_name;
+                }
+
+                let volHtml = '';
+                if (itemEntry.is_depth_only) {
+                    volHtml = `<div style="font-weight: 700;">${itemEntry.total_units.toLocaleString()} <span style="font-size: 11px; font-weight: 500; color: var(--text-secondary);">units</span></div>`;
+                } else {
+                    volHtml = `
+                        <div style="font-weight: 700; color: var(--subhead-green);">${itemEntry.total_pp.toLocaleString()} <span style="font-size: 11px; font-weight: 500; color: var(--text-secondary);">PP</span></div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">${itemEntry.total_units.toLocaleString()} units</div>
+                    `;
+                }
+
+                const priceRangeStr = (itemEntry.tx_count > 0 && itemEntry.min_price > 0)
+                    ? `${itemEntry.min_price.toFixed(3)} - ${itemEntry.max_price.toFixed(3)} ₿`
+                    : '<span style="color: var(--text-secondary);">-</span>';
+
+                html += `
+                    <tr class="row-clickable" onclick="toggleTradesExpand('${itemCode}')">
+                        <td>
+                            <div class="item-cell">
+                                <span class="expand-icon ${isExpanded ? 'open' : ''}">▶</span>
+                                ${getIcon(itemCode)}
+                                <div class="item-content">
+                                    <span class="item-name">${displayName}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">
+                            ${volHtml}
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--rank-gold);">
+                            ${itemEntry.total_money.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--link-color);">
+                            ${itemEntry.vwap > 0 ? itemEntry.vwap.toFixed(3) + ' ₿' : '-'}
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; font-size: 11.5px;">
+                            ${priceRangeStr}
+                        </td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 600;">
+                            ${itemEntry.tx_count.toLocaleString()}
+                        </td>
+                    </tr>
+                `;
+
+                if (isExpanded) {
+                    let tradersRowHtml = '';
+                    const topB = itemEntry.top_buyers || [];
+                    const topS = itemEntry.top_sellers || [];
+
+                    const normalizeTraderEntry = (t, itemTotalUnits) => {
+                        const bi = (t.by_item && t.by_item[0]) || {};
+                        const units = t.units !== undefined ? t.units : (bi.units !== undefined ? bi.units : (t.sub_value || 0));
+                        const money = t.money !== undefined ? t.money : (bi.money !== undefined ? bi.money : (t.value || 0));
+                        const orders = t.orders || bi.orders || [];
+                        const sharePct = (t.share_pct !== undefined)
+                            ? t.share_pct
+                            : (itemTotalUnits > 0 ? Number(((units / itemTotalUnits) * 100).toFixed(1)) : 0);
+                        return {
+                            id: t.id,
+                            name: t.name,
+                            type: t.type || 'user',
+                            avatar_url: t.avatar_url,
+                            profile_url: t.profile_url,
+                            units: units,
+                            money: money,
+                            share_pct: sharePct,
+                            orders: orders
+                        };
+                    };
+
+                    const renderTraderCard = (rawT, idx, isBuyer) => {
+                        const t = normalizeTraderEntry(rawT, itemEntry.total_units);
+                        const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : 'rank-3');
+                        const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉');
+                        const title = idx === 0 ? (isBuyer ? 'Top Buyer #1' : 'Top Seller #1') : (isBuyer ? `Buyer #${idx + 1}` : `Seller #${idx + 1}`);
+                        const cardAvatarHtml = renderSellerAvatar(t, true);
+                        const hasLink = Boolean(t.profile_url);
+                        const cardLinkContent = `
+                            ${cardAvatarHtml}
+                            <span class="depth-card-name" title="${t.name}">${t.name}</span>
+                            ${hasLink ? '<span class="depth-link-icon">↗</span>' : ''}
+                        `;
+                        const linked = hasLink
+                            ? `<a href="${t.profile_url}" target="_blank" rel="noopener noreferrer" class="depth-card-profile-link">${cardLinkContent}</a>`
+                            : `<div class="depth-card-profile-link">${cardLinkContent}</div>`;
+
+                        const ordersHtml = renderTiersBadgeList(t.orders, t.units, t.money, isBuyer, 5, false);
+
+                        return `
+                            <div class="depth-drawer-seller-card ${rankClass}">
+                                <div class="depth-card-header">
+                                    <span>${medal} ${title}</span>
+                                    <span class="depth-card-type-tag type-${t.type || 'user'}">${t.type || 'user'}</span>
+                                </div>
+                                ${linked}
+                                <div class="depth-card-metric">
+                                    <strong>${Number(t.units || 0).toLocaleString()}</strong> units
+                                    <span class="depth-card-share">(${t.share_pct || 0}% vol)</span>
+                                    • <span style="color: ${isBuyer ? '#10b981' : '#f59e0b'}; font-weight: 700;">${Number(t.money || 0).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿</span>
+                                </div>
+                                ${ordersHtml ? `
+                                    <div class="depth-card-orders">
+                                        <div class="depth-card-orders-header">Executed Tiers:</div>
+                                        <div class="depth-card-orders-list">
+                                            ${ordersHtml}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    };
+
+                    const tPeriodLabel = {
+                        '24h': '24h',
+                        '7d': '7D',
+                        '30d': '30D',
+                        'all': 'All-Time'
+                    }[currentTradesPeriod] || currentTradesPeriod;
+
+                    tradersRowHtml = `
+                        <div style="margin-bottom: 14px;">
+                            <div class="depth-section-title" style="color: #10b981;"><span>🛒 Top 3 Buyers (${tPeriodLabel})</span></div>
+                            <div class="depth-drawer-top-sellers">
+                                ${topB.length > 0 ? topB.slice(0, 3).map((b, idx) => renderTraderCard(b, idx, true)).join('') : '<div style="color: var(--text-secondary); font-size: 13px; font-style: italic; padding: 8px;">No buyer transactions recorded.</div>'}
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div class="depth-section-title" style="color: #f59e0b;"><span>🏷️ Top 3 Sellers (${tPeriodLabel})</span></div>
+                            <div class="depth-drawer-top-sellers">
+                                ${topS.length > 0 ? topS.slice(0, 3).map((s, idx) => renderTraderCard(s, idx, false)).join('') : '<div style="color: var(--text-secondary); font-size: 13px; font-style: italic; padding: 8px;">No seller transactions recorded.</div>'}
+                            </div>
+                        </div>
+                    `;
+
+                    // Volume Profile (Price Distribution)
+                    const pProfile = itemEntry.price_profile || [];
+                    let profileRowsHtml = '';
+                    if (pProfile.length === 0) {
+                        profileRowsHtml = `<tr><td colspan="6" style="text-align: center; padding: 14px; color: var(--text-secondary); font-style: italic;">No execution volume profile recorded.</td></tr>`;
+                    } else {
+                        profileRowsHtml = pProfile.map(level => {
+                            const isPoc = Math.abs(level.price - itemEntry.poc_price) < 0.0001;
+                            const pocBadge = isPoc ? `<span style="background: rgba(245, 158, 11, 0.2); color: var(--rank-gold); border: 1px solid var(--rank-gold); font-size: 9.5px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 6px;">⭐ POC</span>` : '';
+                            const barBg = isPoc
+                                ? 'linear-gradient(90deg, #f59e0b, #d97706)'
+                                : 'linear-gradient(90deg, #38bdf8, #0ea5e9)';
+                            const barWidth = level.share_pct > 0 ? Math.max(level.share_pct, 1.5) : 0;
+
+                            return `
+                                <tr style="${isPoc ? 'background: rgba(245, 158, 11, 0.08);' : ''}">
+                                    <td style="font-weight: 700; color: var(--link-color); white-space: nowrap;">
+                                        ${level.price.toFixed(3)} ₿ ${pocBadge}
+                                    </td>
+                                    <td style="text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums;">
+                                        ${level.units.toLocaleString()}
+                                    </td>
+                                    <td style="text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--subhead-green);">
+                                        ${level.pp > 0 ? level.pp.toLocaleString() + ' PP' : '-'}
+                                    </td>
+                                    <td style="text-align: right; font-weight: 600; color: var(--rank-gold); white-space: nowrap; font-variant-numeric: tabular-nums;">
+                                        ${level.money.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿
+                                    </td>
+                                    <td style="text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums;">
+                                        ${level.trades_count}
+                                    </td>
+                                    <td>
+                                        <div class="profile-bar-wrapper">
+                                            <div class="profile-bar-track">
+                                                <div class="profile-bar-fill" style="width: ${barWidth}%; background: ${barBg};"></div>
+                                            </div>
+                                            <span class="profile-bar-pct">${level.share_pct}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+
+                    html += `
+                        <tr class="depth-expanded-row" id="trades-drawer-${itemCode}">
+                            <td colspan="6" class="depth-expanded-cell">
+                                <div class="depth-drawer-container">
+                                    ${tradersRowHtml}
+                                    <div class="depth-ladder-card">
+                                        <div class="depth-ladder-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                            <span>📊 ${tPeriodLabel} Volume Profile (Price Distribution)</span>
+                                            <span style="font-size: 11px; color: var(--text-secondary);">Point of Control (POC): <strong style="color: var(--rank-gold);">${(itemEntry.poc_price || 0).toFixed(3)} ₿</strong></span>
+                                        </div>
+                                        <div class="depth-ladder-scroll" style="max-height: 260px;">
+                                            <table class="volume-profile-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="text-align: left;">Price (₿)</th>
+                                                        <th style="text-align: right;">Volume (Units)</th>
+                                                        <th style="text-align: right;">Volume (PP)</th>
+                                                        <th style="text-align: right;">Turnover (₿)</th>
+                                                        <th style="text-align: right;">Trades</th>
+                                                        <th style="text-align: left;">Volume Share %</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${profileRowsHtml}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            tbody.innerHTML = html;
+        }
+
+
+        // --- LEADERBOARDS FUNCTIONS ---
+        function populateLBScopeItems() {
+            const globContainer = document.getElementById('lb_items_global');
+            const unmanContainer = document.getElementById('lb_items_unman');
+            if (!globContainer || !unmanContainer) return;
+            if (globContainer.children.length > 0 && unmanContainer.children.length > 0) return;
+
+            const globItems = tableData.filter(r => !r.is_depth_only);
+            const unmanItems = tableData.filter(r => r.is_depth_only);
+
+            globContainer.innerHTML = globItems.map(r => {
+                const icon = getIcon(r.item);
+                const name = (window.innerWidth <= 768 && itemShortNames[r.item]) ? itemShortNames[r.item] : r.pretty_name;
+                const isGroupActive = lbCategory === 'global';
+                const isItemActive = lbCategory === 'by_item' && lbSelectedItem === r.item;
+                const cls = isItemActive ? 'active' : (isGroupActive ? 'in-group-active' : '');
+                return `
+                    <button class="lb-item-pill ${cls}"
+                            id="lb_item_pill_${r.item}"
+                            onclick="selectLBItem('${r.item}')"
+                            title="${r.pretty_name}">
+                        ${icon}
+                        <span>${name}</span>
+                    </button>
+                `;
+            }).join('');
+
+            unmanContainer.innerHTML = unmanItems.map(r => {
+                const icon = getIcon(r.item);
+                const name = (window.innerWidth <= 768 && itemShortNames[r.item]) ? itemShortNames[r.item] : r.pretty_name;
+                const isGroupActive = lbCategory === 'unmanufactured';
+                const isItemActive = lbCategory === 'by_item' && lbSelectedItem === r.item;
+                const cls = isItemActive ? 'active' : (isGroupActive ? 'in-group-active' : '');
+                return `
+                    <button class="lb-item-pill ${cls}"
+                            id="lb_item_pill_${r.item}"
+                            onclick="selectLBItem('${r.item}')"
+                            title="${r.pretty_name}">
+                        ${icon}
+                        <span>${name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function setLBCategory(cat) {
+            lbCategory = cat;
+            expandedLBRows.clear();
+
+            const isGlobal = cat === 'global';
+            const isUnman = cat === 'unmanufactured';
+
+            const scopeGlob = document.getElementById('lb_scope_global');
+            const scopeUnman = document.getElementById('lb_scope_unman');
+            if (scopeGlob) scopeGlob.classList.toggle('active', isGlobal);
+            if (scopeUnman) scopeUnman.classList.toggle('active', isUnman);
+
+            const btnGlob = document.getElementById('lb_scope_btn_global');
+            const btnUnman = document.getElementById('lb_scope_btn_unman');
+            if (btnGlob) btnGlob.classList.toggle('active', isGlobal);
+            if (btnUnman) btnUnman.classList.toggle('active', isUnman);
+
+            document.querySelectorAll('.lb-item-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            const globPills = document.querySelectorAll('#lb_items_global .lb-item-pill');
+            const unmanPills = document.querySelectorAll('#lb_items_unman .lb-item-pill');
+            globPills.forEach(p => p.classList.toggle('in-group-active', isGlobal));
+            unmanPills.forEach(p => p.classList.toggle('in-group-active', isUnman));
+
+            renderLBMetricButtons();
+            renderLeaderboards();
+        }
+
+        function selectLBItem(itemCode) {
+            lbCategory = 'by_item';
+            lbSelectedItem = itemCode;
+            expandedLBRows.clear();
+
+            const row = tableData.find(r => r.item === itemCode);
+            const isUnman = Boolean(row && row.is_depth_only);
+
+            const scopeGlob = document.getElementById('lb_scope_global');
+            const scopeUnman = document.getElementById('lb_scope_unman');
+            if (scopeGlob) scopeGlob.classList.toggle('active', !isUnman);
+            if (scopeUnman) scopeUnman.classList.toggle('active', isUnman);
+
+            const btnGlob = document.getElementById('lb_scope_btn_global');
+            const btnUnman = document.getElementById('lb_scope_btn_unman');
+            if (btnGlob) btnGlob.classList.remove('active');
+            if (btnUnman) btnUnman.classList.remove('active');
+
+            document.querySelectorAll('.lb-item-pill').forEach(pill => {
+                pill.classList.remove('in-group-active');
+                pill.classList.toggle('active', pill.id === `lb_item_pill_${itemCode}`);
+            });
+
+            renderLBMetricButtons();
+            renderLeaderboards();
+        }
+
+        function setLBMetric(metric) {
+            lbMetric = metric;
+            expandedLBRows.clear();
+            document.querySelectorAll('.lb-metric-btn').forEach(b => b.classList.toggle('active', b.id === `btn_lb_metric_${metric}`));
+
+            const timeRow = document.getElementById('lb_time_row');
+            const isLive = metric.startsWith('live_');
+            if (timeRow) {
+                timeRow.style.display = isLive ? 'none' : 'flex';
+            }
+
+            renderLeaderboards();
+        }
+
+        function setLBTimePeriod(period) {
+            lbTimePeriod = period;
+            expandedLBRows.clear();
+            ['lb_time_24h', 'lb_time_7d', 'lb_time_30d', 'lb_time_all'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.classList.toggle('active', id === 'lb_time_' + period);
+            });
+            renderLeaderboards();
+        }
+
+        function renderLBMetricButtons() {
+            const container = document.getElementById('lb_metric_buttons');
+            if (!container) return;
+
+            const metrics = [
+                { id: 'live_sellers', label: '🏷️ Live Sell Depth' },
+                { id: 'live_buyers', label: '🛒 Live Buy Depth' },
+                { id: 'trade_buyers', label: '🛒 Top Buyers (₿)' },
+                { id: 'trade_sellers', label: '🏷️ Top Sellers (₿)' }
+            ];
+
+            container.innerHTML = metrics.map(m => `
+                <button class="lb-ctrl-btn lb-metric-btn ${m.id === lbMetric ? 'active' : ''}" id="btn_lb_metric_${m.id}" onclick="setLBMetric('${m.id}')">
+                    ${m.label}
+                </button>
+            `).join('');
+
+            const timeRow = document.getElementById('lb_time_row');
+            const isLive = lbMetric.startsWith('live_');
+            if (timeRow) {
+                timeRow.style.display = isLive ? 'none' : 'flex';
+            }
+        }
+
+        function renderLeaderboards() {
+            populateLBScopeItems();
+            if (!document.getElementById('btn_lb_metric_' + lbMetric)) {
+                renderLBMetricButtons();
+            }
+
+            const titleEl = document.getElementById('lb_current_title');
+            const subTitleEl = document.getElementById('lb_current_subtitle');
+            const tbodyEl = document.getElementById('lb_table_body');
+            const colPriEl = document.getElementById('lb_col_metric_header');
+            const colSecEl = document.getElementById('lb_col_submetric_header');
+
+            if (!tbodyEl) return;
+
+            let rankingList = [];
+            let priLabel = 'Value';
+            let secLabel = 'Secondary';
+            let titleText = 'Market Leaderboard';
+            let subText = '';
+
+            const isLive = lbMetric.startsWith('live_');
+            const timeRow = document.getElementById('lb_time_row');
+            if (timeRow) {
+                timeRow.style.display = isLive ? 'none' : 'flex';
+            }
+
+            if (lbCategory === 'global') {
+                const gData = leaderboardsData.global_pp || {};
+                if (lbMetric === 'live_sellers') {
+                    rankingList = (gData.live_depth && gData.live_depth.top_sellers_pp) || [];
+                    priLabel = 'Production Points (PP)';
+                    secLabel = 'Units on Market';
+                    titleText = 'Global Market Leaders: Live Sell Depth';
+                    subText = 'Ranked by total PP in active sell orders';
+                } else if (lbMetric === 'live_buyers') {
+                    rankingList = (gData.live_depth && gData.live_depth.top_buyers_pp) || [];
+                    priLabel = 'Money Reserved (₿)';
+                    secLabel = 'Total PP Waiting';
+                    titleText = 'Global Market Leaders: Live Buy Depth';
+                    subText = 'Ranked by total capital reserved in active buy orders';
+                } else if (lbMetric === 'trade_buyers') {
+                    const tradesPeriod = (gData.trades && gData.trades[lbTimePeriod]) || {};
+                    rankingList = tradesPeriod.top_buyers || tradesPeriod.top_buyers_money || [];
+                    priLabel = 'Bitcoin Spent (₿)';
+                    secLabel = 'Total PP Bought';
+                    titleText = `Global Market Leaders: Top Buyers (${lbTimePeriod})`;
+                    subText = 'Ranked by total Bitcoin spent in executed trades';
+                } else {
+                    const tradesPeriod = (gData.trades && gData.trades[lbTimePeriod]) || {};
+                    rankingList = tradesPeriod.top_sellers || tradesPeriod.top_sellers_money || [];
+                    priLabel = 'Bitcoin Earned (₿)';
+                    secLabel = 'Total PP Sold';
+                    titleText = `Global Market Leaders: Top Sellers (${lbTimePeriod})`;
+                    subText = 'Ranked by total Bitcoin earned in executed trades';
+                }
+            } else if (lbCategory === 'unmanufactured') {
+                const uData = leaderboardsData.unmanufactured || {};
+                if (lbMetric === 'live_sellers') {
+                    rankingList = (uData.live_depth && uData.live_depth.top_sellers_units) || [];
+                    priLabel = 'Active Units';
+                    secLabel = 'Units';
+                    titleText = 'Cases & Scraps Leaders: Live Sell Depth';
+                    subText = 'Ranked by total active sell listings';
+                } else if (lbMetric === 'live_buyers') {
+                    rankingList = (uData.live_depth && uData.live_depth.top_buyers_units) || [];
+                    priLabel = 'Money Reserved (₿)';
+                    secLabel = 'Units Waiting';
+                    titleText = 'Cases & Scraps Leaders: Live Buy Depth';
+                    subText = 'Ranked by total capital reserved in active buy bids';
+                } else if (lbMetric === 'trade_buyers') {
+                    const tradesPeriod = (uData.trades && uData.trades[lbTimePeriod]) || {};
+                    rankingList = tradesPeriod.top_buyers || tradesPeriod.top_buyers_money || [];
+                    priLabel = 'Bitcoin Spent (₿)';
+                    secLabel = 'Units Bought';
+                    titleText = `Cases & Scraps Leaders: Top Buyers (${lbTimePeriod})`;
+                    subText = 'Ranked by total Bitcoin spent in executed trades';
+                } else {
+                    const tradesPeriod = (uData.trades && uData.trades[lbTimePeriod]) || {};
+                    rankingList = tradesPeriod.top_sellers || tradesPeriod.top_sellers_money || [];
+                    priLabel = 'Bitcoin Earned (₿)';
+                    secLabel = 'Units Sold';
+                    titleText = `Cases & Scraps Leaders: Top Sellers (${lbTimePeriod})`;
+                    subText = 'Ranked by total Bitcoin earned in executed trades';
+                }
+            } else {
+                const itemData = (leaderboardsData.by_item && leaderboardsData.by_item[lbSelectedItem]) || {};
+                const pretty = (tableData.find(r => r.item === lbSelectedItem) || {}).pretty_name || lbSelectedItem;
+                if (lbMetric === 'live_sellers') {
+                    rankingList = (itemData.live_depth && itemData.live_depth.top_sellers) || [];
+                    priLabel = 'Quantity';
+                    secLabel = 'Share %';
+                    titleText = `${pretty} Leaders: Live Sell Depth`;
+                    subText = `Active sell depth for ${pretty}`;
+                } else if (lbMetric === 'live_buyers') {
+                    rankingList = (itemData.live_depth && itemData.live_depth.top_buyers) || [];
+                    priLabel = 'Money Reserved (₿)';
+                    secLabel = 'Units Waiting';
+                    titleText = `${pretty} Leaders: Live Buy Depth`;
+                    subText = `Active buy bids for ${pretty} ranked by capital`;
+                } else if (lbMetric === 'trade_buyers') {
+                    const tradesPeriod = (itemData.trades && itemData.trades[lbTimePeriod]) || {};
+                    rankingList = tradesPeriod.top_buyers || tradesPeriod.top_buyers_money || [];
+                    priLabel = 'Bitcoin Spent (₿)';
+                    secLabel = 'Units Bought';
+                    titleText = `${pretty} Leaders: Top Buyers (${lbTimePeriod})`;
+                    subText = `Historical executed buy trades (${lbTimePeriod}) for ${pretty}`;
+                } else {
+                    const tradesPeriod = (itemData.trades && itemData.trades[lbTimePeriod]) || {};
+                    rankingList = tradesPeriod.top_sellers || tradesPeriod.top_sellers_money || [];
+                    priLabel = 'Bitcoin Earned (₿)';
+                    secLabel = 'Units Sold';
+                    titleText = `${pretty} Leaders: Top Sellers (${lbTimePeriod})`;
+                    subText = `Historical executed sell trades (${lbTimePeriod}) for ${pretty}`;
+                }
+            }
+
+            if (titleEl) titleEl.textContent = titleText;
+            if (subTitleEl) subTitleEl.textContent = subText;
+            if (colPriEl) colPriEl.textContent = priLabel;
+            if (colSecEl) colSecEl.textContent = secLabel;
+
+            // Render Table (#1 - #10)
+            if (rankingList.length === 0) {
+                tbodyEl.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-secondary); font-style: italic;">No leaderboard data available for the selected filters.</td></tr>`;
+                return;
+            }
+
+            tbodyEl.innerHTML = rankingList.map((p, idx) => {
+                const rankNum = idx + 1;
+                const medal = rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : `#${rankNum}`));
+                const rankBadgeClass = rankNum <= 3 ? `rank-${rankNum}` : '';
+                const avatarHtml = renderSellerAvatar(p, false);
+                const hasLink = Boolean(p.profile_url);
+                const rowKey = (p.id || 'p') + '_' + idx;
+                const hasBreakdown = Array.isArray(p.by_item) && p.by_item.length > 0;
+                const isExpanded = hasBreakdown && expandedLBRows.has(rowKey);
+
+                const chevronHtml = hasBreakdown
+                    ? `<span class="lb-expand-icon ${isExpanded ? 'open' : ''}">▶</span>`
+                    : '';
+
+                const nameContent = `
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        ${chevronHtml}
+                        ${avatarHtml}
+                        <span style="font-weight: 600; color: var(--text-primary);">${p.name || 'Unknown'}</span>
+                    </div>
+                `;
+                const linkedName = hasLink
+                    ? `<a href="${p.profile_url}" target="_blank" rel="noopener noreferrer" class="depth-seller-link" onclick="event.stopPropagation()">${nameContent}</a>`
+                    : nameContent;
+
+                const pVal = p.value !== undefined ? p.value : (p.quantity || 0);
+                const sVal = p.sub_value !== undefined ? p.sub_value : (p.share_pct !== undefined ? `${p.share_pct}%` : '');
+                const pValFmt = (priLabel.includes('₿'))
+                    ? `${Number(pVal).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿`
+                    : (priLabel.includes('PP') ? `${Number(pVal).toLocaleString()} PP` : Number(pVal).toLocaleString());
+                const sValFmt = sVal !== '' ? (secLabel.includes('₿') ? `${Number(sVal).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿` : (secLabel.includes('PP') ? `${Number(sVal).toLocaleString()} PP` : (typeof sVal === 'number' ? Number(sVal).toLocaleString() : sVal))) : '-';
+
+                let rowHtml = `
+                    <tr class="lb-row ${hasBreakdown ? 'has-drawer' : ''}" ${hasBreakdown ? `onclick="toggleLBRowExpand('${rowKey}')"` : ''}>
+                        <td style="text-align: center;">
+                            <span class="leaderboard-rank-badge ${rankBadgeClass}">${medal}</span>
+                        </td>
+                        <td>${linkedName}</td>
+                        <td style="text-align: center;">
+                            <span class="depth-card-type-tag type-${p.type || 'user'}">${p.type || 'user'}</span>
+                        </td>
+                        <td style="text-align: right; font-weight: 700; color: var(--subhead-green); font-variant-numeric: tabular-nums;">
+                            ${pValFmt}
+                        </td>
+                        <td style="text-align: right; color: var(--text-secondary); font-variant-numeric: tabular-nums;">
+                            ${sValFmt}
+                        </td>
+                    </tr>
+                `;
+
+                if (hasBreakdown && isExpanded) {
+                    let drawerContentHtml = '';
+                    const isBuyer = (lbMetric === 'live_buyers' || lbMetric === 'trade_buyers');
+
+                    if (lbCategory === 'by_item' && p.by_item.length === 1) {
+                        const it = p.by_item[0];
+                        const icon = getIcon(it.item);
+                        const itPretty = it.pretty_name || it.item;
+                        const itUnits = Number(it.units || 0).toLocaleString();
+                        const itMoney = (it.money !== undefined && it.money > 0) ? `${Number(it.money).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿` : '';
+                        const itAvg = (it.avg_price !== undefined && it.avg_price > 0) ? `@ ~${Number(it.avg_price).toFixed(3)} ₿` : '';
+                        const itOrders = it.orders || [];
+
+                        let drawerTitle = '';
+                        if (lbMetric === 'live_sellers') {
+                            drawerTitle = `🏷️ Active Sell Listings for ${itPretty}`;
+                        } else if (lbMetric === 'live_buyers') {
+                            drawerTitle = `🛒 Active Buy Bids for ${itPretty}`;
+                        } else if (lbMetric === 'trade_buyers') {
+                            drawerTitle = `🛒 Executed Buy Trades for ${itPretty} (${lbTimePeriod})`;
+                        } else {
+                            drawerTitle = `🏷️ Executed Sell Trades for ${itPretty} (${lbTimePeriod})`;
+                        }
+
+                        const badgesHtml = renderTiersBadgeList(itOrders, Number(it.units || 0), Number(it.money || 0), isBuyer, 6, false);
+                        let ordersListHtml = '';
+                        if (badgesHtml) {
+                            ordersListHtml = `
+                                <div class="depth-card-orders" style="margin-top: 8px;">
+                                    <div class="depth-card-orders-header">${isLive ? 'Active Orders' : 'Executed Price Tiers'}:</div>
+                                    <div class="depth-card-orders-list">
+                                        ${badgesHtml}
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        drawerContentHtml = `
+                            <div class="lb-breakdown-wrapper">
+                                <div class="lb-breakdown-title">
+                                    <span>${drawerTitle}</span>
+                                </div>
+                                <div class="depth-drawer-seller-card rank-1" style="max-width: 100%;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            ${icon}
+                                            <strong style="color: var(--text-primary); font-size: 14px;">${itPretty}</strong>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums;">
+                                            <span style="font-weight: 700; color: var(--text-primary);">${itUnits} units</span>
+                                            ${itMoney ? `<span style="font-weight: 700; color: ${isBuyer ? '#10b981' : 'var(--rank-gold)'};">${itMoney}</span>` : ''}
+                                            ${itAvg ? `<span style="font-size: 11.5px; color: var(--text-secondary);">${itAvg}</span>` : ''}
+                                        </div>
+                                    </div>
+                                    ${ordersListHtml}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Multi-commodity breakdown (Global & Unmanufactured)
+                        const sortedByItems = [...p.by_item].sort((a, b) => {
+                            if (isBuyer) {
+                                return (b.money || 0) - (a.money || 0) || (b.pp || 0) - (a.pp || 0) || (b.units || 0) - (a.units || 0);
+                            }
+                            return (b.pp || 0) - (a.pp || 0) || (b.units || 0) - (a.units || 0) || (b.money || 0) - (a.money || 0);
+                        });
+                        const itemsHtml = sortedByItems.map(it => {
+                            const icon = getIcon(it.item);
+                            const itPretty = it.pretty_name || it.item;
+                            const itUnits = Number(it.units || 0).toLocaleString();
+                            const itPP = it.pp ? `${Number(it.pp).toLocaleString()} PP` : '';
+                            const itMoney = (it.money !== undefined && it.money > 0) ? `${Number(it.money).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2})} ₿` : '';
+                            const itAvg = (it.avg_price !== undefined && it.avg_price > 0) ? `@ ~${Number(it.avg_price).toFixed(3)} ₿` : '';
+
+                            const badgesHtml = renderTiersBadgeList(it.orders, Number(it.units || 0), Number(it.money || 0), isBuyer, 3, true);
+                            let ordersListHtml = '';
+                            if (badgesHtml) {
+                                ordersListHtml = `
+                                    <div class="depth-card-orders" style="margin-top: 5px;">
+                                        <div class="depth-card-orders-list">
+                                            ${badgesHtml}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
+                            return `
+                                <div class="lb-breakdown-card">
+                                    ${icon}
+                                    <div class="lb-breakdown-card-info" style="flex: 1; min-width: 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 6px;">
+                                            <div class="lb-breakdown-card-name" title="${itPretty}">${itPretty}</div>
+                                            ${itAvg ? `<span style="font-size: 10.5px; color: var(--text-secondary); white-space: nowrap;">${itAvg}</span>` : ''}
+                                        </div>
+                                        <div class="lb-breakdown-card-metrics">
+                                            <span class="lb-breakdown-card-val">${itUnits} pcs</span>
+                                            ${itPP ? `<span class="lb-breakdown-card-pp">${itPP}</span>` : ''}
+                                            ${itMoney ? `<span class="lb-breakdown-card-money">${itMoney}</span>` : ''}
+                                        </div>
+                                        ${ordersListHtml}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+
+                        drawerContentHtml = `
+                            <div class="lb-breakdown-wrapper">
+                                <div class="lb-breakdown-title">
+                                    <span>📦 Multi-Commodity Breakdown (${p.by_item.length} ${p.by_item.length === 1 ? 'item' : 'items'})</span>
+                                </div>
+                                <div class="lb-breakdown-grid">
+                                    ${itemsHtml}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    rowHtml += `
+                        <tr class="lb-drawer-row">
+                            <td colspan="5" class="lb-drawer-cell">
+                                ${drawerContentHtml}
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                return rowHtml;
+            }).join('');
+        }
+
         // Sync fidelity sort state on page load in case of browser cache
         sortByFidelity = document.getElementById('fidelitySort') ? document.getElementById('fidelitySort').checked : false;
         sortByWorkers = document.getElementById('workersSort') ? document.getElementById('workersSort').checked : false;
@@ -5213,6 +7864,8 @@
         updateCompSortLabel();
         updateWorkerSortLabel();
         updateDepthSortLabel();
+        updateBuyDepthSortLabel();
+        updateTradesSortLabel();
         setMetric('min_pp'); // Set initial title
 
         window.addEventListener('resize', () => {
@@ -5220,10 +7873,14 @@
             renderCompTable();
             renderWorkersTable();
             renderDepthTable();
+            renderBuyDepthTable();
+            renderTradesTable();
+            renderLeaderboards();
             renderMainChart();
             updateCompChart();
             renderWorkerChart();
             renderDepthChart();
+            renderTradesChart();
             equalizeColumnWidths();
         });
 
@@ -5234,10 +7891,16 @@
             if (btn) switchTab(savedTab, btn);
         }
 
+        // Restore active market subtab
+        switchMarketSubtab(activeMarketSubtab, null);
+
         renderTable();
         renderCompTable();
         renderWorkersTable();
         renderDepthTable();
+        renderBuyDepthTable();
+        renderTradesTable();
+        renderLeaderboards();
         renderMainChart();
         updateCompChart(); // Init comp chart
         renderWorkerChart(); // Init worker chart

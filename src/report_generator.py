@@ -42,6 +42,10 @@ class ReportGenerator:
         depth_snapshot: dict[str, Any] | None = None,
         depth_timestamp: int | None = None,
         depth_history: dict[str, Any] | None = None,
+        trades_snapshot: dict[str, Any] | None = None,
+        trades_timestamp: int | None = None,
+        trades_history: dict[str, Any] | None = None,
+        leaderboards: dict[str, Any] | None = None,
     ):
         """Builds the index.html file."""
         print("Generating HTML report...")
@@ -66,6 +70,11 @@ class ReportGenerator:
         d_ts = (
             depth_timestamp
             or (depth_history and depth_history.get("labels") and depth_history["labels"][-1])
+            or m_ts
+        )
+        t_ts = (
+            trades_timestamp
+            or (trades_history and trades_history.get("labels") and trades_history["labels"][-1])
             or m_ts
         )
 
@@ -165,6 +174,12 @@ class ReportGenerator:
         workers_data_json = json.dumps(workers_snapshot or {})
         depth_data_json = json.dumps(depth_snapshot or {})
         depth_history_json = json.dumps(depth_history or {})
+        frontend_trades_snapshot = {
+            k: v for k, v in (trades_snapshot or {}).items() if k != "raw_trades"
+        }
+        trades_data_json = json.dumps(frontend_trades_snapshot)
+        trades_history_json = json.dumps(trades_history or {})
+        leaderboards_json = json.dumps(leaderboards or {})
         metric_labels_json = json.dumps(config.METRIC_LABELS)
         item_colors_json = json.dumps(config.ITEM_COLORS)
         item_short_names_json = json.dumps(config.ITEM_SHORT_NAMES)
@@ -175,6 +190,9 @@ class ReportGenerator:
             workers_data_json=workers_data_json,
             depth_data_json=depth_data_json,
             depth_history_json=depth_history_json,
+            trades_data_json=trades_data_json,
+            trades_history_json=trades_history_json,
+            leaderboards_json=leaderboards_json,
             metric_labels_json=metric_labels_json,
             item_colors_json=item_colors_json,
             item_short_names_json=item_short_names_json,
@@ -184,6 +202,7 @@ class ReportGenerator:
             comp_timestamp=c_ts,
             workers_timestamp=w_ts,
             depth_timestamp=d_ts,
+            trades_timestamp=t_ts,
         )
 
         os.makedirs(os.path.dirname(config.OUTPUT_HTML), exist_ok=True)

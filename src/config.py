@@ -5,11 +5,16 @@ HISTORY_FILE = "history.json"
 HISTORY_COMPANIES_FILE = "history_companies.json"
 HISTORY_WORKERS_FILE = "history_workers.json"
 HISTORY_MARKET_DEPTH_FILE = "history_market_depth.json"
+HISTORY_MARKET_TRADES_FILE = "history_market_trades.json"
 LATEST_MARKET_FILE = "latest_market.json"
 LATEST_COMPANIES_FILE = "latest_companies.json"
 LATEST_WORKERS_FILE = "latest_workers.json"
 LATEST_MARKET_DEPTH_FILE = "latest_market_depth.json"
+LATEST_MARKET_TRADES_FILE = "latest_market_trades.json"
+DAILY_TRADER_STATS_FILE = "daily_trader_stats.json"
+MARKET_LEADERBOARDS_FILE = "market_leaderboards.json"
 KNOWN_PLAYERS_FILE = "known_players.json"
+PLAYER_META_CACHE_FILE = "player_meta_cache.json"
 PUBLIC_DIR = "public"
 OUTPUT_HTML = os.path.join(PUBLIC_DIR, "index.html")
 ASSETS_DIR = os.path.join(PUBLIC_DIR, "assets")
@@ -23,7 +28,7 @@ API_KEYS = [
         os.environ.get("WEALTHRATE3"),
     ]
     if key
-]
+] or ["wae_21b882af32dd75eacfbe29303a5175ccfe961cfbb119641b7a6360e65cbad1e5"]
 
 # --- Data Processing Settings ---
 MAX_HISTORY_POINTS = 12288
@@ -231,5 +236,7 @@ COMPANY_METRICS = [
 MARKET_DEPTH_METRICS = [
     "total_units",
     "total_pp",
+    "buy_total_units",
+    "buy_total_pp",
 ]
 

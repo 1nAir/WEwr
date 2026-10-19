@@ -10,6 +10,8 @@ from src.production_analyzer import CompanyAnalyzer
 from src.report_generator import ReportGenerator
 from src.worker_analyzer import WorkerAnalyzer
 from src.market_depth_analyzer import MarketDepthAnalyzer
+from src.market_trades_analyzer import MarketTradesAnalyzer
+from src.market_leaderboard_analyzer import MarketLeaderboardAnalyzer
 
 # logging
 logging.basicConfig(
@@ -127,6 +129,43 @@ def run_depth(client: TRPCClient) -> None:
     logger.info("Market depth collection completed successfully.")
 
 
+def run_trades(client: TRPCClient) -> None:
+    """Syncs completed 24h trading transactions, updates daily stats and trades history."""
+    logger.info("--- Starting Market Transactions Collection ---")
+    existing_trades, _ = DataProcessor.load_latest_market_trades()
+    existing_daily = DataProcessor.load_daily_trader_stats()
+
+    analyzer = MarketTradesAnalyzer(client)
+    latest_trades, daily_stats = analyzer.sync_trades(
+        existing_trades_cache=existing_trades,
+        existing_daily_stats=existing_daily,
+        max_lookback_hours=24,
+    )
+
+    DataProcessor.save_latest_market_trades(latest_trades)
+    DataProcessor.save_daily_trader_stats(daily_stats)
+    logger.info(f"Saved latest market trades and daily stats to {config.LATEST_MARKET_TRADES_FILE}")
+
+    # Append to market trades history
+    logger.info("Updating market trades history...")
+    trades_history = DataProcessor.load_market_trades_history()
+    trades_history = MarketTradesAnalyzer.append_trades_history(trades_history, latest_trades)
+    DataProcessor.save_market_trades_history(trades_history)
+    logger.info("Market trades collection completed successfully.")
+
+
+def run_leaderboards(client: TRPCClient) -> None:
+    """Builds pre-aggregated market leaderboards for live depth and historical trades."""
+    logger.info("--- Starting Market Leaderboards Generation ---")
+    depth_snapshot, _ = DataProcessor.load_latest_market_depth()
+    daily_stats = DataProcessor.load_daily_trader_stats()
+
+    analyzer = MarketLeaderboardAnalyzer(client)
+    leaderboards = analyzer.build_leaderboards(depth_snapshot, daily_stats)
+    DataProcessor.save_market_leaderboards(leaderboards)
+    logger.info(f"Saved market leaderboards to {config.MARKET_LEADERBOARDS_FILE}")
+
+
 def run_build() -> None:
     """Builds the HTML report from the latest cached snapshots of all modules."""
     logger.info("--- Starting HTML Site Build ---")
@@ -167,13 +206,18 @@ def run_build() -> None:
     else:
         logger.warning("No cached market depth data found.")
 
-    # 5. Load Histories for Charting
+    # 5. Load latest trades and leaderboards data
+    trades_snapshot, trades_ts = DataProcessor.load_latest_market_trades()
+    leaderboards = DataProcessor.load_market_leaderboards()
+
+    # 6. Load Histories for Charting
     history = DataProcessor.load_history()
     comp_history = DataProcessor.load_companies_history()
     workers_history = DataProcessor.load_workers_history()
     depth_history = DataProcessor.load_market_depth_history()
+    trades_history = DataProcessor.load_market_trades_history()
 
-    # 6. Generate Report
+    # 7. Generate Report
     logger.info("Generating report...")
     ReportGenerator.generate(
         history,
@@ -187,6 +231,10 @@ def run_build() -> None:
         depth_snapshot=depth_snapshot,
         depth_timestamp=depth_ts,
         depth_history=depth_history,
+        trades_snapshot=trades_snapshot,
+        trades_timestamp=trades_ts,
+        trades_history=trades_history,
+        leaderboards=leaderboards,
     )
     logger.info("--- HTML Site Build Complete ---")
 
@@ -198,8 +246,8 @@ def run_pull_data() -> None:
     logger.info("Fetching latest data from 'data' branch...")
     cmd = (
         "git fetch origin data && "
-        "git checkout origin/data -- history*.json latest*.json public/ && "
-        "git restore --staged history*.json latest*.json public/"
+        "git checkout origin/data -- history*.json latest*.json daily_trader_stats.json market_leaderboards.json public/ && "
+        "git restore --staged history*.json latest*.json daily_trader_stats.json market_leaderboards.json public/"
     )
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     if res.returncode == 0:
@@ -212,15 +260,15 @@ def main():
     parser = argparse.ArgumentParser(description="Wealthrate Analytics Runner")
     parser.add_argument(
         "--task",
-        choices=["market", "companies", "workers", "depth", "build", "market_and_build", "all", "pull_data"],
+        choices=["market", "companies", "workers", "depth", "trades", "leaderboards", "build", "market_and_build", "all", "pull_data"],
         default="market_and_build",
-        help="Task to execute: 'market', 'companies', 'workers', 'depth', 'build', 'market_and_build', 'all', or 'pull_data'",
+        help="Task to execute: 'market', 'companies', 'workers', 'depth', 'trades', 'leaderboards', 'build', 'market_and_build', 'all', or 'pull_data'",
     )
     args = parser.parse_args()
 
     # Initialize API Client only if needed (build & pull_data tasks don't require API keys!)
     client = None
-    if args.task in ("market", "companies", "workers", "depth", "market_and_build", "all"):
+    if args.task in ("market", "companies", "workers", "depth", "trades", "leaderboards", "market_and_build", "all"):
         try:
             client = init_client()
         except Exception as e:
@@ -237,6 +285,12 @@ def main():
 
         if args.task in ("depth", "all"):
             run_depth(client)
+
+        if args.task in ("trades", "all"):
+            run_trades(client)
+
+        if args.task in ("leaderboards", "all"):
+            run_leaderboards(client)
 
         if args.task in ("market", "market_and_build", "all"):
             run_market(client)

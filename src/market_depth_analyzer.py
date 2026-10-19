@@ -126,8 +126,10 @@ class MarketDepthAnalyzer:
         top_order_uids = set()
         for resp in top_resps:
             if isinstance(resp, dict):
-                sells = resp.get("result", {}).get("data", {}).get("sellOrders", [])
-                for o in sells:
+                data = resp.get("result", {}).get("data", {})
+                sells = data.get("sellOrders", [])
+                buys = data.get("buyOrders", [])
+                for o in sells + buys:
                     uid = o.get("user")
                     if uid:
                         top_order_uids.add(uid)
@@ -200,17 +202,26 @@ class MarketDepthAnalyzer:
             calls, raise_on_error=False, batch_size=self.client.BATCH_SIZE
         )
 
-        # 3. Collect unique sell orders and track owner volume and price tiers
+        # 3. Collect unique sell and buy orders and track owner volume and price tiers
         # itemCode -> list of unique sell orders
         item_orders = defaultdict(list)
         # itemCode -> owner_id -> total_qty
         item_owner_volume = defaultdict(lambda: defaultdict(int))
         # itemCode -> owner_id -> price -> qty
         item_owner_orders = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+
+        # itemCode -> list of unique buy orders
+        item_buy_orders = defaultdict(list)
+        # itemCode -> owner_id -> total_buy_qty
+        item_buy_owner_volume = defaultdict(lambda: defaultdict(int))
+        # itemCode -> owner_id -> price -> qty
+        item_buy_owner_orders = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+
         # owner_id -> owner_type
         owner_type_map = {}
 
         seen_order_ids = set()
+        seen_buy_order_ids = set()
         users_with_active_orders = set()
 
         for idx, resp in enumerate(responses):
@@ -222,7 +233,10 @@ class MarketDepthAnalyzer:
 
             data = resp.get("result", {}).get("data", {})
             sells = data.get("sellOrders", [])
-            if sells and o_type == "user":
+            buys = data.get("buyOrders", [])
+
+            # Active player has at least 1 active sell OR buy order
+            if (sells or buys) and o_type == "user":
                 users_with_active_orders.add(owner_id)
 
             for o in sells:
@@ -234,11 +248,25 @@ class MarketDepthAnalyzer:
                         item_orders[item_code].append(o)
                         qty = int(o.get("quantity", 0))
                         p = round(float(o.get("price", 0.0)), 3)
-                        # Identify owner ID
                         item_owner_volume[item_code][owner_id] += qty
                         item_owner_orders[item_code][owner_id][p] += qty
 
-        logger.info(f"Collected {len(seen_order_ids)} unique sell orders across all items.")
+            for o in buys:
+                oid = o.get("_id")
+                if oid and oid not in seen_buy_order_ids:
+                    seen_buy_order_ids.add(oid)
+                    item_code = o.get("itemCode")
+                    if item_code in target_items:
+                        item_buy_orders[item_code].append(o)
+                        qty = int(o.get("quantity", 0))
+                        p = round(float(o.get("price", 0.0)), 3)
+                        item_buy_owner_volume[item_code][owner_id] += qty
+                        item_buy_owner_orders[item_code][owner_id][p] += qty
+
+        logger.info(
+            f"Collected {len(seen_order_ids)} unique sell orders and "
+            f"{len(seen_buy_order_ids)} unique buy orders across all items."
+        )
 
         # 3.5 Verify candidates and update known_players pool:
         # Candidates from the file who were not in guaranteed (active/top100) are checked:
@@ -268,111 +296,87 @@ class MarketDepthAnalyzer:
         }
         DataProcessor.save_known_players(updated_known_players)
 
-        # 4. Resolve names and avatars for Top 3 sellers per commodity
+        # 4. Resolve names and avatars for Top 3 sellers and Top 3 buyers per commodity
         users_to_resolve = set()
         top_sellers_raw = {}
+        top_buyers_raw = {}
 
         for code in target_items:
+            # Sellers (Top 10 for Leaderboards & Drawers)
             owner_vols = item_owner_volume[code]
-            # Sort owners by quantity descending
-            sorted_owners = sorted(owner_vols.items(), key=lambda kv: kv[1], reverse=True)[:3]
-            top_sellers_raw[code] = sorted_owners
-            for oid, _ in sorted_owners:
+            sorted_sellers = sorted(owner_vols.items(), key=lambda kv: kv[1], reverse=True)[:10]
+            top_sellers_raw[code] = sorted_sellers
+            for oid, _ in sorted_sellers:
                 if owner_type_map.get(oid) == "user":
                     users_to_resolve.add(oid)
 
-        # Batch resolve usernames and avatars for top seller players
-        user_meta: dict[str, dict[str, Any]] = {}
-        if users_to_resolve:
-            user_calls = [("user.getUserLite", {"userId": uid}) for uid in users_to_resolve]
-            user_resps = self.client.batch_call(
-                user_calls, raise_on_error=False, batch_size=self.client.BATCH_SIZE
-            )
-            for i, u_resp in enumerate(user_resps):
-                uid = list(users_to_resolve)[i]
-                if isinstance(u_resp, dict) and "result" in u_resp:
-                    u_data = u_resp.get("result", {}).get("data", {})
-                    user_meta[uid] = {
-                        "id": uid,
-                        "name": u_data.get("username", f"Player_{uid[:6]}"),
-                        "type": "user",
-                        "avatar_url": u_data.get("avatarUrl"),
-                        "profile_url": f"https://app.warera.io/user/{uid}",
-                    }
-                else:
-                    user_meta[uid] = {
-                        "id": uid,
-                        "name": f"Player_{uid[:6]}",
-                        "type": "user",
-                        "avatar_url": None,
-                        "profile_url": f"https://app.warera.io/user/{uid}",
-                    }
+            # Buyers: Rank Top 10 by MONEY waiting on the market (sum of qty * price)
+            buy_money = {
+                oid: sum(p * q for p, q in item_buy_owner_orders[code][oid].items())
+                for oid in item_buy_owner_orders[code]
+            }
+            sorted_buyers = sorted(buy_money.items(), key=lambda kv: kv[1], reverse=True)[:10]
+            top_buyers_raw[code] = sorted_buyers
+            for oid, _ in sorted_buyers:
+                if owner_type_map.get(oid) == "user":
+                    users_to_resolve.add(oid)
 
-        # Helper to get full owner details
+        # Batch resolve usernames and avatars with EntityResolver (force refreshing active top participants)
+        from src.entity_resolver import EntityResolver
+        resolver = EntityResolver(self.client)
+        resolver.resolve(users_to_resolve, force_refresh_ids=users_to_resolve)
+
         def get_owner_info(oid: str) -> dict[str, Any]:
             o_type = owner_type_map.get(oid, "user")
             if o_type == "country":
-                return country_meta.get(oid, {
-                    "id": oid,
-                    "name": "Country",
-                    "type": "country",
-                    "code": "",
-                    "avatar_url": None,
-                    "profile_url": f"https://app.warera.io/country/{oid}",
-                })
+                return country_meta.get(oid, resolver.get_info(oid))
             elif o_type == "party":
-                return party_meta.get(oid, {
-                    "id": oid,
-                    "name": "Party",
-                    "type": "party",
-                    "avatar_url": None,
-                    "profile_url": f"https://app.warera.io/party/{oid}",
-                })
+                return party_meta.get(oid, resolver.get_info(oid))
             elif o_type == "mu":
-                return mu_meta.get(oid, {
-                    "id": oid,
-                    "name": "MU",
-                    "type": "mu",
-                    "avatar_url": None,
-                    "profile_url": f"https://app.warera.io/mu/{oid}",
-                })
+                return mu_meta.get(oid, resolver.get_info(oid))
             else:
-                return user_meta.get(oid, {
-                    "id": oid,
-                    "name": f"Player_{oid[:6]}",
-                    "type": "user",
-                    "avatar_url": None,
-                    "profile_url": f"https://app.warera.io/user/{oid}",
-                })
+                return resolver.get_info(oid)
 
-        # 5. Format Snapshot
+        # 5. Format Snapshot (Both Sell Depth and Buy Depth)
         snapshot: dict[str, Any] = {}
 
         for code in target_items:
-            sells = item_orders.get(code, [])
             pp_per_unit = config.MARKET_DEPTH_PP.get(code, 0)
-            total_units = sum(int(o.get("quantity", 0)) for o in sells)
-            total_pp = total_units * pp_per_unit if pp_per_unit else 0
 
-            # Build ladder sorted by price ascending
+            # --- SELL DEPTH ---
+            sells = item_orders.get(code, [])
+            total_sell_units = sum(int(o.get("quantity", 0)) for o in sells)
+            total_sell_pp = total_sell_units * pp_per_unit if pp_per_unit else 0
+            total_sell_money = sum(
+                int(o.get("quantity", 0)) * float(o.get("price", 0.0)) for o in sells
+            )
+
+            min_sell_price = min((float(o.get("price", 0.0)) for o in sells), default=0.0)
+            sell_2x_threshold = min_sell_price * 2.0
+            regular_sell_money = sum(
+                int(o.get("quantity", 0)) * float(o.get("price", 0.0))
+                for o in sells
+                if float(o.get("price", 0.0)) < sell_2x_threshold - 1e-9
+            )
+
+            # Build ladder sorted by price ascending (cheapest asks first)
             price_map = defaultdict(int)
             for o in sells:
                 p = round(float(o.get("price", 0.0)), 3)
                 price_map[p] += int(o.get("quantity", 0))
 
-            ladder = []
+            sell_ladder = []
             for p in sorted(price_map.keys()):
                 qty = price_map[p]
-                ladder.append({
+                sell_ladder.append({
                     "price": p,
                     "quantity": qty,
                     "pp": qty * pp_per_unit if pp_per_unit else 0,
                 })
 
-            # Format top 3 sellers with metadata (avatar, profile link, type, active listings)
             top_sellers = []
             for oid, qty in top_sellers_raw.get(code, []):
-                share = round((qty / total_units * 100), 1) if total_units > 0 else 0.0
+                share = round((qty / total_sell_units * 100), 1) if total_sell_units > 0 else 0.0
                 info = get_owner_info(oid)
                 seller_orders = [
                     {"price": p, "quantity": q}
@@ -390,13 +394,92 @@ class MarketDepthAnalyzer:
                     "orders": seller_orders,
                 })
 
+            # --- BUY DEPTH ---
+            buys = item_buy_orders.get(code, [])
+            all_buy_units = sum(int(o.get("quantity", 0)) for o in buys)
+            all_buy_money = sum(
+                int(o.get("quantity", 0)) * float(o.get("price", 0.0)) for o in buys
+            )
+            max_buy_price = max((float(o.get("price", 0.0)) for o in buys), default=0.0)
+            buy_2x_threshold = max_buy_price / 2.0 if max_buy_price > 0 else 0.0
+
+            # 2x- filter: regular buy orders have price >= buy_2x_threshold
+            regular_buys = [
+                o for o in buys
+                if float(o.get("price", 0.0)) >= buy_2x_threshold - 1e-9
+            ]
+            regular_buy_units = sum(int(o.get("quantity", 0)) for o in regular_buys)
+            regular_buy_pp = regular_buy_units * pp_per_unit if pp_per_unit else 0
+            regular_buy_money = sum(
+                int(o.get("quantity", 0)) * float(o.get("price", 0.0)) for o in regular_buys
+            )
+
+            # Buy ladder sorted by price DESCENDING (highest buy bids first)
+            buy_price_map = defaultdict(int)
+            for o in buys:
+                p = round(float(o.get("price", 0.0)), 3)
+                buy_price_map[p] += int(o.get("quantity", 0))
+
+            buy_ladder = []
+            for p in sorted(buy_price_map.keys(), reverse=True):
+                qty = buy_price_map[p]
+                buy_ladder.append({
+                    "price": p,
+                    "quantity": qty,
+                    "pp": qty * pp_per_unit if pp_per_unit else 0,
+                })
+
+            top_buyers = []
+            for oid, b_money in top_buyers_raw.get(code, []):
+                # Calculate buyer's regular money and regular quantity
+                b_orders_all = item_buy_owner_orders[code][oid]
+                b_reg_money = sum(p * q for p, q in b_orders_all.items() if p >= buy_2x_threshold - 1e-9)
+                b_reg_qty = sum(q for p, q in b_orders_all.items() if p >= buy_2x_threshold - 1e-9)
+                b_tot_qty = sum(q for q in b_orders_all.values())
+
+                share = round((b_reg_money / regular_buy_money * 100), 1) if regular_buy_money > 0 else 0.0
+                info = get_owner_info(oid)
+                buyer_orders = [
+                    {"price": p, "quantity": q}
+                    for p, q in sorted(b_orders_all.items(), reverse=True)
+                ]
+                top_buyers.append({
+                    "id": info.get("id", oid),
+                    "name": info.get("name", "Unknown"),
+                    "type": info.get("type", "user"),
+                    "code": info.get("code"),
+                    "avatar_url": info.get("avatar_url"),
+                    "profile_url": info.get("profile_url"),
+                    "quantity": b_reg_qty if b_reg_qty > 0 else b_tot_qty,
+                    "money": round(b_reg_money if b_reg_money > 0 else b_money, 3),
+                    "share_pct": share,
+                    "orders": buyer_orders,
+                })
+
             snapshot[code] = {
-                "total_units": total_units,
+                "total_units": total_sell_units,
                 "pp_per_unit": pp_per_unit,
-                "total_pp": total_pp,
+                "total_pp": total_sell_pp,
+                "total_money": round(regular_sell_money, 3),
+                "all_total_money": round(total_sell_money, 3),
+                "buy_total_units": regular_buy_units,
+                "buy_total_pp": regular_buy_pp,
+                "buy_total_money": round(regular_buy_money, 3),
                 "top_sellers": top_sellers,
-                "ladder": ladder,
+                "ladder": sell_ladder,
+                "buy_depth": {
+                    "total_units": regular_buy_units,
+                    "total_pp": regular_buy_pp,
+                    "total_money_invested": round(regular_buy_money, 3),
+                    "all_total_units": all_buy_units,
+                    "all_total_money_invested": round(all_buy_money, 3),
+                    "threshold_price": round(buy_2x_threshold, 3),
+                    "max_price": round(max_buy_price, 3),
+                    "top_buyers": top_buyers,
+                    "ladder": buy_ladder,
+                },
             }
+
 
         logger.info(f"Market depth analysis completed for {len(snapshot)} items.")
         return snapshot

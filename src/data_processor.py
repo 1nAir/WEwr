@@ -302,6 +302,71 @@ class DataProcessor:
         """Saves the known players cache."""
         cls._save_json(config.KNOWN_PLAYERS_FILE, data)
 
+    @classmethod
+    def load_latest_market_trades(cls) -> tuple[dict[str, Any], int]:
+        """Loads the most recent market trades snapshot and its timestamp."""
+        if os.path.exists(config.LATEST_MARKET_TRADES_FILE):
+            try:
+                with open(config.LATEST_MARKET_TRADES_FILE, "r", encoding="utf-8") as f:
+                    payload = json.load(f)
+                    if isinstance(payload, dict):
+                        ts = int(payload.get("timestamp", 0))
+                        return payload, ts
+            except Exception:
+                pass
+        return {}, 0
+
+    @classmethod
+    def save_latest_market_trades(
+        cls, data: dict[str, Any], timestamp: int | None = None
+    ) -> None:
+        """Saves the most recent market trades snapshot."""
+        if timestamp:
+            data["timestamp"] = timestamp
+        elif "timestamp" not in data:
+            data["timestamp"] = int(datetime.now(timezone.utc).timestamp())
+        cls._save_json(config.LATEST_MARKET_TRADES_FILE, data)
+
+    @classmethod
+    def load_market_trades_history(cls) -> dict[str, Any]:
+        """Loads market trades history."""
+        return cls._load_json(config.HISTORY_MARKET_TRADES_FILE)
+
+    @classmethod
+    def save_market_trades_history(cls, data: dict[str, Any]) -> None:
+        """Saves market trades history."""
+        cls._save_json(config.HISTORY_MARKET_TRADES_FILE, data)
+
+    @classmethod
+    def load_daily_trader_stats(cls) -> dict[str, Any]:
+        """Loads daily trader stats ledger."""
+        return cls._load_json(config.DAILY_TRADER_STATS_FILE)
+
+    @classmethod
+    def save_daily_trader_stats(cls, data: dict[str, Any]) -> None:
+        """Saves daily trader stats ledger."""
+        cls._save_json(config.DAILY_TRADER_STATS_FILE, data)
+
+    @classmethod
+    def load_market_leaderboards(cls) -> dict[str, Any]:
+        """Loads market leaderboards."""
+        return cls._load_json(config.MARKET_LEADERBOARDS_FILE)
+
+    @classmethod
+    def save_market_leaderboards(cls, data: dict[str, Any]) -> None:
+        """Saves market leaderboards."""
+        cls._save_json(config.MARKET_LEADERBOARDS_FILE, data)
+
+    @classmethod
+    def load_player_meta_cache(cls) -> dict[str, Any]:
+        """Loads persistent player metadata cache (names, avatars, profile links)."""
+        return cls._load_json(config.PLAYER_META_CACHE_FILE)
+
+    @classmethod
+    def save_player_meta_cache(cls, data: dict[str, Any]) -> None:
+        """Saves persistent player metadata cache."""
+        cls._save_json(config.PLAYER_META_CACHE_FILE, data)
+
     # --- Original Spike Cleaner Logic ---
 
     @staticmethod
