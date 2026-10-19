@@ -6,7 +6,7 @@ get_rec_region.py
 .aiexclude
 get_user_companies.py
 get_user_info.py
-bootstrap_known_players.py
+/bootstrap_known_players.py
 new_concept_metric.txt
 __pycache__/
 *.pyc
@@ -15,5 +15,7 @@ __pycache__/
 # Data files and compiled site (stored and updated on 'data' branch)
 *.json
 !vercel.json
+!warera_api_endpoints.json
+!docs/*.json
 public/
 .DS_Store

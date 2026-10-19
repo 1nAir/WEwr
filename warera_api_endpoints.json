@@ -1,0 +1,652 @@
+[
+  {
+    "_meta": "auth_info",
+    "test_api_key": "wae_21b882af32dd75eacfbe29303a5175ccfe961cfbb119641b7a6360e65cbad1e5",
+    "notes": "Valid test API key for Warera tRPC API"
+  },
+  {
+    "procedure": "alliance.getById",
+    "desc": "Retrieves detailed information about a specific alliance",
+    "params": [
+      "allianceId"
+    ]
+  },
+  {
+    "procedure": "alliance.getManyPaginated",
+    "desc": "Retrieves a paginated list of alliances with optional filtering",
+    "params": [
+      "page",
+      "limit"
+    ]
+  },
+  {
+    "procedure": "alliance.getByIds",
+    "desc": "Retrieves detailed information about multiple alliances by their IDs",
+    "params": [
+      "ids"
+    ]
+  },
+  {
+    "procedure": "article.getArticleById",
+    "desc": "Retrieves detailed information about a specific article",
+    "params": [
+      "articleId"
+    ]
+  },
+  {
+    "procedure": "article.getArticleLiteById",
+    "desc": "Retrieves only the title and basic stats of an article without counting as a view",
+    "params": [
+      "articleId"
+    ]
+  },
+  {
+    "procedure": "article.getArticlesPaginated",
+    "desc": "Retrieves a paginated list of articles",
+    "params": [
+      "type",
+      "limit",
+      "cursor",
+      "userId",
+      "categories",
+      "languages"
+    ]
+  },
+  {
+    "procedure": "article.getWelcomeArticleByCountryId",
+    "desc": "Retrieves a country&#39;s pinned welcome article shown to new citizens",
+    "params": [
+      "countryId"
+    ]
+  },
+  {
+    "procedure": "battle.getBattles",
+    "desc": "Retrieves a list of battles",
+    "params": [
+      "isActive",
+      "limit",
+      "cursor",
+      "direction",
+      "filter",
+      "defenderRegionId",
+      "warId",
+      "countryId"
+    ]
+  },
+  {
+    "procedure": "battle.getById",
+    "desc": "Retrieves detailed information about a specific battle",
+    "params": [
+      "battleId"
+    ]
+  },
+  {
+    "procedure": "battle.getLiveBattleData",
+    "desc": "Retrieves real-time battle data including current round information",
+    "params": [
+      "battleId",
+      "roundNumber"
+    ]
+  },
+  {
+    "procedure": "battleLootSummary.getByBattleAndUser",
+    "desc": "Retrieves the loot summary for a specific user in a specific battle",
+    "params": [
+      "battleId",
+      "userId"
+    ]
+  },
+  {
+    "procedure": "battleOrder.getByBattle",
+    "desc": "Retrieves all battle orders for a specific battle",
+    "params": [
+      "battleId",
+      "side"
+    ]
+  },
+  {
+    "procedure": "battleRanking.getRanking",
+    "desc": "Retrieves damage, ground, or money rankings for users or countries in battles, rounds, or wars",
+    "params": [
+      "battleId",
+      "roundId",
+      "warId",
+      "dataType",
+      "type",
+      "side"
+    ]
+  },
+  {
+    "procedure": "company.getById",
+    "desc": "Retrieves detailed information about a specific company",
+    "params": [
+      "companyId"
+    ]
+  },
+  {
+    "procedure": "company.getCompanies",
+    "desc": "Retrieves a paginated list of companies with optional filtering",
+    "params": [
+      "userId",
+      "perPage",
+      "cursor"
+    ]
+  },
+  {
+    "procedure": "company.getProductionBonus",
+    "desc": "Retrieves the production bonus information for a specific company",
+    "params": [
+      "companyId"
+    ]
+  },
+  {
+    "procedure": "company.getRecommendedRegionIdsByItemCode",
+    "desc": "Retrieves a ranked list of regions with production bonuses for a specific item code",
+    "params": [
+      "itemCode",
+      "count"
+    ]
+  },
+  {
+    "procedure": "contribution.getCountryUnrestContributions",
+    "desc": "Retrieves a paginated list of citizen contributions (e.g. resources donated) toward a country&#39;s unrest",
+    "params": [
+      "countryId",
+      "page",
+      "limit"
+    ]
+  },
+  {
+    "procedure": "contribution.getRegionContributions",
+    "desc": "Retrieves a paginated list of citizen contributions (e.g. resources donated) toward a region&#39;s resistance",
+    "params": [
+      "regionId",
+      "page",
+      "limit"
+    ]
+  },
+  {
+    "procedure": "country.getAllCountries",
+    "desc": "Retrieves a list of all available countries",
+    "params": []
+  },
+  {
+    "procedure": "country.getCountryById",
+    "desc": "Retrieves detailed information about a specific country",
+    "params": [
+      "countryId"
+    ]
+  },
+  {
+    "procedure": "country.getUnrestData",
+    "desc": "Retrieves a country&#39;s current unrest/revolution bar level",
+    "params": [
+      "countryId"
+    ]
+  },
+  {
+    "procedure": "countryDiplomacy.getByCountry",
+    "desc": "Retrieves a country&#39;s sworn enemy and defensive pacts, with damage dealt totals",
+    "params": [
+      "countryId"
+    ]
+  },
+  {
+    "procedure": "donation.getManyPaginated",
+    "desc": "Retrieves a paginated list of donations, optionally scoped to a MU, country or party",
+    "params": [
+      "muId",
+      "countryId",
+      "partyId",
+      "limit",
+      "cursor"
+    ]
+  },
+  {
+    "procedure": "donation.getTotalDonations",
+    "desc": "Retrieves the total donated amount and donor count, optionally scoped to a MU, country or party",
+    "params": [
+      "muId",
+      "countryId",
+      "partyId"
+    ]
+  },
+  {
+    "procedure": "election.getElection",
+    "desc": "Retrieves detailed information about a specific election, including every candidate and the full vote tally",
+    "params": [
+      "electionId"
+    ]
+  },
+  {
+    "procedure": "election.getElections",
+    "desc": "Retrieves a paginated list of elections for a country or party (congress or presidential)",
+    "params": [
+      "countryId",
+      "partyId",
+      "limit"
+    ]
+  },
+  {
+    "procedure": "event.getEventsPaginated",
+    "desc": "Retrieves a paginated list of events with optional country and event type filters",
+    "params": [
+      "limit",
+      "cursor",
+      "countryId",
+      "eventTypes"
+    ]
+  },
+  {
+    "procedure": "gameConfig.getDates",
+    "desc": "Retrieves game-related dates and timings",
+    "params": []
+  },
+  {
+    "procedure": "gameConfig.getGameConfig",
+    "desc": "Retrieves static game configuration",
+    "params": []
+  },
+  {
+    "procedure": "gameStat.getEquipmentAvgByCode",
+    "desc": "Retrieves the average rolled stats for a given equipment item code",
+    "params": [
+      "itemCode"
+    ]
+  },
+  {
+    "procedure": "gameStat.getWorldDevelopment",
+    "desc": "Retrieves the total world development stat (sum across all countries)",
+    "params": []
+  },
+  {
+    "procedure": "giveaway.getManyPaginated",
+    "desc": "Retrieves a paginated list of giveaways and their participants/winners",
+    "params": [
+      "limit",
+      "cursor"
+    ]
+  },
+  {
+    "procedure": "government.getByCountryId",
+    "desc": "Retrieves government information for a specific country",
+    "params": [
+      "countryId"
+    ]
+  },
+  {
+    "procedure": "inventory.fetchCurrentEquipment",
+    "desc": "Retrieves the currently equipped items of a user",
+    "params": [
+      "userId"
+    ]
+  },
+  {
+    "procedure": "itemOffer.getById",
+    "desc": "Retrieves detailed information about a specific item offer",
+    "params": [
+      "itemOfferId"
+    ]
+  },
+  {
+    "procedure": "itemTrading.getPrices",
+    "desc": "Retrieves current market prices for all tradeable items",
+    "params": []
+  },
+  {
+    "procedure": "mercenaryContractAuction.getPaginatedAuctions",
+    "desc": "Retrieves active mercenary contract auctions with optional filters",
+    "params": [
+      "page",
+      "limit",
+      "status",
+      "forCountry",
+      "battleId",
+      "forCountrySide",
+      "professionalsOnly",
+      "sortBy",
+      "sortOrder"
+    ]
+  },
+  {
+    "procedure": "mu.getById",
+    "desc": "Retrieves detailed information about a specific military unit",
+    "params": [
+      "muId"
+    ]
+  },
+  {
+    "procedure": "mu.getManyPaginated",
+    "desc": "Retrieves a paginated list of military units with optional filters",
+    "params": [
+      "limit",
+      "cursor",
+      "memberId",
+      "userId",
+      "search"
+    ]
+  },
+  {
+    "procedure": "muMember.getByMu",
+    "desc": "Retrieves all members of a military unit with their damage/help counters",
+    "params": [
+      "muId"
+    ]
+  },
+  {
+    "procedure": "party.getById",
+    "desc": "Retrieves detailed information about a specific political party",
+    "params": [
+      "partyId"
+    ]
+  },
+  {
+    "procedure": "party.getManyPaginated",
+    "desc": "Retrieves a paginated list of political parties with optional filtering",
+    "params": [
+      "limit",
+      "cursor",
+      "countryId"
+    ]
+  },
+  {
+    "procedure": "ranking.getRanking",
+    "desc": "Retrieves ranking data for the specified ranking type and optional year-week filter",
+    "params": [
+      "rankingType"
+    ]
+  },
+  {
+    "procedure": "region.getAll",
+    "desc": "Retrieves a complete list of all regions",
+    "params": []
+  },
+  {
+    "procedure": "region.getById",
+    "desc": "Retrieves detailed information about a specific region",
+    "params": [
+      "regionId"
+    ]
+  },
+  {
+    "procedure": "region.getRegionsObject",
+    "desc": "Retrieves a complete object containing all available regions",
+    "params": []
+  },
+  {
+    "procedure": "round.getById",
+    "desc": "Retrieves detailed information about a specific battle round",
+    "params": [
+      "roundId"
+    ]
+  },
+  {
+    "procedure": "round.getLastHits",
+    "desc": "Retrieves the most recent hits/damages in a specific battle round",
+    "params": [
+      "roundId"
+    ]
+  },
+  {
+    "procedure": "sanction.getPaginated",
+    "desc": "Retrieves a paginated list of moderation sanctions (mutes/bans), optionally scoped to a target user or type",
+    "params": [
+      "targetUserId",
+      "type",
+      "limit",
+      "cursor"
+    ]
+  },
+  {
+    "procedure": "search.searchAnything",
+    "desc": "Performs a global search across users, countries, regions, military units, parties, and other entities",
+    "params": [
+      "searchText"
+    ]
+  },
+  {
+    "procedure": "search.searchMus",
+    "desc": "Searches for military units by name",
+    "params": [
+      "searchText"
+    ]
+  },
+  {
+    "procedure": "search.searchUsers",
+    "desc": "Searches for users by name or username",
+    "params": [
+      "searchText"
+    ]
+  },
+  {
+    "procedure": "shop.getLastGifts",
+    "desc": "Retrieves the most recent gem/premium gifts sent between players",
+    "params": []
+  },
+  {
+    "procedure": "shop.getSubscribedUsers",
+    "desc": "Retrieves recently-started WarEra Premium subscriptions",
+    "params": []
+  },
+  {
+    "procedure": "shop.getTopGiftGivers",
+    "desc": "Retrieves the leaderboard of players who have gifted the most",
+    "params": []
+  },
+  {
+    "procedure": "tournament.getById",
+    "desc": "Retrieves detailed information about a specific tournament",
+    "params": [
+      "tournamentId"
+    ]
+  },
+  {
+    "procedure": "tournament.getLastTournament",
+    "desc": "Retrieves the most recently created or active tournament",
+    "params": []
+  },
+  {
+    "procedure": "tournament.getManyPaginated",
+    "desc": "Retrieves a paginated list of tournaments",
+    "params": [
+      "limit",
+      "cursor"
+    ]
+  },
+  {
+    "procedure": "tournamentTeam.getById",
+    "desc": "Retrieves a tournament team by its ID",
+    "params": [
+      "tournamentTeamId"
+    ]
+  },
+  {
+    "procedure": "tournamentTeam.getByTournamentId",
+    "desc": "Retrieves all teams registered in a specific tournament",
+    "params": [
+      "tournamentId"
+    ]
+  },
+  {
+    "procedure": "tradingOrder.getPublicOrdersByOwner",
+    "desc": "Retrieves a user&#39;s, MU&#39;s, country&#39;s or party&#39;s public trading orders",
+    "params": [
+      "userId",
+      "muId",
+      "countryId",
+      "partyId"
+    ]
+  },
+  {
+    "procedure": "tradingOrder.getTopOrders",
+    "desc": "Retrieves the best orders for an item",
+    "params": [
+      "itemCode",
+      "limit"
+    ]
+  },
+  {
+    "procedure": "transaction.getPaginatedTransactions",
+    "desc": "Retrieves a paginated list of transactions",
+    "params": [
+      "limit",
+      "cursor",
+      "userId",
+      "muId",
+      "countryId",
+      "partyId",
+      "itemCode",
+      "transactionType"
+    ]
+  },
+  {
+    "procedure": "upgrade.getUpgradeByTypeAndEntity",
+    "desc": "Retrieves upgrade information for a specific upgrade type and entity (region, company, or military unit)",
+    "params": [
+      "upgradeType",
+      "regionId",
+      "companyId",
+      "muId"
+    ]
+  },
+  {
+    "procedure": "upgradeConstruction.getMapConstructions",
+    "desc": "Retrieves every in-progress region-upgrade construction project across the whole map. No input required. Empty array when nothing is currently under construction anywhere.",
+    "params": []
+  },
+  {
+    "procedure": "upgradeConstruction.getRegionConstructions",
+    "desc": "Retrieves every in-progress upgrade construction project for one region. Empty array when that region has nothing currently under construction.",
+    "params": [
+      "regionId"
+    ]
+  },
+  {
+    "procedure": "upgradeConstruction.listConstructions",
+    "desc": "Retrieves a paginated list of upgrade construction projects, filtered by region or country (at least one of the two is required \u2014 confirmed live: omitting both returns a 400 &#39;regionId or countryId is required&#39;). Cursor pagination uses the construction document&#39;s own Mongo _id (confirmed live: a non-ObjectId cursor value 500s with a Mongoose cast error naming the underlying &#39;UpgradeConstruction&#39; model).",
+    "params": [
+      "regionId",
+      "countryId",
+      "limit",
+      "cursor"
+    ]
+  },
+  {
+    "procedure": "user.getUserById",
+    "desc": "Retrieves full user information by their numeric ID",
+    "params": [
+      "userId"
+    ]
+  },
+  {
+    "procedure": "user.getUserLite",
+    "desc": "Retrieves basic public information about a user including username, skills, and rankings",
+    "params": [
+      "userId"
+    ]
+  },
+  {
+    "procedure": "user.getUsersByCountry",
+    "desc": "Retrieves a list of users by country",
+    "params": [
+      "countryId",
+      "limit",
+      "cursor"
+    ]
+  },
+  {
+    "procedure": "war.getById",
+    "desc": "Retrieves detailed information about a specific war",
+    "params": [
+      "warId"
+    ]
+  },
+  {
+    "procedure": "work.getStatsByCompany",
+    "desc": "Retrieves a company&#39;s daily work stats (aggregated across all its workers) over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra&#39;s own public API reference.",
+    "params": [
+      "companyId",
+      "days",
+      "timezone"
+    ]
+  },
+  {
+    "procedure": "work.getStatsByUserId",
+    "desc": "Retrieves a user&#39;s daily work stats (production, wage, self-work vs. automated engine) over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra&#39;s own public API reference.",
+    "params": [
+      "userId",
+      "days",
+      "timezone"
+    ]
+  },
+  {
+    "procedure": "work.getStatsByWorker",
+    "desc": "Retrieves a worker&#39;s daily work stats across all companies (not scoped to one company) over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra&#39;s own public API reference.",
+    "params": [
+      "workerId",
+      "days",
+      "timezone"
+    ]
+  },
+  {
+    "procedure": "work.getStatsByWorkerAndCompany",
+    "desc": "Retrieves a worker&#39;s daily work stats scoped to one specific company over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra&#39;s own public API reference.",
+    "params": [
+      "workerId",
+      "companyId",
+      "days",
+      "timezone"
+    ]
+  },
+  {
+    "procedure": "workOffer.getById",
+    "desc": "Retrieves detailed information about a specific work offer",
+    "params": [
+      "workOfferId"
+    ]
+  },
+  {
+    "procedure": "workOffer.getWageStats",
+    "desc": "Retrieves the allowed wage range and top eligible work offers for a worker&#39;s stats",
+    "params": [
+      "energy",
+      "production",
+      "citizenship"
+    ]
+  },
+  {
+    "procedure": "workOffer.getWorkOfferByCompanyId",
+    "desc": "Retrieves work offer for a specific company",
+    "params": [
+      "companyId"
+    ]
+  },
+  {
+    "procedure": "workOffer.getWorkOffersPaginated",
+    "desc": "Retrieves a paginated list of work offers with optional user and region filtering",
+    "params": [
+      "userId",
+      "regionId",
+      "cursor",
+      "limit",
+      "energy",
+      "production",
+      "citizenship"
+    ]
+  },
+  {
+    "procedure": "worker.getTotalWorkersCount",
+    "desc": "Get total workers count for a user",
+    "params": [
+      "userId"
+    ]
+  },
+  {
+    "procedure": "worker.getWorkers",
+    "desc": "Get workers for a company or user",
+    "params": [
+      "companyId",
+      "userId"
+    ]
+  }
+]

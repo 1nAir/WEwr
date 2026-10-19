@@ -83,3 +83,4 @@ try:
 
 except KeyboardInterrupt:
     print(f"\n[!] Stopped by user. Total clicks: {counter - 1}.")
+
