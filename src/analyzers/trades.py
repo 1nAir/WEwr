@@ -423,6 +423,15 @@ class MarketTradesAnalyzer:
             }
 
         day_tx_map = daily_stats.setdefault("day_tx_counts", {})
+        # Accurately compute transaction counts for each day from day_item_profiles
+        for d, it_profiles in day_profiles_dict.items():
+            profile_tx_count = sum(
+                int(t.get("count", 1))
+                for tiers in it_profiles.values()
+                for t in tiers.values()
+            )
+            day_tx_map[d] = max(day_tx_map.get(d, 0), profile_tx_count)
+
         today_key = now.strftime("%Y-%m-%d")
         if new_trades:
             day_tx_map[today_key] = max(
@@ -473,8 +482,8 @@ class MarketTradesAnalyzer:
                 p_market_pp = 0
                 p_market_units = 0
                 p_market_tx = sum(day_tx_map.get(d, 0) for d in matching_days)
-                if p_market_tx == 0:
-                    p_market_tx = len(merged_raw_trades)
+                if p_market_tx < len(merged_raw_trades):
+                    p_market_tx = max(p_market_tx, len(merged_raw_trades))
 
                 p_item_prices = defaultdict(list)
                 for day in matching_days:
