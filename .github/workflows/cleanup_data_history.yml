@@ -34,3 +34,4 @@ jobs:
         git commit -m "chore(data): monthly history squash and repository optimization"
         git branch -M temp_data_squash data
         git push origin data --force
+

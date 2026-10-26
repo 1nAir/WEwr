@@ -1,18 +1,9 @@
-create_api_schema.py
-api_doc.json
-warera_full_schema.json
-count_companies.py
-get_rec_region.py
-.aiexclude
-get_user_companies.py
-get_user_info.py
-bootstrap_known_players.py
-new_concept_metric.txt
 __pycache__/
 *.pyc
 .venv/
+.DS_Store
 
-# Data files and compiled site (stored and updated on 'data' branch)
-*.json
-!vercel.json
-public/
+# Raw data store and compiled frontend data slices (stored on 'data' branch)
+data_store/*.json
+public/data/*.json
+

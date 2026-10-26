@@ -10,8 +10,8 @@ import requests
 
 class TRPCClient:
     """
-    Client for interacting with the game tRPC API.
-    Includes logic for complex stats gathering and key rotation.
+    Client for interacting with the Warera tRPC API.
+    Supports batching (batch=1) and automatic key rotation with rate limiting.
     """
 
     BATCH_SIZE = 100
@@ -63,7 +63,7 @@ class TRPCClient:
         url = f"{self.base_url}/{method}?input={encoded_input}"
 
         try:
-            resp = self.session.get(url, headers={"X-API-Key": key})
+            resp = self.session.get(url, headers={"X-API-Key": key}, timeout=20)
             if raise_on_error:
                 resp.raise_for_status()
             return resp.json() if resp.text else {}
@@ -78,10 +78,7 @@ class TRPCClient:
         raise_on_error: bool = True,
         batch_size: int | None = None,
     ) -> list[Any]:
-        """
-        Executes multiple tRPC calls in a single HTTP request.
-        Chunks requests to avoid URL length limits.
-        """
+        """Executes multiple tRPC calls in a single HTTP request."""
         if not calls:
             return []
 
@@ -99,7 +96,7 @@ class TRPCClient:
             url = f"{self.base_url}/{method_string}?batch=1&input={encoded_input}"
 
             try:
-                resp = self.session.get(url, headers={"X-API-Key": key})
+                resp = self.session.get(url, headers={"X-API-Key": key}, timeout=25)
                 if raise_on_error:
                     resp.raise_for_status()
 
@@ -108,9 +105,7 @@ class TRPCClient:
                     results.extend(data)
                 else:
                     if raise_on_error:
-                        raise requests.RequestException(
-                            f"Invalid batch response: {data}"
-                        )
+                        raise requests.RequestException(f"Invalid batch response: {data}")
                     results.extend([{} for _ in chunk])
             except requests.RequestException:
                 if raise_on_error:
@@ -124,55 +119,21 @@ class TRPCClient:
             self._game_config_cache = self.call("gameConfig.getGameConfig", {})
         return self._game_config_cache
 
-    def get_countries(self) -> list[dict]:
-        resp = self.call("country.getAllCountries", {})
-        return resp.get("result", {}).get("data", [])
-
-    def get_users_ranking(self, ranking_type: str = "userLevel") -> list[dict]:
-        resp = self.call("ranking.getRanking", {"rankingType": ranking_type})
-        data = resp.get("result", {}).get("data", {})
-        if isinstance(data, dict):
-            if "items" in data:
-                return data["items"]
-            if "json" in data and "items" in data["json"]:
-                return data["json"]["items"]
-        return []
-
-    def get_regions(self) -> dict[str, Any]:
-        resp = self.call("region.getRegionsObject", {})
-        return resp.get("result", {}).get("data", {})
-
     def get_item_prices(self) -> Any:
         return self.call("itemTrading.getPrices", {})
-
-    def get_top_orders(self, item_code: str, limit: int = 10) -> Any:
-        return self.call(
-            "tradingOrder.getTopOrders", {"itemCode": item_code, "limit": limit}
-        )
-
-    def get_recommended_regions(
-        self, item_code: str, include_deposit: bool = True
-    ) -> list[dict]:
-        resp = self.call(
-            "company.getRecommendedRegionIdsByItemCode",
-            {"itemCode": item_code, "includeDeposit": include_deposit},
-        )
-        if not isinstance(resp, dict):
-            return []
-        data = resp.get("result", {}).get("data", resp)
-        final_data = data.get("json", data) if isinstance(data, dict) else data
-        return final_data if isinstance(final_data, list) else []
 
     def get_item_stats(
         self, item_codes: list[str], limit: int = 3
     ) -> dict[str, dict[str, Any]]:
         """
-        Calculates min/avg/max based on order depth.
+        Calculates bid (min), avg, and ask (max) prices for each item based on top orders.
+        - bid: average of top 3 highest buy orders (if >=10 orders exist), else top buy order.
+        - ask: average of top 3 lowest sell orders (if >=10 orders exist), else top sell order.
         """
         prices_resp = self.get_item_prices()
         prices_data = prices_resp.get("result", {}).get("data", {})
 
-        exclude_items = {"case1", "case2", "scraps"}
+        exclude_items = {"case1", "case2", "scraps", "woodenCase"}
         results = {}
 
         items_to_process = [
@@ -189,53 +150,51 @@ class TRPCClient:
         batch_responses = self.batch_call(calls, raise_on_error=True)
 
         for i, item_code in enumerate(items_to_process):
-            avg = round(prices_data[item_code], 3)
+            avg = round(float(prices_data[item_code]), 3)
             resp = batch_responses[i] if i < len(batch_responses) else {}
-
-            if "error" in resp:
-                error_details = resp["error"]
-                raise requests.RequestException(
-                    f"API error for item '{item_code}': {error_details}"
-                )
 
             orders_data = (
                 resp.get("result", {}).get("data", {}) if isinstance(resp, dict) else {}
             )
 
             buy_prices = [
-                o["price"] for o in orders_data.get("buyOrders", []) if "price" in o
+                float(o["price"])
+                for o in orders_data.get("buyOrders", [])
+                if "price" in o
             ]
             sell_prices = [
-                o["price"] for o in orders_data.get("sellOrders", []) if "price" in o
+                float(o["price"])
+                for o in orders_data.get("sellOrders", [])
+                if "price" in o
             ]
 
             if len(buy_prices) >= 10:
                 top_buy = buy_prices[:limit]
-                min_price = round(sum(top_buy) / len(top_buy), 3)
+                bid_price = round(sum(top_buy) / len(top_buy), 3)
             else:
-                min_price = round(buy_prices[0], 3) if buy_prices else avg
+                bid_price = round(buy_prices[0], 3) if buy_prices else avg
 
             if len(sell_prices) >= 10:
                 top_sell = sell_prices[:limit]
-                max_price = round(sum(top_sell) / len(top_sell), 3)
+                ask_price = round(sum(top_sell) / len(top_sell), 3)
             else:
-                max_price = round(sell_prices[0], 3) if sell_prices else avg
+                ask_price = round(sell_prices[0], 3) if sell_prices else avg
 
             results[item_code] = {
-                "min": min_price,
+                "bid": bid_price,
                 "avg": avg,
-                "max": max_price,
+                "ask": ask_price,
             }
 
         return results
 
     def get_item_production_info(self, item_code: str) -> dict[str, Any]:
-        """Extracts production requirements from cached config."""
-        config = self.get_game_config()
-        items_config = config.get("result", {}).get("data", {}).get("items", {})
-
+        """Extracts productionPoints and productionNeeds from cached gameConfig."""
+        cfg = self.get_game_config()
+        items_config = cfg.get("result", {}).get("data", {}).get("items", {})
         item_info = items_config.get(item_code, {})
         return {
             "productionPoints": item_info.get("productionPoints", 0),
             "productionNeeds": item_info.get("productionNeeds", {}),
         }
+

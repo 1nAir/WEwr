@@ -1,4 +1,4 @@
-name: Update Wealthrate Data & Build Site
+name: Update Wealthrate v2 Data & Build Site
 
 on:
   workflow_dispatch:
@@ -16,23 +16,22 @@ jobs:
     timeout-minutes: 13
 
     steps:
-    - name: Checkout repository code (main)
+    - name: Checkout repository code
       uses: actions/checkout@v4
       with:
-        ref: main
         fetch-depth: 1
 
     - name: Checkout data branch
       uses: actions/checkout@v4
       with:
         ref: data
-        path: data_store
+        path: data_branch
         fetch-depth: 1
 
-    - name: Copy existing data for analysis
+    - name: Restore existing data store from data branch
       run: |
-        cp -f data_store/*.json . 2>/dev/null || true
-        cp -rf data_store/public . 2>/dev/null || true
+        mkdir -p data_store public/data
+        cp -f data_branch/data_store/*.json data_store/ 2>/dev/null || true
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -43,7 +42,7 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Execute all analyzers & report builder
+    - name: Execute all analyzers & build static JSON slices
       env:
         WEALTHRATE1: ${{ secrets.WEALTHRATE1 }}
         WEALTHRATE2: ${{ secrets.WEALTHRATE2 }}
@@ -52,19 +51,20 @@ jobs:
 
     - name: Commit and push results to data branch
       run: |
-        cp -f *.json data_store/
-        cp -rf public data_store/
-        cd data_store
+        # Clean up any legacy v1 root JSONs so the data branch only stores v2 structure
+        rm -f data_branch/*.json 2>/dev/null || true
+        rm -rf data_branch/data_store data_branch/public
+        mkdir -p data_branch/data_store data_branch/public
+        cp -f data_store/*.json data_branch/data_store/
+        cp -rf public/* data_branch/public/
+        cp -f vercel.json data_branch/
+        cd data_branch
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add -A
         if ! git diff --staged --quiet; then
-          git commit -m "chore: update wealthrate data and report"
+          git commit -m "chore: update wealthrate v2 data"
           git pull --rebase origin data
           git push origin data
         fi
-
-    - name: Trigger Vercel Deploy Hook
-      run: |
-        curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
 

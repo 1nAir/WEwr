@@ -1,17 +1,20 @@
 import argparse
+from functools import partial
+import http.server
 import logging
+import socketserver
+import subprocess
 import sys
+import webbrowser
 
 from src import config
+from src.analyzers.leaderboards import MarketLeaderboardAnalyzer
+from src.analyzers.orderbook import OrderBookAnalyzer
+from src.analyzers.profitability import ProfitabilityAnalyzer
+from src.analyzers.trades import MarketTradesAnalyzer
 from src.api_client import TRPCClient
-from src.data_processor import DataProcessor
-from src.market_analyzer import MarketAnalyzer
-from src.production_analyzer import CompanyAnalyzer
-from src.report_generator import ReportGenerator
-from src.worker_analyzer import WorkerAnalyzer
-from src.market_depth_analyzer import MarketDepthAnalyzer
+from src.storage import Storage
 
-# logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -21,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 
 def init_client() -> TRPCClient:
-    """Initializes and returns the tRPC client."""
     if not config.API_KEYS:
         raise ValueError(
             "No API keys found in environment (WEALTHRATE1, WEALTHRATE2, WEALTHRATE3)"
@@ -29,198 +31,144 @@ def init_client() -> TRPCClient:
     return TRPCClient(api_keys=config.API_KEYS)
 
 
-def run_companies(client: TRPCClient) -> None:
-    """Scrapes company basing stats, saves latest cache and appends to companies history."""
-    logger.info("--- Starting Company Basing Collection ---")
-    items = list(config.ITEM_PRETTY_NAMES.keys())
-    comp_analyzer = CompanyAnalyzer(client)
-    company_stats = comp_analyzer.collect_company_stats(items)
+def run_profitability(client: TRPCClient) -> None:
+    """Calculates dry 1 PP production value relative to current market Bid/Ask prices."""
+    logger.info("--- Starting Dry Profitability Analysis (1 PP Value) ---")
+    analyzer = ProfitabilityAnalyzer(client)
+    snapshot = analyzer.calculate_snapshot()
 
-    # 1. Save latest snapshot for market/report generator
-    DataProcessor.save_latest_companies(company_stats)
-    logger.info(f"Saved latest company stats to {config.LATEST_COMPANIES_FILE}")
+    Storage.save_latest_profitability(snapshot)
+    logger.info(f"Saved latest profitability snapshot to {config.LATEST_PROFITABILITY_FILE}")
 
-    # 2. Append to companies history
-    logger.info("Updating companies history...")
-    comp_history = DataProcessor.load_companies_history()
-    comp_history = DataProcessor.append_companies_snapshot(comp_history, company_stats)
-    DataProcessor.save_companies_history(comp_history)
-    logger.info("Company basing collection completed successfully.")
+    history = Storage.load_profitability_history()
+    history = Storage.append_profitability_snapshot(history, snapshot)
+    Storage.save_profitability_history(history)
+    logger.info("Profitability history updated successfully.")
 
 
-def run_market(client: TRPCClient) -> None:
-    """Fetches market prices, saves latest market snapshot, updates profitability history, and runs worker analysis."""
-    logger.info("--- Starting Market Data Collection ---")
+def run_orderbook(client: TRPCClient) -> None:
+    """Collects unified Buy & Sell order book depth and appends to history."""
+    logger.info("--- Starting Unified Order Book Collection (Buy & Sell Depth) ---")
+    analyzer = OrderBookAnalyzer(client)
+    snapshot = analyzer.collect_orderbook()
 
-    # 1. Market Analysis
-    analyzer = MarketAnalyzer(client)
-    current_snapshot = analyzer.calculate_snapshot()
+    Storage.save_latest_orderbook(snapshot)
+    logger.info(f"Saved latest order book snapshot to {config.LATEST_ORDERBOOK_FILE}")
 
-    # 2. Save latest market snapshot to file
-    DataProcessor.save_latest_market(current_snapshot)
-    logger.info(f"Saved latest market snapshot to {config.LATEST_MARKET_FILE}")
-
-    # 3. Worker Analysis (using cached bonuses to minimize API requests)
-    try:
-        logger.info("Starting Worker Analysis...")
-        worker_analyzer = WorkerAnalyzer(client, region_analyzer=analyzer.region_analyzer)
-        worker_snapshot = worker_analyzer.calculate_worker_snapshot(
-            current_snapshot, bonuses_data=analyzer.last_bonuses_data
-        )
-        DataProcessor.save_latest_workers(worker_snapshot)
-        logger.info(f"Saved latest workers snapshot to {config.LATEST_WORKERS_FILE}")
-
-        # Update Workers History
-        logger.info("Updating workers history...")
-        workers_history = DataProcessor.load_workers_history()
-        workers_history = DataProcessor.append_workers_snapshot(workers_history, worker_snapshot)
-        DataProcessor.save_workers_history(workers_history)
-        logger.info("Workers history updated successfully.")
-    except Exception as e:
-        logger.error(f"Failed to calculate worker snapshot: {e}", exc_info=True)
-
-    # 4. Profitability History
-    logger.info("Processing profitability history...")
-    history = DataProcessor.load_history()
-    history = DataProcessor.append_snapshot(history, current_snapshot)
-    history = DataProcessor.clean_history(history)
-    DataProcessor.save_history(history)
-    logger.info("Market data collection completed successfully.")
+    history = Storage.load_orderbook_history()
+    history = Storage.append_orderbook_snapshot(history, snapshot)
+    Storage.save_orderbook_history(history)
+    logger.info("Order book history updated successfully.")
 
 
-def run_workers(client: TRPCClient) -> None:
-    """Runs worker analysis using latest market prices and saves latest workers snapshot and history."""
-    logger.info("--- Starting Worker Analysis ---")
-    current_snapshot, _ = DataProcessor.load_latest_market()
-    if not current_snapshot:
-        logger.warning("No latest market snapshot found. Running market collection first...")
-        run_market(client)
-        return
-    worker_analyzer = WorkerAnalyzer(client)
-    worker_snapshot = worker_analyzer.calculate_worker_snapshot(current_snapshot)
-    DataProcessor.save_latest_workers(worker_snapshot)
-    logger.info(f"Saved latest workers snapshot to {config.LATEST_WORKERS_FILE}")
+def run_trades(client: TRPCClient) -> None:
+    """Syncs completed trading transactions incrementally and updates daily stats + history."""
+    logger.info("--- Starting Market Transactions Sync ---")
+    existing_trades, _ = Storage.load_latest_trades()
+    existing_daily = Storage.load_daily_trader_stats()
 
-    # Update Workers History
-    logger.info("Updating workers history...")
-    workers_history = DataProcessor.load_workers_history()
-    workers_history = DataProcessor.append_workers_snapshot(workers_history, worker_snapshot)
-    DataProcessor.save_workers_history(workers_history)
-    logger.info("Workers history updated successfully.")
+    analyzer = MarketTradesAnalyzer(client)
+    latest_trades, daily_stats = analyzer.sync_trades(
+        existing_trades_cache=existing_trades,
+        existing_daily_stats=existing_daily,
+        max_lookback_hours=24,
+    )
+
+    Storage.save_latest_trades(latest_trades)
+    Storage.save_daily_trader_stats(daily_stats)
+    logger.info(f"Saved latest market trades and daily stats to {config.LATEST_TRADES_FILE}")
+
+    trades_history = Storage.load_trades_history()
+    trades_history = MarketTradesAnalyzer.append_trades_history(trades_history, latest_trades)
+    Storage.save_trades_history(trades_history)
+    logger.info("Market trades history updated successfully.")
 
 
-def run_depth(client: TRPCClient) -> None:
-    """Collects 100% market depth, saves latest snapshot, and updates depth history."""
-    logger.info("--- Starting Market Depth Collection ---")
-    depth_analyzer = MarketDepthAnalyzer(client)
-    depth_snapshot = depth_analyzer.collect_market_depth()
+def run_leaderboards(client: TRPCClient) -> None:
+    """Builds pre-aggregated Top-10 leaderboards for live order book and historical trades."""
+    logger.info("--- Starting Market Leaderboards Generation ---")
+    ob_snapshot, _ = Storage.load_latest_orderbook()
+    daily_stats = Storage.load_daily_trader_stats()
 
-    # 1. Save latest market depth snapshot
-    DataProcessor.save_latest_market_depth(depth_snapshot)
-    logger.info(f"Saved latest market depth snapshot to {config.LATEST_MARKET_DEPTH_FILE}")
-
-    # 2. Append to market depth history
-    logger.info("Updating market depth history...")
-    depth_history = DataProcessor.load_market_depth_history()
-    depth_history = DataProcessor.append_market_depth_snapshot(depth_history, depth_snapshot)
-    DataProcessor.save_market_depth_history(depth_history)
-    logger.info("Market depth collection completed successfully.")
+    analyzer = MarketLeaderboardAnalyzer(client)
+    leaderboards = analyzer.build_leaderboards(ob_snapshot or {}, daily_stats)
+    Storage.save_market_leaderboards(leaderboards)
+    logger.info(f"Saved market leaderboards to {config.MARKET_LEADERBOARDS_FILE}")
 
 
 def run_build() -> None:
-    """Builds the HTML report from the latest cached snapshots of all modules."""
-    logger.info("--- Starting HTML Site Build ---")
-
-    # 1. Load latest market snapshot
-    combined_snapshot, market_ts = DataProcessor.load_latest_market()
-    if not combined_snapshot:
-        logger.warning(
-            f"No latest market snapshot found in {config.LATEST_MARKET_FILE}. Aborting build."
-        )
-        return
-
-    # 2. Merge cached company stats into combined snapshot
-    company_stats, comp_ts = DataProcessor.load_latest_companies()
-    if company_stats:
-        logger.info(f"Loaded cached company stats for {len(company_stats)} items.")
-        for item_code, stats in company_stats.items():
-            if item_code in combined_snapshot:
-                combined_snapshot[item_code].update(stats)
-    else:
-        logger.warning(
-            "No cached company stats found. Building without company basing data."
-        )
-
-    # 3. Load latest workers data
-    workers_snapshot, workers_ts = DataProcessor.load_latest_workers()
-    if workers_snapshot:
-        logger.info(
-            f"Loaded cached workers data for {len(workers_snapshot.get('items', {}))} items."
-        )
-    else:
-        logger.warning("No cached workers data found.")
-
-    # 4. Load latest market depth data
-    depth_snapshot, depth_ts = DataProcessor.load_latest_market_depth()
-    if depth_snapshot:
-        logger.info(f"Loaded cached market depth data for {len(depth_snapshot)} items.")
-    else:
-        logger.warning("No cached market depth data found.")
-
-    # 5. Load Histories for Charting
-    history = DataProcessor.load_history()
-    comp_history = DataProcessor.load_companies_history()
-    workers_history = DataProcessor.load_workers_history()
-    depth_history = DataProcessor.load_market_depth_history()
-
-    # 6. Generate Report
-    logger.info("Generating report...")
-    ReportGenerator.generate(
-        history,
-        comp_history,
-        combined_snapshot,
-        market_timestamp=market_ts,
-        comp_timestamp=comp_ts,
-        workers_snapshot=workers_snapshot,
-        workers_timestamp=workers_ts,
-        workers_history=workers_history,
-        depth_snapshot=depth_snapshot,
-        depth_timestamp=depth_ts,
-        depth_history=depth_history,
-    )
-    logger.info("--- HTML Site Build Complete ---")
+    """Exports lightweight static JSON slices to `public/data/*.json` for the modular frontend."""
+    logger.info("--- Building Static Frontend JSON Slices (public/data/*.json) ---")
+    Storage.build_frontend_data()
+    logger.info("--- Frontend Data Build Complete ---")
 
 
 def run_pull_data() -> None:
-    """Pulls the latest historical data and snapshots from the remote 'data' branch."""
-    import subprocess
-
+    """Pulls latest data_store JSONs from remote 'data' branch."""
     logger.info("Fetching latest data from 'data' branch...")
     cmd = (
         "git fetch origin data && "
-        "git checkout origin/data -- history*.json latest*.json public/ && "
-        "git restore --staged history*.json latest*.json public/"
+        "git checkout origin/data -- data_store/ public/data/ && "
+        "git restore --staged data_store/ public/data/"
     )
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     if res.returncode == 0:
-        logger.info("Successfully synced latest data and report from 'data' branch.")
+        logger.info("Successfully synced latest data from 'data' branch.")
     else:
         logger.error(f"Failed to pull data from 'data' branch: {res.stderr}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Wealthrate Analytics Runner")
+def run_serve(port: int = 8000) -> None:
+    """Starts a local static HTTP server for `public/` and opens the browser."""
+    handler = partial(http.server.SimpleHTTPRequestHandler, directory=config.PUBLIC_DIR)
+    socketserver.TCPServer.allow_reuse_address = True
+    url = f"http://localhost:{port}"
+    logger.info(f"Serving Wealthrate v2 from {config.PUBLIC_DIR} at {url}")
+    webbrowser.open(url)
+    with socketserver.TCPServer(("", port), handler) as httpd:
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            logger.info("Shutting down local preview server.")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Wealthrate v2 Analytics Runner")
     parser.add_argument(
         "--task",
-        choices=["market", "companies", "workers", "depth", "build", "market_and_build", "all", "pull_data"],
-        default="market_and_build",
-        help="Task to execute: 'market', 'companies', 'workers', 'depth', 'build', 'market_and_build', 'all', or 'pull_data'",
+        choices=[
+            "profitability",
+            "market",
+            "orderbook",
+            "depth",
+            "trades",
+            "leaderboards",
+            "build",
+            "all",
+            "pull_data",
+            "serve",
+        ],
+        default="all",
+        help="Task to execute",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port for --task serve (default: 8000)",
     )
     args = parser.parse_args()
 
-    # Initialize API Client only if needed (build & pull_data tasks don't require API keys!)
+    if args.task == "pull_data":
+        run_pull_data()
+        return
+
+    if args.task == "serve":
+        run_serve(args.port)
+        return
+
     client = None
-    if args.task in ("market", "companies", "workers", "depth", "market_and_build", "all"):
+    if args.task in ("profitability", "market", "orderbook", "depth", "trades", "leaderboards", "all"):
         try:
             client = init_client()
         except Exception as e:
@@ -228,23 +176,19 @@ def main():
             sys.exit(1)
 
     try:
-        if args.task == "pull_data":
-            run_pull_data()
-            return
+        if args.task in ("profitability", "market", "all"):
+            run_profitability(client)
 
-        if args.task in ("companies", "all"):
-            run_companies(client)
+        if args.task in ("orderbook", "depth", "all"):
+            run_orderbook(client)
 
-        if args.task in ("depth", "all"):
-            run_depth(client)
+        if args.task in ("trades", "all"):
+            run_trades(client)
 
-        if args.task in ("market", "market_and_build", "all"):
-            run_market(client)
+        if args.task in ("leaderboards", "all"):
+            run_leaderboards(client)
 
-        if args.task in ("workers", "all"):
-            run_workers(client)
-
-        if args.task in ("build", "market_and_build", "all"):
+        if args.task in ("build", "all"):
             run_build()
 
     except Exception as e:
@@ -254,3 +198,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
