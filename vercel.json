@@ -1,5 +1,8 @@
 {
   "outputDirectory": "public",
+  "git": {
+    "deploymentEnabled": false
+  },
   "rewrites": [
     {
       "source": "/data/:file",
@@ -7,4 +10,3 @@
     }
   ]
 }
-
