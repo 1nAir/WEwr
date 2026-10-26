@@ -24,7 +24,7 @@ class Storage:
     def _read_json(path: str, default: Any = None) -> Any:
         if os.path.exists(path):
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, "r", encoding="utf-8-sig") as f:
                     return json.load(f)
             except Exception as e:
                 logger.warning(f"Failed to read {path}: {e}")

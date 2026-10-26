@@ -176,9 +176,6 @@ def main() -> None:
             sys.exit(1)
 
     try:
-        if args.task in ("profitability", "market", "all"):
-            run_profitability(client)
-
         if args.task in ("orderbook", "depth", "all"):
             run_orderbook(client)
 
@@ -187,6 +184,9 @@ def main() -> None:
 
         if args.task in ("leaderboards", "all"):
             run_leaderboards(client)
+
+        if args.task in ("profitability", "all"):
+            run_profitability(client)
 
         if args.task in ("build", "all"):
             run_build()
