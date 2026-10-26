@@ -227,23 +227,29 @@ class Storage:
             sell_block = it_snap.get("sell", it_snap)
             buy_block = it_snap.get("buy", it_snap.get("buy_depth", {}))
 
+            s_ladder = sell_block.get("ladder", it_snap.get("ladder", []))
+            b_ladder = buy_block.get("ladder", [])
+            best_bid = float(b_ladder[0].get("p", b_ladder[0].get("price", 0.0))) if b_ladder else 0.0
+            best_ask = float(s_ladder[0].get("p", s_ladder[0].get("price", 0.0))) if s_ladder else 0.0
+            s_ask_limit = (best_ask * 2.0) if best_ask > 0 else 0.0
+            b_bid_limit = (best_bid * 0.5) if best_bid > 0 else 0.0
+
             pp_rate = config.ALL_ITEMS_PP.get(item, 0)
             s_units = int(sell_block.get("total_units", it_snap.get("total_units", 0)))
             s_pp = int(sell_block.get("total_pp", it_snap.get("total_pp", s_units * pp_rate)))
-            s_ladder = sell_block.get("ladder", it_snap.get("ladder", []))
             s_btc = float(sell_block.get("total_value_btc", 0.0))
             if not s_btc and s_ladder:
                 s_btc = round(
                     sum(
                         float(r.get("price", r.get("p", 0))) * int(r.get("quantity", r.get("q", 0)))
                         for r in s_ladder
+                        if not (s_ask_limit > 0 and float(r.get("price", r.get("p", 0))) >= s_ask_limit - 1e-9)
                     ),
                     2,
                 )
 
             b_units = int(buy_block.get("total_units", it_snap.get("buy_total_units", 0)))
             b_pp = int(buy_block.get("total_pp", it_snap.get("buy_total_pp", b_units * pp_rate)))
-            b_ladder = buy_block.get("ladder", [])
             b_btc = float(
                 buy_block.get(
                     "total_money_btc",
@@ -255,12 +261,10 @@ class Storage:
                     sum(
                         float(r.get("price", r.get("p", 0))) * int(r.get("quantity", r.get("q", 0)))
                         for r in b_ladder
+                        if not (b_bid_limit > 0 and float(r.get("price", r.get("p", 0))) < b_bid_limit - 1e-9)
                     ),
                     2,
                 )
-
-            best_bid = float(b_ladder[0].get("p", b_ladder[0].get("price", 0.0))) if b_ladder else 0.0
-            best_ask = float(s_ladder[0].get("p", s_ladder[0].get("price", 0.0))) if s_ladder else 0.0
             buy_85 = Storage.compute_85_depth_money(b_ladder, best_bid, is_buy=True)
             sell_85 = Storage.compute_85_depth_money(s_ladder, best_ask, is_buy=False)
             total_85 = buy_85 + sell_85
@@ -406,40 +410,82 @@ class Storage:
         sell_src = raw_item.get("sell", raw_item)
         raw_sell_ladder = sell_src.get("ladder", [])
         sell_ladder = []
-        total_sell_btc = 0.0
         for row in raw_sell_ladder:
             p = round(float(row.get("p", row.get("price", 0.0))), 3)
             q = int(row.get("q", row.get("quantity", 0)))
             m = round(p * q, 2)
-            total_sell_btc += m
             sell_ladder.append({"p": p, "q": q, "m": m})
-
-        sell_units = int(sell_src.get("total_units", 0))
-        sell_pp = int(sell_src.get("total_pp", sell_units * pp_per_unit))
-        sell_top = sell_src.get("top_sellers", [])
-        sell_top3_share = round(
-            sum(float(s.get("share_pct", 0.0)) for s in sell_top[:3]), 1
-        )
 
         # Extract Buy block
         buy_src = raw_item.get("buy", raw_item.get("buy_depth", {}))
         raw_buy_ladder = buy_src.get("ladder", [])
         buy_ladder = []
-        total_buy_btc = 0.0
         for row in raw_buy_ladder:
             p = round(float(row.get("p", row.get("price", 0.0))), 3)
             q = int(row.get("q", row.get("quantity", 0)))
             m = round(p * q, 2)
-            total_buy_btc += m
             buy_ladder.append({"p": p, "q": q, "m": m})
 
-        buy_units = int(buy_src.get("total_units", raw_item.get("buy_total_units", 0)))
-        buy_pp = int(buy_src.get("total_pp", raw_item.get("buy_total_pp", buy_units * pp_per_unit)))
-        buy_money = round(
+        best_bid = buy_ladder[0]["p"] if buy_ladder else 0.0
+        best_ask = sell_ladder[0]["p"] if sell_ladder else 0.0
+
+        # Outlier thresholds: 2x+ for ask, 2x- for bid
+        s_ask_limit = (best_ask * 2.0) if best_ask > 0 else 0.0
+        b_bid_limit = (best_bid * 0.5) if best_bid > 0 else 0.0
+
+        reg_sell_units = int(
+            sell_src.get(
+                "total_units",
+                sum(
+                    r["q"]
+                    for r in sell_ladder
+                    if not (s_ask_limit > 0 and r["p"] >= s_ask_limit - 1e-9)
+                ),
+            )
+        )
+        sell_pp = int(sell_src.get("total_pp", reg_sell_units * pp_per_unit))
+        reg_sell_btc = round(
+            float(
+                sell_src.get(
+                    "total_value_btc",
+                    sum(
+                        r["m"]
+                        for r in sell_ladder
+                        if not (s_ask_limit > 0 and r["p"] >= s_ask_limit - 1e-9)
+                    ),
+                )
+            ),
+            2,
+        )
+
+        sell_top = sell_src.get("top_sellers", [])
+        sell_top3_share = round(
+            sum(float(s.get("share_pct", 0.0)) for s in sell_top[:3]), 1
+        )
+
+        reg_buy_units = int(
+            buy_src.get(
+                "total_units",
+                sum(
+                    r["q"]
+                    for r in buy_ladder
+                    if not (b_bid_limit > 0 and r["p"] < b_bid_limit - 1e-9)
+                ),
+            )
+        )
+        buy_pp = int(buy_src.get("total_pp", reg_buy_units * pp_per_unit))
+        reg_buy_money = round(
             float(
                 buy_src.get(
                     "total_money_btc",
-                    buy_src.get("total_money_invested", raw_item.get("buy_total_money", total_buy_btc)),
+                    buy_src.get(
+                        "total_money_invested",
+                        sum(
+                            r["m"]
+                            for r in buy_ladder
+                            if not (b_bid_limit > 0 and r["p"] < b_bid_limit - 1e-9)
+                        ),
+                    ),
                 )
             ),
             2,
@@ -449,8 +495,6 @@ class Storage:
             sum(float(b.get("share_pct", 0.0)) for b in buy_top[:3]), 1
         )
 
-        best_bid = buy_ladder[0]["p"] if buy_ladder else 0.0
-        best_ask = sell_ladder[0]["p"] if sell_ladder else 0.0
         spread_btc = (
             round(best_ask - best_bid, 3)
             if (best_bid > 0 and best_ask > 0)
@@ -469,17 +513,17 @@ class Storage:
             "spread_btc": spread_btc,
             "spread_pct": spread_pct,
             "buy": {
-                "total_units": buy_units,
+                "total_units": reg_buy_units,
                 "total_pp": buy_pp,
-                "total_money_btc": buy_money,
+                "total_money_btc": reg_buy_money,
                 "top3_share_pct": buy_top3_share,
                 "top_buyers": buy_top[:3],
                 "ladder": buy_ladder,
             },
             "sell": {
-                "total_units": sell_units,
+                "total_units": reg_sell_units,
                 "total_pp": sell_pp,
-                "total_value_btc": round(total_sell_btc, 2),
+                "total_value_btc": reg_sell_btc,
                 "top3_share_pct": sell_top3_share,
                 "top_sellers": sell_top[:3],
                 "ladder": sell_ladder,

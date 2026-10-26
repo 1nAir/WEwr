@@ -503,23 +503,43 @@ class OrderBookAnalyzer:
                 else 0.0
             )
 
+            # Normal (regular) book totals excluding 2x+ / 2x- outliers
+            s_ask_limit = (best_ask * 2.0) if best_ask > 0 else 0.0
+            b_bid_limit = (best_bid * 0.5) if best_bid > 0 else 0.0
+
+            reg_s_ladder = [
+                r for r in s_ladder
+                if not (s_ask_limit > 0 and r["p"] >= s_ask_limit - 1e-9)
+            ]
+            reg_s_units = sum(r["q"] for r in reg_s_ladder)
+            reg_s_pp = reg_s_units * pp_rate
+            reg_s_value_btc = round(sum(r["m"] for r in reg_s_ladder), 2)
+
+            reg_b_ladder = [
+                r for r in b_ladder
+                if not (b_bid_limit > 0 and r["p"] < b_bid_limit - 1e-9)
+            ]
+            reg_b_units = sum(r["q"] for r in reg_b_ladder)
+            reg_b_pp = reg_b_units * pp_rate
+            reg_b_money_btc = round(sum(r["m"] for r in reg_b_ladder), 2)
+
             snapshot[code] = {
                 "pp_per_unit": pp_rate,
                 "best_bid": best_bid,
                 "best_ask": best_ask,
                 "spread_btc": spread_btc,
                 "spread_pct": spread_pct,
-                "total_units": s_units,
-                "total_pp": s_pp,
+                "total_units": reg_s_units,
+                "total_pp": reg_s_pp,
                 "top_sellers": top_sellers,
                 "ladder": s_ladder,
-                "buy_total_units": b_units,
-                "buy_total_pp": b_pp,
-                "buy_total_money": b_money,
+                "buy_total_units": reg_b_units,
+                "buy_total_pp": reg_b_pp,
+                "buy_total_money": reg_b_money_btc,
                 "sell": {
-                    "total_units": s_units,
-                    "total_pp": s_pp,
-                    "total_value_btc": s_value_btc,
+                    "total_units": reg_s_units,
+                    "total_pp": reg_s_pp,
+                    "total_value_btc": reg_s_value_btc,
                     "top3_share_pct": round(
                         sum(x["share_pct"] for x in top_sellers[:3]), 1
                     ),
@@ -527,9 +547,9 @@ class OrderBookAnalyzer:
                     "ladder": s_ladder,
                 },
                 "buy": {
-                    "total_units": b_units,
-                    "total_pp": b_pp,
-                    "total_money_btc": b_money,
+                    "total_units": reg_b_units,
+                    "total_pp": reg_b_pp,
+                    "total_money_btc": reg_b_money_btc,
                     "top3_share_pct": round(
                         sum(x["share_pct"] for x in top_buyers[:3]), 1
                     ),
@@ -537,9 +557,9 @@ class OrderBookAnalyzer:
                     "ladder": b_ladder,
                 },
                 "buy_depth": {
-                    "total_units": b_units,
-                    "total_pp": b_pp,
-                    "total_money": b_money,
+                    "total_units": reg_b_units,
+                    "total_pp": reg_b_pp,
+                    "total_money": reg_b_money_btc,
                     "top_buyers": top_buyers,
                     "ladder": b_ladder,
                 },

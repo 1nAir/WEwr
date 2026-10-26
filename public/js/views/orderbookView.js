@@ -665,8 +665,20 @@ export class OrderBookView {
   }
 
   renderMobileSplitTBook(code, it) {
-    const buyLadder = (it.buy?.ladder || []).slice(0, 10);
-    const sellLadder = (it.sell?.ladder || []).slice(0, 10);
+    const bestBid = it.best_bid || 0;
+    const bestAsk = it.best_ask || 0;
+    const bidLimit = bestBid > 0 ? bestBid * 0.5 : 0;
+    const askLimit = bestAsk > 0 ? bestAsk * 2.0 : 0;
+
+    const normalBuy = (it.buy?.ladder || []).filter(
+      (r) => bidLimit === 0 || r.p >= bidLimit - 1e-9
+    );
+    const normalSell = (it.sell?.ladder || []).filter(
+      (r) => askLimit === 0 || r.p < askLimit - 1e-9
+    );
+
+    const buyLadder = normalBuy.slice(0, 10);
+    const sellLadder = normalSell.slice(0, 10);
     const maxRows = Math.max(buyLadder.length, sellLadder.length, 1);
 
     const totalBuyQty = buyLadder.reduce((s, r) => s + Number(r.q || 0), 0) || 1;
