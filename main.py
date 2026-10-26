@@ -85,7 +85,7 @@ def run_trades(client: TRPCClient) -> None:
 
 
 def run_leaderboards(client: TRPCClient) -> None:
-    """Builds pre-aggregated Top-10 leaderboards for live order book and historical trades."""
+    """Builds pre-aggregated Top-25 leaderboards for live order book and historical trades."""
     logger.info("--- Starting Market Leaderboards Generation ---")
     ob_snapshot, _ = Storage.load_latest_orderbook()
     daily_stats = Storage.load_daily_trader_stats()

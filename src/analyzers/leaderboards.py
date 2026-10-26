@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class MarketLeaderboardAnalyzer:
     """
-    Computes pre-aggregated Top-10 leaderboards across:
+    Computes pre-aggregated Top-25 leaderboards across:
     1. Live Order Book (Sell Depth & Buy Depth)
     2. Realized Trades across time windows (24h, 7d, 30d, all)
     3. Scopes: Global (PP > 0), Unmanufactured (0 PP: Cases & Scraps), and By-Item.
@@ -289,14 +289,14 @@ class MarketLeaderboardAnalyzer:
                 for metric in ("money", "pp"):
                     for eid, _ in sorted(
                         group.items(), key=lambda kv: kv[1][metric], reverse=True
-                    )[:12]:
+                    )[:25]:
                         entities_to_resolve.add(eid)
 
             for group in (unman_buyer_totals, unman_seller_totals):
                 for metric in ("money", "units"):
                     for eid, _ in sorted(
                         group.items(), key=lambda kv: kv[1][metric], reverse=True
-                    )[:12]:
+                    )[:25]:
                         entities_to_resolve.add(eid)
 
             for c_code in all_commodity_items:
@@ -307,7 +307,7 @@ class MarketLeaderboardAnalyzer:
                 ]
                 for eid, _ in sorted(
                     c_buyers, key=lambda kv: kv[1]["money"], reverse=True
-                )[:12]:
+                )[:25]:
                     entities_to_resolve.add(eid)
                 c_sellers = [
                     (eid, d["by_item"][c_code])
@@ -316,7 +316,7 @@ class MarketLeaderboardAnalyzer:
                 ]
                 for eid, _ in sorted(
                     c_sellers, key=lambda kv: kv[1]["money"], reverse=True
-                )[:12]:
+                )[:25]:
                     entities_to_resolve.add(eid)
 
         # Live Depth aggregation
@@ -511,7 +511,7 @@ class MarketLeaderboardAnalyzer:
                     )
                     for eid, pp_val in sorted(
                         depth_sellers_pp.items(), key=lambda kv: kv[1], reverse=True
-                    )[:10]
+                    )[:25]
                     if pp_val > 0
                 ],
                 "top_buyers_pp": [
@@ -526,7 +526,7 @@ class MarketLeaderboardAnalyzer:
                     )
                     for eid, m_val in sorted(
                         depth_buyers_all_money.items(), key=lambda kv: kv[1], reverse=True
-                    )[:10]
+                    )[:25]
                     if m_val > 0
                 ],
             },
@@ -541,16 +541,16 @@ class MarketLeaderboardAnalyzer:
 
             top_b_money = sorted(
                 all_buyers.items(), key=lambda kv: kv[1]["money"], reverse=True
-            )[:10]
+            )[:25]
             top_b_pp = sorted(
                 buyers.items(), key=lambda kv: kv[1]["pp"], reverse=True
-            )[:10]
+            )[:25]
             top_s_money = sorted(
                 all_sellers.items(), key=lambda kv: kv[1]["money"], reverse=True
-            )[:10]
+            )[:25]
             top_s_pp = sorted(
                 sellers.items(), key=lambda kv: kv[1]["pp"], reverse=True
-            )[:10]
+            )[:25]
 
             buyers_money_list = [
                 make_entry(
@@ -628,7 +628,7 @@ class MarketLeaderboardAnalyzer:
                     )
                     for eid, u_val in sorted(
                         unman_sellers_units.items(), key=lambda kv: kv[1], reverse=True
-                    )[:10]
+                    )[:25]
                     if u_val > 0
                 ],
                 "top_buyers_units": [
@@ -643,7 +643,7 @@ class MarketLeaderboardAnalyzer:
                     )
                     for eid, m_val in sorted(
                         unman_buyers_money.items(), key=lambda kv: kv[1], reverse=True
-                    )[:10]
+                    )[:25]
                     if m_val > 0
                 ],
             },
@@ -666,7 +666,7 @@ class MarketLeaderboardAnalyzer:
                 )
                 for eid, d in sorted(
                     unman_b.items(), key=lambda kv: kv[1]["money"], reverse=True
-                )[:10]
+                )[:25]
                 if d["money"] > 0
             ]
             unman_b_units = [
@@ -681,7 +681,7 @@ class MarketLeaderboardAnalyzer:
                 )
                 for eid, d in sorted(
                     unman_b.items(), key=lambda kv: kv[1]["units"], reverse=True
-                )[:10]
+                )[:25]
                 if d["units"] > 0
             ]
             unman_s_money = [
@@ -696,7 +696,7 @@ class MarketLeaderboardAnalyzer:
                 )
                 for eid, d in sorted(
                     unman_s.items(), key=lambda kv: kv[1]["money"], reverse=True
-                )[:10]
+                )[:25]
                 if d["money"] > 0
             ]
             unman_s_units = [
@@ -711,7 +711,7 @@ class MarketLeaderboardAnalyzer:
                 )
                 for eid, d in sorted(
                     unman_s.items(), key=lambda kv: kv[1]["units"], reverse=True
-                )[:10]
+                )[:25]
                 if d["units"] > 0
             ]
 
@@ -729,10 +729,10 @@ class MarketLeaderboardAnalyzer:
             it_depth = depth_snapshot.get(code, {})
             live_sellers = it_depth.get("sell", it_depth).get(
                 "top_sellers", it_depth.get("top_sellers", [])
-            )[:10]
+            )[:25]
             live_buyers = it_depth.get("buy", it_depth.get("buy_depth", {})).get(
                 "top_buyers", []
-            )[:10]
+            )[:25]
 
             item_trades_period = {}
             for p_key, p_data in period_aggregates.items():
@@ -762,7 +762,7 @@ class MarketLeaderboardAnalyzer:
                     )
                     for eid, d in sorted(
                         it_buyers, key=lambda kv: kv[1]["money"], reverse=True
-                    )[:10]
+                    )[:25]
                 ]
                 item_b_vol = [
                     make_entry(
@@ -776,7 +776,7 @@ class MarketLeaderboardAnalyzer:
                     )
                     for eid, d in sorted(
                         it_buyers, key=lambda kv: kv[1]["units"], reverse=True
-                    )[:10]
+                    )[:25]
                 ]
                 item_s_money = [
                     make_entry(
@@ -790,7 +790,7 @@ class MarketLeaderboardAnalyzer:
                     )
                     for eid, d in sorted(
                         it_sellers, key=lambda kv: kv[1]["money"], reverse=True
-                    )[:10]
+                    )[:25]
                 ]
                 item_s_vol = [
                     make_entry(
@@ -804,7 +804,7 @@ class MarketLeaderboardAnalyzer:
                     )
                     for eid, d in sorted(
                         it_sellers, key=lambda kv: kv[1]["units"], reverse=True
-                    )[:10]
+                    )[:25]
                 ]
 
                 item_trades_period[p_key] = {

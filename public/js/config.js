@@ -53,8 +53,8 @@ export const GUIDE_CONTENT = {
   leaderboards: `
     ${TEMP_NOTICE_BANNER}
     <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem">
-      <div><strong class="text-pp">Live Sell / Live Buy</strong> — Top-10 holders of active market orders right now.</div>
-      <div><strong class="text-btc">Top Buyers / Top Sellers (₿)</strong> — Top-10 traders by completed trade volume (₿) for the selected time window.</div>
+      <div><strong class="text-pp">Live Sell / Live Buy</strong> — Top-25 holders of active market orders right now.</div>
+      <div><strong class="text-btc">Top Buyers / Top Sellers (₿)</strong> — Top-25 traders by completed trade volume (₿) for the selected time window.</div>
     </div>
   `,
 };

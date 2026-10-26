@@ -11,7 +11,7 @@ import {
 import { renderEntityInline } from '../components/entityBadge.js';
 
 /**
- * View Module: Market Subtab 3 — Top-10 Market Leaderboards.
+ * View Module: Market Subtab 3 — Top-25 Market Leaderboards.
  * Supports:
  * - Scope: All Commodities (or Specific Commodity selected from the wrapped multi-row pill grid)
  * - 4 Ranking Metrics: Live Sell, Live Buy, Top Buyers (₿), Top Sellers (₿)
@@ -228,7 +228,7 @@ export class LeaderboardsView {
     }
 
     const rowsHtml = [];
-    list.slice(0, 10).forEach((entry, idx) => {
+    list.slice(0, 25).forEach((entry, idx) => {
       const rank = idx + 1;
       const rowKey = `${entry.id || idx}`;
       const isExpanded = this.expandedRows.has(rowKey);

@@ -10,11 +10,17 @@ from src.storage import Storage
 
 logger = logging.getLogger(__name__)
 
+# Participants kept per item in the raw snapshot (frontend order book still shows only Top-3).
+PER_ITEM_TOP_N = 25
+# Owners ranked in the global Top-N (by PP / by money) are always kept in every item they trade.
+GLOBAL_WHALES_N = 25
+
 
 class OrderBookAnalyzer:
     """
     Polls global market orders across countries, parties, military units, and active players.
-    Computes unified Sell & Buy Order Books, best Bid/Ask, spread, top-3 participants, and price ladders.
+    Computes unified Sell & Buy Order Books, best Bid/Ask, spread, top participants
+    (per-item Top-25 plus global whales), and price ladders.
     """
 
     def __init__(self, client: TRPCClient):
@@ -276,7 +282,8 @@ class OrderBookAnalyzer:
             }
         Storage.save_known_players(updated_known)
 
-        # Determine top-3 buyers and top-3 sellers per item to resolve metadata
+        # Aggregate FULL per-owner totals for every item first (no truncation here).
+        # Participant lists are trimmed afterwards, once global whales are known.
         top_user_ids_to_fetch: set[str] = set()
         item_Aggregates: dict[str, dict[str, Any]] = {}
 
@@ -296,11 +303,6 @@ class OrderBookAnalyzer:
                 s_ladder_map[p] += q
                 s_owner_totals[ok] += q
                 s_owner_prices[ok][p] += q
-
-            s_top3 = sorted(s_owner_totals.items(), key=lambda kv: kv[1], reverse=True)[:3]
-            for (ot, oid), _ in s_top3:
-                if ot == "user":
-                    top_user_ids_to_fetch.add(oid)
 
             # Buy Orders
             b_orders = buy_item_orders.get(code, [])
@@ -322,26 +324,65 @@ class OrderBookAnalyzer:
                 b_owner_totals[ok]["money"] += q * p
                 b_owner_prices[ok][p] += q
 
-            b_top3 = sorted(
-                b_owner_totals.items(),
-                key=lambda kv: (kv[1]["money"], kv[1]["units"]),
-                reverse=True,
-            )[:3]
-            for (ot, oid), _ in b_top3:
-                if ot == "user":
-                    top_user_ids_to_fetch.add(oid)
-
             item_Aggregates[code] = {
                 "s_total_units": s_total_units,
                 "s_ladder_map": s_ladder_map,
-                "s_top3": s_top3,
+                "s_owner_totals": s_owner_totals,
                 "s_owner_prices": s_owner_prices,
                 "b_total_units": b_total_units,
                 "b_total_money": round(b_total_money, 2),
                 "b_ladder_map": b_ladder_map,
-                "b_top3": b_top3,
+                "b_owner_totals": b_owner_totals,
                 "b_owner_prices": b_owner_prices,
             }
+
+        # Global "whales": owners that rank at the top across ALL items combined.
+        # A big player who is only #4-#20 in every single item would be lost by a pure
+        # per-item cut, so every whale is always kept (for every item they trade).
+        extra_items = set(config.MARKET_EXTRA_ITEMS)
+        g_sell_pp: dict[tuple[str, str], float] = defaultdict(float)
+        g_sell_extra_units: dict[tuple[str, str], int] = defaultdict(int)
+        g_buy_money: dict[tuple[str, str], float] = defaultdict(float)
+        g_buy_extra_money: dict[tuple[str, str], float] = defaultdict(float)
+
+        for code, agg in item_Aggregates.items():
+            pp_rate = config.ALL_ITEMS_PP.get(code, 0)
+            for ok, qty in agg["s_owner_totals"].items():
+                if pp_rate > 0:
+                    g_sell_pp[ok] += qty * pp_rate
+                if code in extra_items:
+                    g_sell_extra_units[ok] += qty
+            for ok, stat in agg["b_owner_totals"].items():
+                g_buy_money[ok] += stat["money"]
+                if code in extra_items:
+                    g_buy_extra_money[ok] += stat["money"]
+
+        def _top_owner_keys(totals: dict[tuple[str, str], Any]) -> set[tuple[str, str]]:
+            ranked = sorted(totals.items(), key=lambda kv: kv[1], reverse=True)
+            return {ok for ok, _ in ranked[:GLOBAL_WHALES_N]}
+
+        sell_whales = _top_owner_keys(g_sell_pp) | _top_owner_keys(g_sell_extra_units)
+        buy_whales = _top_owner_keys(g_buy_money) | _top_owner_keys(g_buy_extra_money)
+
+        # Per item: local Top-N plus any global whale present in that item (ranked order kept).
+        for agg in item_Aggregates.values():
+            s_ranked = sorted(
+                agg["s_owner_totals"].items(), key=lambda kv: kv[1], reverse=True
+            )
+            agg["s_top"] = s_ranked[:PER_ITEM_TOP_N] + [
+                kv for kv in s_ranked[PER_ITEM_TOP_N:] if kv[0] in sell_whales
+            ]
+            b_ranked = sorted(
+                agg["b_owner_totals"].items(),
+                key=lambda kv: (kv[1]["money"], kv[1]["units"]),
+                reverse=True,
+            )
+            agg["b_top"] = b_ranked[:PER_ITEM_TOP_N] + [
+                kv for kv in b_ranked[PER_ITEM_TOP_N:] if kv[0] in buy_whales
+            ]
+            for (ot, oid), _ in agg["s_top"] + agg["b_top"]:
+                if ot == "user":
+                    top_user_ids_to_fetch.add(oid)
 
         resolver = EntityResolver(self.client)
         resolver.cache.update(country_meta)
@@ -369,7 +410,7 @@ class OrderBookAnalyzer:
             s_value_btc = round(sum(r["m"] for r in s_ladder), 2)
 
             top_sellers = []
-            for (ot, oid), qty in agg["s_top3"]:
+            for (ot, oid), qty in agg["s_top"]:
                 meta = (
                     country_meta.get(oid)
                     if ot == "country"
@@ -413,7 +454,7 @@ class OrderBookAnalyzer:
             ]
 
             top_buyers = []
-            for (ot, oid), b_stat in agg["b_top3"]:
+            for (ot, oid), b_stat in agg["b_top"]:
                 meta = (
                     country_meta.get(oid)
                     if ot == "country"
@@ -480,7 +521,7 @@ class OrderBookAnalyzer:
                     "total_pp": s_pp,
                     "total_value_btc": s_value_btc,
                     "top3_share_pct": round(
-                        sum(x["share_pct"] for x in top_sellers), 1
+                        sum(x["share_pct"] for x in top_sellers[:3]), 1
                     ),
                     "top_sellers": top_sellers,
                     "ladder": s_ladder,
@@ -490,7 +531,7 @@ class OrderBookAnalyzer:
                     "total_pp": b_pp,
                     "total_money_btc": b_money,
                     "top3_share_pct": round(
-                        sum(x["share_pct"] for x in top_buyers), 1
+                        sum(x["share_pct"] for x in top_buyers[:3]), 1
                     ),
                     "top_buyers": top_buyers,
                     "ladder": b_ladder,
