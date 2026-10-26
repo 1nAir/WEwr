@@ -57,7 +57,20 @@ jobs:
         mkdir -p data_branch/data_store data_branch/public
         cp -f data_store/*.json data_branch/data_store/
         cp -rf public/* data_branch/public/
-        cp -f vercel.json data_branch/
+        cat << 'EOF' > data_branch/vercel.json
+        {
+          "outputDirectory": "public",
+          "git": {
+            "deploymentEnabled": false
+          },
+          "rewrites": [
+            {
+              "source": "/data/:file",
+              "destination": "https://raw.githubusercontent.com/1nAir/WEwr/data/public/data/:file"
+            }
+          ]
+        }
+        EOF
         cd data_branch
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
