@@ -430,18 +430,27 @@ export class HistoryChartWidget {
       startIdx = found >= 0 ? found : Math.max(0, rawLabels.length - 48);
     }
 
-    const slicedLabels = rawLabels.slice(startIdx).map((ts) => {
+    const slicedTimestamps = rawLabels.slice(startIdx);
+    const slicedLabels = slicedTimestamps.map((ts) => {
+      const d = new Date(ts * 1000);
+      const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+      if (pObj.hours > 0 && pObj.hours <= 24) {
+        return timeStr;
+      }
+      const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return `${dateStr}, ${timeStr}`;
+    });
+
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const formatTick = (val) => {
+      const ts = slicedTimestamps[val];
+      if (!ts) return '';
       const d = new Date(ts * 1000);
       if (pObj.hours > 0 && pObj.hours <= 24) {
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
       }
-      return d.toLocaleDateString([], {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    });
+      return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    };
 
     const datasets = [];
     for (const [code, seriesObj] of Object.entries(itemsMap)) {
@@ -479,6 +488,8 @@ export class HistoryChartWidget {
     if (this.chartInstance) {
       this.chartInstance.data.labels = slicedLabels;
       this.chartInstance.data.datasets = datasets;
+      this.chartInstance.options.scales.x.ticks.maxTicksLimit = isMobile ? 4 : 7;
+      this.chartInstance.options.scales.x.ticks.callback = (val) => formatTick(val);
       this.chartInstance.options.scales.y.ticks.callback = (v) => this.formatAxisVal(v);
       this.chartInstance.update('none');
       return;
@@ -533,8 +544,12 @@ export class HistoryChartWidget {
             grid: { color: 'rgba(255, 255, 255, 0.04)' },
             ticks: {
               color: '#64748b',
-              maxTicksLimit: 8,
+              maxRotation: 0,
+              minRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: isMobile ? 4 : 7,
               font: { family: 'JetBrains Mono', size: 10 },
+              callback: (val) => formatTick(val),
             },
           },
           y: {

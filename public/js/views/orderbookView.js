@@ -62,13 +62,11 @@ export class OrderBookView {
                 ${this.renderSortArrow('spread')}
               </th>
               <th class="sortable ${this.sortField === 'buy_btc' ? 'sorted' : ''}" data-sort="buy_btc" style="width:22%;text-align:right">
-                <span class="desktop-only">Buy Demand (₿)</span>
-                <span class="mobile-only">Buy (₿)</span>
+                Buy (₿)
                 ${this.renderSortArrow('buy_btc')}
               </th>
               <th class="sortable ${this.sortField === 'sell_pp' ? 'sorted' : ''}" data-sort="sell_pp" style="width:22%;text-align:right">
-                <span class="desktop-only">Sell Supply (PP)</span>
-                <span class="mobile-only">Sell (PP)</span>
+                Sell (PP)
                 ${this.renderSortArrow('sell_pp')}
               </th>
             </tr>
@@ -348,12 +346,12 @@ export class OrderBookView {
                   <span class="pp-badge">Spread: ${formatPct(it.spread_pct, 1)}</span>
                 </div>
                 <div class="drawer-meta-subtitle">
-                  Buy Demand: <span class="text-buy">${formatMoney(it.buy?.total_money_btc)} ₿</span> (${meta.pp > 0 ? `${formatInt(it.buy?.total_pp)} PP` : `${formatInt(it.buy?.total_units)} units`}) •
-                  Sell Supply: <span class="text-sell">${sellMainLabel}</span> (~${formatMoney(it.sell?.total_value_btc)} ₿)
+                  Buy: <span class="text-buy">${formatMoney(it.buy?.total_money_btc)} ₿</span> (${meta.pp > 0 ? `${formatInt(it.buy?.total_pp)} PP` : `${formatInt(it.buy?.total_units)} units`}) •
+                  Sell: <span class="text-sell">${sellMainLabel}</span> (~${formatMoney(it.sell?.total_value_btc)} ₿)
                 </div>
               </div>
 
-              <div class="sparkline-box" title="7-Day Order Book Depth Trend (Green: Buy Demand, Coral: Sell Supply)">
+              <div class="sparkline-box" title="7-Day Order Book Depth Trend (Green: Buy, Coral: Sell)">
                 <div class="sparkline-labels">
                   <span class="text-buy">Buy: ${formatCompact(it.buy?.total_money_btc)} ₿</span>
                   <span class="text-sell">Sell: ${sellCompactLabel}</span>
@@ -807,19 +805,19 @@ export class OrderBookView {
           metrics: [
             {
               key: 'liquidity_pct',
-              label: 'Liquidity Balance (%)',
+              label: 'Liquidity (%)',
               yFormatter: (v) => `${Math.round(Number(v))}%`,
               itemFormatter: (v) => `${Number(v).toFixed(1)}%`,
             },
             {
               key: 'buy_money_btc',
-              label: 'Buy Demand (₿)',
+              label: 'Buy (₿)',
               yFormatter: (v) => `${formatCompact(v)} ₿`,
               itemFormatter: (v) => `${formatCompact(v)} ₿`,
             },
             {
               key: 'sell_supply',
-              label: 'Sell Supply (PP / pcs)',
+              label: 'Sell (PP)',
               getSeries: (seriesObj, meta) =>
                 seriesObj.sell_supply ||
                 (meta.pp > 0 ? seriesObj.total_pp : seriesObj.total_units) ||
