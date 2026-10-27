@@ -423,20 +423,14 @@ class MarketTradesAnalyzer:
             }
 
         day_tx_map = daily_stats.setdefault("day_tx_counts", {})
-        # Accurately compute transaction counts for each day from day_item_profiles
+        # Accurately compute transaction counts for each calendar day from day_item_profiles
         for d, it_profiles in day_profiles_dict.items():
             profile_tx_count = sum(
                 int(t.get("count", 1))
                 for tiers in it_profiles.values()
                 for t in tiers.values()
             )
-            day_tx_map[d] = max(day_tx_map.get(d, 0), profile_tx_count)
-
-        today_key = now.strftime("%Y-%m-%d")
-        if new_trades:
-            day_tx_map[today_key] = max(
-                day_tx_map.get(today_key, 0), len(merged_raw_trades)
-            )
+            day_tx_map[d] = profile_tx_count
 
         # Use latest recorded day as reference when offline so 7d/30d windows remain anchored
         ref_dt = now
