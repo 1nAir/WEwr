@@ -51,19 +51,19 @@ export function renderTierPills(orders, maxTiers = 6) {
 
   // More than maxTiers: pick the top tiers by volume
   const sorted = [...orders].sort(
-    (a, b) => Number(b.quantity ?? b.q || 0) - Number(a.quantity ?? a.q || 0)
+    (a, b) => Number(b.quantity ?? b.q ?? 0) - Number(a.quantity ?? a.q ?? 0)
   );
   const top = sorted.slice(0, maxTiers);
   const rest = sorted.slice(maxTiers);
 
   // Sort top tiers by price ascending for consistent financial display
-  top.sort((a, b) => Number(a.price ?? a.p || 0) - Number(b.price ?? b.p || 0));
+  top.sort((a, b) => Number(a.price ?? a.p ?? 0) - Number(b.price ?? b.p ?? 0));
 
   let restUnits = 0;
   let restMoney = 0;
   for (const o of rest) {
-    const q = Number(o.quantity ?? o.q || 0);
-    const p = Number(o.price ?? o.p || 0);
+    const q = Number(o.quantity ?? o.q ?? 0);
+    const p = Number(o.price ?? o.p ?? 0);
     restUnits += q;
     restMoney += p * q;
   }
