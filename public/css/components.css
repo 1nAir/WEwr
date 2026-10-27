@@ -1169,6 +1169,7 @@
   position: relative;
   height: 320px;
   width: 100%;
+  min-width: 0;
 }
 
 /* Custom Non-Clipping Multi-Column Floating HTML Tooltip */

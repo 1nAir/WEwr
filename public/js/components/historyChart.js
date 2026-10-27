@@ -21,6 +21,36 @@ const CANONICAL_LINE_ORDER = [
  * - Mobile Touch Scrubbing Readout + Interactive Icon Chip Grid with Live Values
  *   sorted by Production Line, with a single Toggle All switch placed first.
  */
+/**
+ * Android Chrome can leave Chart.js canvases stuck at a tiny size after the tab is
+ * backgrounded and restored (ResizeObserver captures transient zero/partial layout).
+ * A single shared listener force-resizes every live chart when the page becomes visible.
+ */
+const liveChartWidgets = new Set();
+
+function resizeAllLiveCharts() {
+  for (const widget of liveChartWidgets) {
+    if (!widget.mountEl || !widget.mountEl.isConnected) {
+      liveChartWidgets.delete(widget);
+      continue;
+    }
+    if (widget.chartInstance) widget.chartInstance.resize();
+  }
+}
+
+function scheduleChartResize() {
+  requestAnimationFrame(resizeAllLiveCharts);
+  setTimeout(resizeAllLiveCharts, 300);
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') scheduleChartResize();
+  });
+  window.addEventListener('pageshow', scheduleChartResize);
+  window.addEventListener('orientationchange', scheduleChartResize);
+}
+
 export class HistoryChartWidget {
   constructor({
     mountEl,
@@ -52,6 +82,7 @@ export class HistoryChartWidget {
     this.activeHoverIndex = null;
     this.currentSlicedLabels = [];
     this.currentDatasets = [];
+    liveChartWidgets.add(this);
   }
 
   setData(historyData) {
