@@ -32,6 +32,7 @@ jobs:
       run: |
         mkdir -p data_store public/data
         cp -f data_branch/data_store/*.json data_store/ 2>/dev/null || true
+        rm -f data_store/player_meta_cache.json data_branch/data_store/player_meta_cache.json 2>/dev/null || true
 
     - name: Set up Python
       uses: actions/setup-python@v5

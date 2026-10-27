@@ -388,7 +388,7 @@ class OrderBookAnalyzer:
         resolver.cache.update(country_meta)
         resolver.cache.update(party_meta)
         resolver.cache.update(mu_meta)
-        resolver.resolve(top_user_ids_to_fetch, force_refresh_ids=top_user_ids_to_fetch)
+        resolver.resolve(top_user_ids_to_fetch)
 
         # Build final snapshot
         snapshot: dict[str, Any] = {}

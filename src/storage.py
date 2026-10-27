@@ -378,19 +378,11 @@ class Storage:
 
     @staticmethod
     def load_player_meta_cache() -> dict[str, dict[str, Any]]:
-        raw = Storage._read_json(config.PLAYER_META_CACHE_FILE)
-        if isinstance(raw, dict) and "entities" in raw:
-            return raw["entities"]
         return {}
 
     @staticmethod
     def save_player_meta_cache(entities: dict[str, dict[str, Any]]) -> None:
-        payload = {
-            "updated_at": int(datetime.now(timezone.utc).timestamp()),
-            "count": len(entities),
-            "entities": entities,
-        }
-        Storage._write_json(config.PLAYER_META_CACHE_FILE, payload)
+        pass
 
     # =========================================================================
     # 4. FRONTEND STATIC DATA SLICES BUILDER (public/data/*.json)
