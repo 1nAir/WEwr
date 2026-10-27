@@ -245,12 +245,7 @@ export class OrderBookView {
       const totalLiq = buyReceived75 + sellCost75;
       const buyRatioPct = totalLiq > 0 ? Math.round((buyReceived75 / totalLiq) * 100) : 50;
       const hasSpread = it.best_bid > 0 && it.best_ask > 0;
-      let spreadQualityClass = 'spread-normal';
-      if (it.spread_pct <= 3.0) {
-        spreadQualityClass = 'spread-tight';
-      } else if (it.spread_pct > 8.0) {
-        spreadQualityClass = 'spread-wide';
-      }
+      const spreadQualityClass = it.spread_pct > 5.0 ? 'spread-wide' : 'spread-normal';
 
       rowsHtml.push(`
         <tr class="item-row ${isExpanded ? 'expanded' : ''}" data-ob-row="${escapeHtml(code)}">
