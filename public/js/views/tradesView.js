@@ -10,7 +10,7 @@ import {
   renderItemName,
 } from '../utils/format.js';
 import { observeOnce } from '../utils/dom.js';
-import { renderEntityInline } from '../components/entityBadge.js';
+import { renderEntityInline, renderTierPills } from '../components/entityBadge.js';
 import { renderSparklineSvg } from '../components/sparkline.js';
 import { HistoryChartWidget } from '../components/historyChart.js';
 
@@ -279,12 +279,7 @@ export class TradesView {
       }
       return list
         .map((p, idx) => {
-          const tiers = (p.orders || [])
-            .map(
-              (o) =>
-                `<span class="order-lot-pill">${formatCompact(o.quantity ?? o.q)} @ ${formatPrice(o.price ?? o.p)} ₿</span>`
-            )
-            .join('');
+          const tiers = renderTierPills(p.orders, 6);
           const participantVol =
             meta.pp > 1
               ? `${formatInt(p.units * meta.pp)} PP (${formatInt(p.units)} pcs)`

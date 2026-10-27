@@ -9,7 +9,7 @@ import {
   renderItemName,
 } from '../utils/format.js';
 import { observeOnce } from '../utils/dom.js';
-import { renderEntityInline } from '../components/entityBadge.js';
+import { renderEntityInline, renderTierPills } from '../components/entityBadge.js';
 import { renderSparklineSvg } from '../components/sparkline.js';
 import { HistoryChartWidget } from '../components/historyChart.js';
 
@@ -171,11 +171,11 @@ export class OrderBookView {
 
   /**
    * Computes cumulative ₿ (Received for Buy book / Total Cost for Sell book)
-   * across regular price tiers until cumulative quantity crosses >= 85%
-   * of regular book units (Demand Cleared / Market Share >= 85%).
-   * The tier that crosses the 85% threshold is included in full.
+   * across regular price tiers until cumulative quantity crosses >= 75%
+   * of regular book units (Demand Cleared / Market Share >= 75%).
+   * The tier that crosses the 75% threshold is included in full.
    */
-  compute85DepthMoney(sideData, bestPrice, isBuy) {
+  compute75DepthMoney(sideData, bestPrice, isBuy) {
     const rawLadder = sideData?.ladder || [];
     if (!rawLadder.length) return 0;
 
@@ -196,7 +196,7 @@ export class OrderBookView {
     );
     if (regularTotalUnits <= 0) return 0;
 
-    const targetUnits = regularTotalUnits * 0.85;
+    const targetUnits = regularTotalUnits * 0.75;
     let runningCumQty = 0;
     let runningCumMoney = 0;
 
@@ -240,10 +240,17 @@ export class OrderBookView {
       const buyDisp = this.formatBuyDisplay(it.buy, meta.pp);
       const sellDisp = this.formatSellDisplay(it.sell, meta.pp);
 
-      const buyReceived85 = this.compute85DepthMoney(it.buy, it.best_bid, true);
-      const sellCost85 = this.compute85DepthMoney(it.sell, it.best_ask, false);
-      const totalLiq = buyReceived85 + sellCost85;
-      const buyRatioPct = totalLiq > 0 ? Math.round((buyReceived85 / totalLiq) * 100) : 50;
+      const buyReceived75 = this.compute75DepthMoney(it.buy, it.best_bid, true);
+      const sellCost75 = this.compute75DepthMoney(it.sell, it.best_ask, false);
+      const totalLiq = buyReceived75 + sellCost75;
+      const buyRatioPct = totalLiq > 0 ? Math.round((buyReceived75 / totalLiq) * 100) : 50;
+      const hasSpread = it.best_bid > 0 && it.best_ask > 0;
+      let spreadQualityClass = 'spread-normal';
+      if (it.spread_pct <= 3.0) {
+        spreadQualityClass = 'spread-tight';
+      } else if (it.spread_pct > 8.0) {
+        spreadQualityClass = 'spread-wide';
+      }
 
       rowsHtml.push(`
         <tr class="item-row ${isExpanded ? 'expanded' : ''}" data-ob-row="${escapeHtml(code)}">
@@ -255,7 +262,7 @@ export class OrderBookView {
                 <div class="item-name-line">
                   ${renderItemName(meta)}
                 </div>
-                <div class="liquidity-bar-track" style="margin-top:4px;max-width:120px" title="Liquidity Balance (≥85% Depth): ${buyRatioPct}% Buy (${formatCompact(buyReceived85)} ₿) / ${100 - buyRatioPct}% Sell (${formatCompact(sellCost85)} ₿)">
+                <div class="liquidity-bar-track" style="margin-top:4px;max-width:120px" title="Liquidity Balance (≥75% Depth): ${buyRatioPct}% Buy (${formatCompact(buyReceived75)} ₿) / ${100 - buyRatioPct}% Sell (${formatCompact(sellCost75)} ₿)">
                   <div class="liquidity-bar-buy" style="width:${buyRatioPct}%"></div>
                   <div class="liquidity-bar-sell"></div>
                 </div>
@@ -269,9 +276,11 @@ export class OrderBookView {
                 <span class="text-muted">↔</span>
                 <span class="text-sell" title="Best Ask (Lowest Sell Order)">${formatPrice(it.best_ask)}</span>
               </div>
-              <span class="spread-pill">
-                Spread: ${formatPrice(it.spread_btc)} ₿ (${formatPct(it.spread_pct, 1)})
-              </span>
+              ${hasSpread ? `
+                <span class="spread-pill ${spreadQualityClass}">
+                  ${formatPct(it.spread_pct, 1)} (${formatPrice(it.spread_btc)} ₿)
+                </span>
+              ` : ''}
             </div>
           </td>
           <td class="text-right">
@@ -444,12 +453,7 @@ export class OrderBookView {
     const top3Html = participants.length
       ? participants
           .map((p, idx) => {
-            const lots = (p.orders || [])
-              .map(
-                (o) =>
-                  `<span class="order-lot-pill">${formatCompact(o.q ?? o.quantity)} @ ${formatPrice(o.p ?? o.price)} ₿</span>`
-              )
-              .join('');
+            const lots = renderTierPills(p.orders, 6);
             const sellerUnits = Number(p.units ?? p.quantity ?? 0);
             const sellerPrimary =
               ppPerUnit > 0

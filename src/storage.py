@@ -129,7 +129,7 @@ class Storage:
         return None, None
 
     @staticmethod
-    def compute_85_depth_money(
+    def compute_75_depth_money(
         ladder: list[dict[str, Any]], best_price: float, is_buy: bool
     ) -> float:
         """
@@ -161,7 +161,7 @@ class Storage:
         if reg_total_units <= 0:
             return 0.0
 
-        target_units = reg_total_units * 0.85
+        target_units = reg_total_units * 0.75
         cum_qty = 0
         cum_money = 0.0
         for q, m in normal_tiers:
@@ -265,10 +265,10 @@ class Storage:
                     ),
                     2,
                 )
-            buy_85 = Storage.compute_85_depth_money(b_ladder, best_bid, is_buy=True)
-            sell_85 = Storage.compute_85_depth_money(s_ladder, best_ask, is_buy=False)
-            total_85 = buy_85 + sell_85
-            liq_pct = round((buy_85 / total_85) * 100, 1) if total_85 > 0 else 50.0
+            buy_75 = Storage.compute_75_depth_money(b_ladder, best_bid, is_buy=True)
+            sell_75 = Storage.compute_75_depth_money(s_ladder, best_ask, is_buy=False)
+            total_75 = buy_75 + sell_75
+            liq_pct = round((buy_75 / total_75) * 100, 1) if total_75 > 0 else 50.0
             sell_supply = s_pp if pp_rate > 0 else s_units
 
             item_hist["liquidity_pct"].append(liq_pct)
@@ -674,10 +674,10 @@ class Storage:
 
             b_lad = norm_it.get("buy", {}).get("ladder", [])
             s_lad = norm_it.get("sell", {}).get("ladder", [])
-            buy_85 = Storage.compute_85_depth_money(b_lad, float(norm_it.get("best_bid", 0.0)), True)
-            sell_85 = Storage.compute_85_depth_money(s_lad, float(norm_it.get("best_ask", 0.0)), False)
-            tot_85 = buy_85 + sell_85
-            cur_liq_pct = round((buy_85 / tot_85) * 100, 1) if tot_85 > 0 else 50.0
+            buy_75 = Storage.compute_75_depth_money(b_lad, float(norm_it.get("best_bid", 0.0)), True)
+            sell_75 = Storage.compute_75_depth_money(s_lad, float(norm_it.get("best_ask", 0.0)), False)
+            tot_75 = buy_75 + sell_75
+            cur_liq_pct = round((buy_75 / tot_75) * 100, 1) if tot_75 > 0 else 50.0
             if "liquidity_pct" not in it_hist or len(it_hist["liquidity_pct"]) < hist_len:
                 existing_lq = list(it_hist.get("liquidity_pct") or [])
                 while len(existing_lq) < hist_len:

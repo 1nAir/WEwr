@@ -286,13 +286,25 @@
 .spread-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   font-family: var(--font-mono);
   font-size: 0.68rem;
-  padding: 1px 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.04);
+  font-weight: 500;
+  white-space: nowrap;
   color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.spread-pill.spread-tight {
+  color: #34d399;
+}
+
+.spread-pill.spread-normal {
+  color: var(--text-muted);
+}
+
+.spread-pill.spread-wide {
+  color: #fbbf24;
 }
 
 /* Dual Liquidity Ratio Bar */
@@ -668,11 +680,7 @@
 .entity-type-tag.type-party { color: #a78bfa; background: rgba(167, 139, 250, 0.12); }
 .entity-type-tag.type-user { color: #34d399; background: rgba(52, 211, 153, 0.12); }
 
-.order-pills-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
+
 
 .order-lot-pill {
   font-family: var(--font-mono);
@@ -682,6 +690,22 @@
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-secondary);
   border: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.order-lot-pill.order-lot-pill-other {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+}
+
+.order-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 120px;
+  overflow-y: auto;
 }
 
 /* Price Ladder Table & Inline Buyout / Sellout Simulator */

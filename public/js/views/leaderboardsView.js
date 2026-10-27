@@ -8,7 +8,7 @@ import {
   escapeHtml,
   renderItemName,
 } from '../utils/format.js';
-import { renderEntityInline } from '../components/entityBadge.js';
+import { renderEntityInline, renderTierPills } from '../components/entityBadge.js';
 
 /**
  * View Module: Market Subtab 3 — Top-25 Market Leaderboards.
@@ -281,12 +281,7 @@ export class LeaderboardsView {
       .map((b) => {
         const code = b.item;
         const meta = store.getItemMeta(code);
-        const ordersHtml = (b.orders || [])
-          .map(
-            (o) =>
-              `<span class="order-lot-pill">${formatCompact(o.quantity ?? o.q)} @ ${formatPrice(o.price ?? o.p)} ₿</span>`
-          )
-          .join('');
+        const ordersHtml = renderTierPills(b.orders, 6);
 
         const itemPp =
           b.pp > 0 ? b.pp : meta.pp > 0 ? (Number(b.units) || 0) * meta.pp : 0;
