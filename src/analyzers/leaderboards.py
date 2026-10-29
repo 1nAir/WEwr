@@ -131,6 +131,22 @@ class MarketLeaderboardAnalyzer:
             "all": available_days,
         }
 
+        periods_info: dict[str, Any] = {}
+        for p_key, valid_dates in periods.items():
+            valid_set = set(valid_dates)
+            matched_days = sorted([d for d in available_days if d in valid_set])
+            target_days = 1 if p_key == "24h" else (7 if p_key == "7d" else (30 if p_key == "30d" else len(available_days)))
+            actual_cnt = 1 if p_key == "24h" else len(matched_days)
+            start_d = today_str if p_key == "24h" else (matched_days[0] if matched_days else today_str)
+            end_d = today_str if p_key == "24h" else (matched_days[-1] if matched_days else today_str)
+            periods_info[p_key] = {
+                "days_count": actual_cnt,
+                "target_days": target_days,
+                "start_date": start_d,
+                "end_date": end_d,
+                "is_partial": actual_cnt < target_days if p_key not in ("24h", "all") else False,
+            }
+
         period_aggregates: dict[str, dict[str, Any]] = {}
         entities_to_resolve: set[str] = set()
 
@@ -904,6 +920,7 @@ class MarketLeaderboardAnalyzer:
 
         return {
             "timestamp": int(now.timestamp()),
+            "periods_info": periods_info,
             "by_item": by_item_leaderboards,
             "global_pp": global_pp_leaderboards,
             "unmanufactured": unman_leaderboards,

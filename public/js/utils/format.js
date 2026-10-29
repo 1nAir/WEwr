@@ -88,4 +88,25 @@ export function renderItemName(meta) {
   return `<span class="item-name-full">${full}</span><span class="item-name-short">${short}</span>`;
 }
 
+export function formatDateShort(dateStr) {
+  if (!dateStr) return '';
+  const parts = String(dateStr).split('-');
+  if (parts.length < 3) return dateStr;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const m = parseInt(parts[1], 10) - 1;
+  const d = parseInt(parts[2], 10);
+  return `${months[m] || parts[1]} ${d}`;
+}
 
+export function formatDateRange(startStr, endStr) {
+  if (!startStr || !endStr) return '';
+  if (startStr === endStr) return formatDateShort(startStr);
+  const s = formatDateShort(startStr);
+  const e = formatDateShort(endStr);
+  const sParts = s.split(' ');
+  const eParts = e.split(' ');
+  if (sParts[0] === eParts[0]) {
+    return `${sParts[0]} ${sParts[1]}–${eParts[1]}`;
+  }
+  return `${s}–${e}`;
+}

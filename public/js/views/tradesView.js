@@ -8,6 +8,8 @@ import {
   formatIsoShort,
   escapeHtml,
   renderItemName,
+  formatDateRange,
+  formatDateShort,
 } from '../utils/format.js';
 import { observeOnce } from '../utils/dom.js';
 import { renderEntityInline, renderTierPills } from '../components/entityBadge.js';
@@ -98,9 +100,10 @@ export class TradesView {
 
       <!-- Time Window Toolbar -->
       <div class="section-toolbar">
-        <div class="filter-pills">
+        <div class="filter-pills" style="align-items:center;flex-wrap:wrap">
           <span class="text-muted mono" style="font-size:0.72rem;padding:0 6px">WINDOW:</span>
           ${windowBtnsHtml}
+          ${this.renderPeriodBadge(this.activeWindow)}
         </div>
       </div>
 
@@ -142,6 +145,39 @@ export class TradesView {
   renderSortArrow(field) {
     if (this.sortField !== field) return '';
     return `<span class="sort-arrow">${this.sortDesc ? '↓' : '↑'}</span>`;
+  }
+
+  renderPeriodBadge(windowKey) {
+    if (windowKey === '24h') return '';
+    const periods = (this.data && this.data.periods) || {};
+    const block = periods[windowKey] || {};
+    const count = block.days_count || 0;
+    const target = block.target_days || 0;
+    const isPartial = Boolean(block.is_partial);
+    const rangeText = formatDateRange(block.start_date, block.end_date);
+    const tooltip = `Data available: ${block.start_date || ''} to ${block.end_date || ''} (${count} day${count === 1 ? '' : 's'})`;
+
+    if (windowKey === 'all') {
+      return `
+        <span class="period-badge" title="${escapeHtml(tooltip)}">
+          ${count}d total<span class="desktop-only">${rangeText ? ` (${rangeText})` : ''}</span>
+        </span>
+      `;
+    }
+
+    if (isPartial) {
+      return `
+        <span class="period-badge badge-warning" title="${escapeHtml(tooltip)}">
+          ⚠️ ${count}d / ${target}d<span class="desktop-only">${rangeText ? ` (${rangeText})` : ''}</span>
+        </span>
+      `;
+    }
+
+    return `
+      <span class="period-badge" title="${escapeHtml(tooltip)}">
+        ${target}d<span class="desktop-only">${rangeText ? ` (${rangeText})` : ''}</span>
+      </span>
+    `;
   }
 
   renderTableRows() {

@@ -7,6 +7,8 @@ import {
   formatPct,
   escapeHtml,
   renderItemName,
+  formatDateRange,
+  formatDateShort,
 } from '../utils/format.js';
 import { renderEntityInline, renderTierPills } from '../components/entityBadge.js';
 
@@ -33,6 +35,40 @@ export class LeaderboardsView {
     await store.ensureMeta(forceRefresh);
     this.data = await store.fetchSlice('leaderboards.json', forceRefresh);
     this.render();
+  }
+
+  renderPeriodBadge(windowKey) {
+    if (windowKey === '24h') return '';
+    const info = (this.data && this.data.periods_info && this.data.periods_info[windowKey]) || null;
+    if (!info) return '';
+
+    const count = info.days_count || 0;
+    const target = info.target_days || 0;
+    const isPartial = Boolean(info.is_partial);
+    const rangeText = formatDateRange(info.start_date, info.end_date);
+    const tooltip = `Data available: ${info.start_date || ''} to ${info.end_date || ''} (${count} day${count === 1 ? '' : 's'})`;
+
+    if (windowKey === 'all') {
+      return `
+        <span class="period-badge" title="${escapeHtml(tooltip)}">
+          ${count}d total<span class="desktop-only">${rangeText ? ` (${rangeText})` : ''}</span>
+        </span>
+      `;
+    }
+
+    if (isPartial) {
+      return `
+        <span class="period-badge badge-warning" title="${escapeHtml(tooltip)}">
+          ⚠️ ${count}d / ${target}d<span class="desktop-only">${rangeText ? ` (${rangeText})` : ''}</span>
+        </span>
+      `;
+    }
+
+    return `
+      <span class="period-badge" title="${escapeHtml(tooltip)}">
+        ${target}d<span class="desktop-only">${rangeText ? ` (${rangeText})` : ''}</span>
+      </span>
+    `;
   }
 
   isTradesMetric() {
@@ -171,11 +207,12 @@ export class LeaderboardsView {
           ${
             this.isTradesMetric()
               ? `
-              <div class="filter-pills">
+              <div class="filter-pills" style="align-items:center;gap:6px">
                 <button type="button" class="filter-pill ${this.window === '24h' ? 'active' : ''}" data-lb-window="24h">24H</button>
                 <button type="button" class="filter-pill ${this.window === '7d' ? 'active' : ''}" data-lb-window="7d">7D</button>
                 <button type="button" class="filter-pill ${this.window === '30d' ? 'active' : ''}" data-lb-window="30d">30D</button>
                 <button type="button" class="filter-pill ${this.window === 'all' ? 'active' : ''}" data-lb-window="all">All Time</button>
+                ${this.renderPeriodBadge(this.window)}
               </div>`
               : ''
           }

@@ -471,6 +471,11 @@ class MarketTradesAnalyzer:
                     "total_market_pp": total_market_pp,
                     "total_market_units": total_market_units,
                     "total_market_tx": len(merged_raw_trades),
+                    "days_count": 1,
+                    "target_days": 1,
+                    "start_date": now.strftime("%Y-%m-%d"),
+                    "end_date": now.strftime("%Y-%m-%d"),
+                    "is_partial": False,
                     "items": items_summary,
                 }
             else:
@@ -709,11 +714,18 @@ class MarketTradesAnalyzer:
                         "recent_trades": base_item.get("recent_trades", []),
                     }
 
+                target = days_count if p_key != "all" else len(days_dict.keys())
+                actual_cnt = len(matching_days)
                 periods_summary[p_key] = {
                     "total_market_money": round(p_market_money, 2),
                     "total_market_pp": p_market_pp,
                     "total_market_units": p_market_units,
                     "total_market_tx": p_market_tx,
+                    "days_count": actual_cnt,
+                    "target_days": target,
+                    "start_date": matching_days[0] if matching_days else now.strftime("%Y-%m-%d"),
+                    "end_date": matching_days[-1] if matching_days else now.strftime("%Y-%m-%d"),
+                    "is_partial": actual_cnt < target if p_key not in ("24h", "all") else False,
                     "items": p_items_formatted,
                 }
 
