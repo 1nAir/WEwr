@@ -31,8 +31,9 @@ class EntityResolver:
         entity_set = {eid for eid in entity_ids if eid}
         force_set = {eid for eid in (force_refresh_ids or []) if eid}
 
-        # 1. Refresh countries once per process run
+        # 1. Refresh organizations (countries, parties, MUs) once per process run
         if not EntityResolver._countries_loaded:
+            # 1a. Countries
             c_res = self.client.call("country.getAllCountries", {}, raise_on_error=False)
             countries_data = (
                 c_res.get("result", {}).get("data", []) if isinstance(c_res, dict) else []
@@ -50,6 +51,55 @@ class EntityResolver:
                         "profile_url": f"https://app.warera.io/country/{cid}",
                         "updated_at": now_ts,
                     }
+
+            # 1b. Parties
+            p_cursor = None
+            while True:
+                p_params: dict[str, Any] = {"limit": 100}
+                if p_cursor:
+                    p_params["cursor"] = p_cursor
+                p_res = self.client.call("party.getManyPaginated", p_params, raise_on_error=False)
+                p_data = p_res.get("result", {}).get("data", {}) if isinstance(p_res, dict) else {}
+                p_items = p_data.get("items", [])
+                for p in p_items:
+                    pid = p.get("_id")
+                    if pid:
+                        self.cache[pid] = {
+                            "id": pid,
+                            "name": p.get("name", "Party"),
+                            "type": "party",
+                            "avatar_url": p.get("avatarUrl"),
+                            "profile_url": f"https://app.warera.io/party/{pid}",
+                            "updated_at": now_ts,
+                        }
+                p_cursor = p_data.get("nextCursor")
+                if not p_cursor or not p_items:
+                    break
+
+            # 1c. Military Units (MUs)
+            m_cursor = None
+            while True:
+                m_params: dict[str, Any] = {"limit": 100}
+                if m_cursor:
+                    m_params["cursor"] = m_cursor
+                m_res = self.client.call("mu.getManyPaginated", m_params, raise_on_error=False)
+                m_data = m_res.get("result", {}).get("data", {}) if isinstance(m_res, dict) else {}
+                m_items = m_data.get("items", [])
+                for m in m_items:
+                    mid = m.get("_id")
+                    if mid:
+                        self.cache[mid] = {
+                            "id": mid,
+                            "name": m.get("name", "Military Unit"),
+                            "type": "mu",
+                            "avatar_url": m.get("avatarUrl"),
+                            "profile_url": f"https://app.warera.io/mu/{mid}",
+                            "updated_at": now_ts,
+                        }
+                m_cursor = m_data.get("nextCursor")
+                if not m_cursor or not m_items:
+                    break
+
             EntityResolver._countries_loaded = True
 
         # 2. Identify user IDs needing resolution

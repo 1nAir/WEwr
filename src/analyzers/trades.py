@@ -17,6 +17,24 @@ class MarketTradesAnalyzer:
     24h/7d/30d/all multi-window summaries, POC Volume Profiles, and hourly history.
     """
 
+    @staticmethod
+    def get_trade_buyer_id(tx: dict[str, Any]) -> str | None:
+        return (
+            tx.get("buyerCountryId")
+            or tx.get("buyerPartyId")
+            or tx.get("buyerMuId")
+            or tx.get("buyerId")
+        )
+
+    @staticmethod
+    def get_trade_seller_id(tx: dict[str, Any]) -> str | None:
+        return (
+            tx.get("sellerCountryId")
+            or tx.get("sellerPartyId")
+            or tx.get("sellerMuId")
+            or tx.get("sellerId")
+        )
+
     def __init__(self, client: TRPCClient):
         self.client = client
 
@@ -136,8 +154,8 @@ class MarketTradesAnalyzer:
             )
             day_entry = days_dict.setdefault(day_key, {})
 
-            buyer_id = tx.get("buyerId")
-            seller_id = tx.get("sellerId")
+            buyer_id = self.get_trade_buyer_id(tx)
+            seller_id = self.get_trade_seller_id(tx)
             item_code = tx.get("itemCode")
             qty = int(tx.get("quantity", 0))
             money = round(float(tx.get("money", 0.0)), 4)
@@ -224,8 +242,8 @@ class MarketTradesAnalyzer:
             item_seller_money = defaultdict(float)
 
             for t in trades:
-                bid = t.get("buyerId")
-                sid = t.get("sellerId")
+                bid = self.get_trade_buyer_id(t)
+                sid = self.get_trade_seller_id(t)
                 qty = int(t.get("quantity", 0))
                 mny = float(t.get("money", 0.0))
                 unit_p = round(mny / qty, 3) if qty > 0 else 0.0
@@ -257,10 +275,12 @@ class MarketTradesAnalyzer:
 
             # Also resolve recent 15 trades participants
             for t in trades[:15]:
-                if t.get("buyerId"):
-                    active_top_entities.add(t["buyerId"])
-                if t.get("sellerId"):
-                    active_top_entities.add(t["sellerId"])
+                t_bid = self.get_trade_buyer_id(t)
+                t_sid = self.get_trade_seller_id(t)
+                if t_bid:
+                    active_top_entities.add(t_bid)
+                if t_sid:
+                    active_top_entities.add(t_sid)
 
         resolver = EntityResolver(self.client)
         resolver.resolve(active_top_entities)
@@ -386,8 +406,8 @@ class MarketTradesAnalyzer:
                         "price": unit_p,
                         "quantity": qty,
                         "money": mny,
-                        "buyer": resolver.get_info(t.get("buyerId", "")),
-                        "seller": resolver.get_info(t.get("sellerId", "")),
+                        "buyer": resolver.get_info(self.get_trade_buyer_id(t) or ""),
+                        "seller": resolver.get_info(self.get_trade_seller_id(t) or ""),
                     }
                 )
 

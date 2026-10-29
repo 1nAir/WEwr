@@ -25,6 +25,15 @@ class DataStore {
   }
 
   /**
+   * Clears the in-memory JSON cache so subsequent tab views fetch fresh data slices.
+   */
+  clearCache() {
+    this.cache.clear();
+    this.inflight.clear();
+    this.meta = null;
+  }
+
+  /**
    * Fetches a JSON slice from GitHub `data` branch (or local `data/<filename>` on localhost).
    * @param {string} filename - e.g. 'meta.json', 'profitability.json'
    * @param {boolean} forceRefresh - bypasses memory & browser cache

@@ -53,7 +53,7 @@ export class OrderBookView {
         <table class="terminal-table">
           <thead>
             <tr>
-              <th class="sortable ${this.sortField === 'name' ? 'sorted' : ''}" data-sort="name" style="width:28%;text-align:left">
+              <th class="sortable ${this.sortField === 'name' ? 'sorted' : ''}" data-sort="name" style="width:28%;text-align:left" title="Sort by 75% Depth Liquidity (₿)">
                 Product ${this.renderSortArrow('name')}
               </th>
               <th class="sortable ${this.sortField === 'spread' ? 'sorted' : ''}" data-sort="spread" style="width:28%;text-align:right">
@@ -141,7 +141,14 @@ export class OrderBookView {
       let cmp = 0;
 
       if (this.sortField === 'name') {
-        cmp = metaA.name.localeCompare(metaB.name);
+        const liqA = this.compute75DepthMoney(itA.buy, itA.best_bid, true) +
+                     this.compute75DepthMoney(itA.sell, itA.best_ask, false);
+        const liqB = this.compute75DepthMoney(itB.buy, itB.best_bid, true) +
+                     this.compute75DepthMoney(itB.sell, itB.best_ask, false);
+        cmp = liqA - liqB;
+        if (cmp === 0) {
+          cmp = (metaA?.name || a).localeCompare(metaB?.name || b);
+        }
       } else if (this.sortField === 'spread') {
         cmp = (Number(itA.spread_pct) || 0) - (Number(itB.spread_pct) || 0);
       } else if (this.sortField === 'buy_btc') {
@@ -729,7 +736,7 @@ export class OrderBookView {
           this.sortDesc = !this.sortDesc;
         } else {
           this.sortField = field;
-          this.sortDesc = field !== 'name';
+          this.sortDesc = true;
         }
         this.render();
       });

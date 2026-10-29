@@ -41,8 +41,18 @@ class MarketLeaderboardAnalyzer:
         trade_seller_orders = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         if raw_trades:
             for t in raw_trades:
-                bid = t.get("buyerId")
-                sid = t.get("sellerId")
+                bid = (
+                    t.get("buyerCountryId")
+                    or t.get("buyerPartyId")
+                    or t.get("buyerMuId")
+                    or t.get("buyerId")
+                )
+                sid = (
+                    t.get("sellerCountryId")
+                    or t.get("sellerPartyId")
+                    or t.get("sellerMuId")
+                    or t.get("sellerId")
+                )
                 code = t.get("itemCode")
                 qty = int(t.get("quantity", 0))
                 mny = float(t.get("money", 0.0))
@@ -155,8 +165,18 @@ class MarketLeaderboardAnalyzer:
 
             if period_key == "24h" and raw_trades:
                 for t in raw_trades:
-                    bid = t.get("buyerId")
-                    sid = t.get("sellerId")
+                    bid = (
+                        t.get("buyerCountryId")
+                        or t.get("buyerPartyId")
+                        or t.get("buyerMuId")
+                        or t.get("buyerId")
+                    )
+                    sid = (
+                        t.get("sellerCountryId")
+                        or t.get("sellerPartyId")
+                        or t.get("sellerMuId")
+                        or t.get("sellerId")
+                    )
                     it = t.get("itemCode")
                     qty = int(t.get("quantity", 0))
                     mny = float(t.get("money", 0.0))

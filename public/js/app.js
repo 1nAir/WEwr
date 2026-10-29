@@ -155,6 +155,8 @@ class WealthrateApp {
       refreshBtn.addEventListener('click', async () => {
         refreshBtn.classList.add('spinning');
         try {
+          store.clearCache();
+          this.loadedViews.clear();
           await store.ensureMeta(true);
           await this.handleRouteChange(true);
         } finally {
