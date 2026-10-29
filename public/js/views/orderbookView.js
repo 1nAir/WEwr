@@ -53,13 +53,11 @@ export class OrderBookView {
         <table class="terminal-table">
           <thead>
             <tr>
-              <th class="sortable ${this.sortField === 'name' ? 'sorted' : ''}" data-sort="name" style="width:28%;text-align:left" title="Sort by 75% Depth Liquidity (%)">
+              <th class="sortable ${this.sortField === 'name' ? 'sorted' : ''}" data-sort="name" style="width:32%;text-align:left" title="Sort by 75% Depth Liquidity (%)">
                 Product ${this.renderSortArrow('name')}
               </th>
-              <th class="sortable ${this.sortField === 'spread' ? 'sorted' : ''}" data-sort="spread" style="width:28%;text-align:right">
-                <span class="desktop-only">Best Bid / Ask</span>
-                <span class="mobile-only">Bid / Ask</span>
-                ${this.renderSortArrow('spread')}
+              <th class="sortable ${this.sortField === 'spread' ? 'sorted' : ''}" data-sort="spread" style="width:24%;text-align:right" title="Sort by Spread (%)">
+                Spread ${this.renderSortArrow('spread')}
               </th>
               <th class="sortable ${this.sortField === 'buy_btc' ? 'sorted' : ''}" data-sort="buy_btc" style="width:22%;text-align:right">
                 Buy (₿)
@@ -270,29 +268,31 @@ export class OrderBookView {
                 <div class="item-name-line">
                   ${renderItemName(meta)}
                 </div>
-                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:4px;">
-                  <div class="liquidity-bar-track" style="width:80px;flex-shrink:0" title="Liquidity Balance (≥75% Depth): ${buyRatioPct}% Buy (${formatCompact(buyReceived75)} ₿) / ${100 - buyRatioPct}% Sell (${formatCompact(sellCost75)} ₿)">
+                <div class="liquidity-group">
+                  <div class="liquidity-bar-track" title="Liquidity Balance (≥75% Depth): ${buyRatioPct}% Buy (${formatCompact(buyReceived75)} ₿) / ${100 - buyRatioPct}% Sell (${formatCompact(sellCost75)} ₿)">
                     <div class="liquidity-bar-buy" style="width:${buyRatioPct}%"></div>
                     <div class="liquidity-bar-sell"></div>
                   </div>
-                  <span class="mono text-xs ${buyRatioPct >= 50 ? 'text-buy' : 'text-sell'}" style="font-size:0.7rem;font-weight:600" title="Liquidity Balance">${buyRatioPct}%</span>
+                  <span class="liquidity-pct ${buyRatioPct >= 50 ? 'text-buy' : 'text-sell'}" title="Liquidity Balance">${buyRatioPct}%</span>
                 </div>
               </div>
             </div>
           </td>
           <td class="text-right">
-            <div class="bid-ask-group">
-              <div class="bid-ask-line">
-                <span class="text-buy" title="Best Bid (Highest Buy Order)">${formatPrice(it.best_bid)}</span>
+            ${hasSpread ? `
+              <span class="metric-primary ${spreadQualityClass}" title="Spread: ${formatPct(it.spread_pct, 1)} (${formatPrice(it.spread_btc)} ₿)">
+                ${formatPct(it.spread_pct, 1)}
+                <span class="desktop-only text-muted mono" style="font-size:0.7rem;font-weight:normal">(${formatPrice(it.spread_btc)} ₿)</span>
+              </span>
+              <span class="metric-sub mono" title="Best Bid: ${formatPrice(it.best_bid)} ₿ / Best Ask: ${formatPrice(it.best_ask)} ₿">
+                <span class="text-buy">${formatPrice(it.best_bid)}</span>
                 <span class="text-muted">↔</span>
-                <span class="text-sell" title="Best Ask (Lowest Sell Order)">${formatPrice(it.best_ask)}</span>
-              </div>
-              ${hasSpread ? `
-                <span class="spread-pill ${spreadQualityClass}">
-                  ${formatPct(it.spread_pct, 1)} (${formatPrice(it.spread_btc)} ₿)
-                </span>
-              ` : ''}
-            </div>
+                <span class="text-sell">${formatPrice(it.best_ask)}</span>
+              </span>
+            ` : `
+              <span class="metric-primary text-muted">—</span>
+              <span class="metric-sub text-muted">—</span>
+            `}
           </td>
           <td class="text-right">
             <span class="metric-primary text-buy">${escapeHtml(buyDisp.main)}</span>

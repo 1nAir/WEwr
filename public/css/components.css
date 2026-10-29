@@ -316,11 +316,17 @@
   line-height: 1.2;
 }
 
-.spread-pill.spread-normal {
+.spread-pill.spread-normal,
+.spread-normal {
   color: var(--text-muted);
 }
 
-.spread-pill.spread-wide {
+.metric-primary.spread-normal {
+  color: var(--text-primary);
+}
+
+.spread-pill.spread-wide,
+.spread-wide {
   color: #fbbf24;
 }
 
@@ -347,9 +353,23 @@
   display: flex;
 }
 
+.product-cell .liquidity-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+}
+
 .product-cell .liquidity-bar-track {
-  width: 84px;
+  width: 64px;
   max-width: 100%;
+}
+
+.product-cell .liquidity-pct {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .liquidity-bar-buy {
@@ -1384,7 +1404,11 @@
   }
 
   .product-cell .liquidity-bar-track {
-    width: 56px;
+    width: 44px;
+  }
+
+  .product-cell .liquidity-pct {
+    font-size: 0.62rem;
   }
 
   .depth-buyout-stat-val {
