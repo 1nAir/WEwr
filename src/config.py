@@ -41,7 +41,7 @@ API_KEYS = [
         os.environ.get("WEALTHRATE3"),
     ]
     if key
-] or ["wae_21b882af32dd75eacfbe29303a5175ccfe961cfbb119641b7a6360e65cbad1e5"]
+]
 
 # --- History Retention ---
 MAX_HISTORY_POINTS = 12288

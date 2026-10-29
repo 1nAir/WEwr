@@ -53,7 +53,7 @@ export class OrderBookView {
         <table class="terminal-table">
           <thead>
             <tr>
-              <th class="sortable ${this.sortField === 'name' ? 'sorted' : ''}" data-sort="name" style="width:28%;text-align:left" title="Sort by 75% Depth Liquidity (₿)">
+              <th class="sortable ${this.sortField === 'name' ? 'sorted' : ''}" data-sort="name" style="width:28%;text-align:left" title="Sort by 75% Depth Liquidity (%)">
                 Product ${this.renderSortArrow('name')}
               </th>
               <th class="sortable ${this.sortField === 'spread' ? 'sorted' : ''}" data-sort="spread" style="width:28%;text-align:right">
@@ -141,11 +141,17 @@ export class OrderBookView {
       let cmp = 0;
 
       if (this.sortField === 'name') {
-        const liqA = this.compute75DepthMoney(itA.buy, itA.best_bid, true) +
-                     this.compute75DepthMoney(itA.sell, itA.best_ask, false);
-        const liqB = this.compute75DepthMoney(itB.buy, itB.best_bid, true) +
-                     this.compute75DepthMoney(itB.sell, itB.best_ask, false);
-        cmp = liqA - liqB;
+        const buyA = this.compute75DepthMoney(itA.buy, itA.best_bid, true);
+        const sellA = this.compute75DepthMoney(itA.sell, itA.best_ask, false);
+        const totA = buyA + sellA;
+        const pctA = totA > 0 ? (buyA / totA) * 100 : 50;
+
+        const buyB = this.compute75DepthMoney(itB.buy, itB.best_bid, true);
+        const sellB = this.compute75DepthMoney(itB.sell, itB.best_ask, false);
+        const totB = buyB + sellB;
+        const pctB = totB > 0 ? (buyB / totB) * 100 : 50;
+
+        cmp = pctA - pctB;
         if (cmp === 0) {
           cmp = (metaA?.name || a).localeCompare(metaB?.name || b);
         }
@@ -264,9 +270,12 @@ export class OrderBookView {
                 <div class="item-name-line">
                   ${renderItemName(meta)}
                 </div>
-                <div class="liquidity-bar-track" style="margin-top:4px;max-width:120px" title="Liquidity Balance (≥75% Depth): ${buyRatioPct}% Buy (${formatCompact(buyReceived75)} ₿) / ${100 - buyRatioPct}% Sell (${formatCompact(sellCost75)} ₿)">
-                  <div class="liquidity-bar-buy" style="width:${buyRatioPct}%"></div>
-                  <div class="liquidity-bar-sell"></div>
+                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:4px;">
+                  <div class="liquidity-bar-track" style="width:80px;flex-shrink:0" title="Liquidity Balance (≥75% Depth): ${buyRatioPct}% Buy (${formatCompact(buyReceived75)} ₿) / ${100 - buyRatioPct}% Sell (${formatCompact(sellCost75)} ₿)">
+                    <div class="liquidity-bar-buy" style="width:${buyRatioPct}%"></div>
+                    <div class="liquidity-bar-sell"></div>
+                  </div>
+                  <span class="mono text-xs ${buyRatioPct >= 50 ? 'text-buy' : 'text-sell'}" style="font-size:0.7rem;font-weight:600" title="Liquidity Balance">${buyRatioPct}%</span>
                 </div>
               </div>
             </div>
