@@ -43,9 +43,12 @@ API_KEYS = [
     if key
 ]
 
-# --- History Retention ---
+# --- History Retention & Spike Cleaner ---
 MAX_HISTORY_POINTS = 12288
 SPARKLINE_POINTS = 42  # ~7 days of 4-hour intervals or last 42 snapshots
+THRESHOLD_MULTIPLIER = 1.3
+GLOBAL_COEF_MIN = 0.45
+GLOBAL_COEF_THRESH = 1.35
 
 # --- Item Definitions (Manufactured & Raw Resources with PP > 0) ---
 ITEM_PRETTY_NAMES = {

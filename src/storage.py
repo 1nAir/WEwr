@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 import json
 import logging
 import os
+import statistics
 from typing import Any
 
 from src import config
@@ -102,6 +103,159 @@ class Storage:
                 for k in item_data:
                     if isinstance(item_data[k], list):
                         item_data[k] = item_data[k][-config.MAX_HISTORY_POINTS :]
+
+        return Storage.clean_profitability_history(history)
+
+    @staticmethod
+    def _get_global_thresholds(data: dict[str, Any]) -> tuple[float, float]:
+        """Calculates thresholds based on global market median (SpikeCleaner)."""
+        all_values = []
+        for item_data in data.get("items", {}).values():
+            for metric in ("min_pp", "avg_pp", "max_pp"):
+                if metric in item_data and isinstance(item_data[metric], list):
+                    valid_vals = [
+                        x
+                        for x in item_data[metric]
+                        if x is not None and isinstance(x, (int, float)) and x > 0.001
+                    ]
+                    all_values.extend(valid_vals)
+
+        if not all_values:
+            return 0.05, 0.15
+
+        median_val = statistics.median(all_values)
+        min_val_thresh = median_val * config.GLOBAL_COEF_MIN
+        global_thresh = median_val * config.GLOBAL_COEF_THRESH
+        return min_val_thresh, global_thresh
+
+    @staticmethod
+    def _smooth_series(
+        series: list[float | None], min_abs_val: float, min_val_thresh: float
+    ) -> tuple[list[float | None], int]:
+        """Recursive smoothing logic from original spike_cleaner.py."""
+        cleaned = series[:]
+        n = len(cleaned)
+        changes_count = 0
+        i = 1
+
+        while i < n - 1:
+            prev_val = cleaned[i - 1]
+            curr_val = cleaned[i]
+
+            # A zero or None is a missing-history placeholder, not a low measurement.
+            if curr_val is None or curr_val == 0:
+                i += 1
+                continue
+
+            # 1. Protection from zero/dips
+            if curr_val < min_abs_val:
+                next_val = cleaned[i + 1]
+                if (
+                    prev_val is not None
+                    and next_val is not None
+                    and prev_val > 0
+                    and next_val > 0
+                ):
+                    avg = (prev_val + next_val) / 2
+                elif prev_val is not None and prev_val > 0:
+                    avg = prev_val
+                elif next_val is not None and next_val > 0:
+                    avg = next_val
+                else:
+                    avg = min_abs_val * 1.1
+                if avg < min_abs_val:
+                    avg = min_abs_val * 1.1
+                cleaned[i] = round(avg, 4)
+                changes_count += 1
+                i += 1
+                continue
+
+            if prev_val is None or prev_val <= 0.001:
+                i += 1
+                continue
+
+            # 2. GROUP OUTLIERS (5, 4, 3, 2 points)
+            found_group = False
+            for size in (5, 4, 3, 2):
+                if i < n - size:
+                    end_neighbor_val = cleaned[i + size]
+                    if end_neighbor_val is None or end_neighbor_val <= 0.001:
+                        continue
+                    step_size = (end_neighbor_val - prev_val) / (size + 1)
+                    is_group_outlier = True
+                    expected_vals = []
+
+                    for k in range(size):
+                        check_val = cleaned[i + k]
+                        if check_val is None:
+                            is_group_outlier = False
+                            break
+                        expected_val = prev_val + step_size * (k + 1)
+                        expected_vals.append(expected_val)
+
+                        if not (
+                            (check_val > expected_val * config.THRESHOLD_MULTIPLIER)
+                            and (check_val > min_val_thresh)
+                        ):
+                            is_group_outlier = False
+                            break
+
+                    if is_group_outlier:
+                        for k in range(size):
+                            cleaned[i + k] = round(expected_vals[k], 4)
+                        changes_count += size
+                        i += size
+                        found_group = True
+                        break
+
+            if found_group:
+                continue
+
+            # 3. SINGLE SPIKE
+            next_val = cleaned[i + 1]
+            if next_val is not None and next_val > 0.001:
+                expected = (prev_val + next_val) / 2
+                is_spike = (curr_val > expected * config.THRESHOLD_MULTIPLIER) and (
+                    curr_val > min_val_thresh
+                )
+
+                if is_spike:
+                    cleaned[i] = round(expected, 4)
+                    changes_count += 1
+
+            i += 1
+
+        # Recursive pass if changes happened
+        if changes_count > 0:
+            cleaned, extra_changes = Storage._smooth_series(
+                cleaned, min_abs_val, min_val_thresh
+            )
+            changes_count += extra_changes
+
+        return cleaned, changes_count
+
+    @classmethod
+    def clean_profitability_history(cls, history: dict[str, Any]) -> dict[str, Any]:
+        """Runs the SpikeCleaner process on the full profitability history object."""
+        if not isinstance(history, dict) or "items" not in history:
+            return history
+
+        glob_min, glob_thresh = cls._get_global_thresholds(history)
+        total_fixes = 0
+
+        for item_name, item_data in history["items"].items():
+            for metric in ("min_pp", "avg_pp", "max_pp"):
+                if metric in item_data and isinstance(item_data[metric], list):
+                    original_series = item_data[metric]
+                    new_series, count = cls._smooth_series(
+                        original_series, glob_min, glob_thresh
+                    )
+                    if count > 0:
+                        history["items"][item_name][metric] = new_series
+                        total_fixes += count
+
+        if total_fixes > 0:
+            logger.info(f"SpikeCleaner: Fixed {total_fixes} profitability anomalies.")
 
         return history
 
@@ -532,7 +686,9 @@ class Storage:
         now_ts = int(datetime.now(timezone.utc).timestamp())
 
         prof_snap, prof_ts = Storage.load_latest_profitability()
-        prof_hist = Storage.load_profitability_history()
+        prof_hist = Storage.clean_profitability_history(
+            Storage.load_profitability_history()
+        )
 
         ob_snap, ob_ts = Storage.load_latest_orderbook()
         ob_hist = Storage.load_orderbook_history()
