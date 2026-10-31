@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Wealthrate — Warera Market & Production Terminal</title>
+  <link rel="icon" type="image/webp" href="favicon.webp" />
+
+  <!-- Fonts: Inter (UI) & JetBrains Mono (Tabular Financial Numbers) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Modular Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Terminal Header -->
+    <header class="terminal-header">
+      <div class="header-inner">
+        <div class="brand-group">
+          <a
+            href="https://app.warera.io/user/69635dc2d83cd4e381a66dce"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="brand-avatar-link"
+            title="Creator Profile on Warera"
+          >
+            <img src="assets/ru_warship.webp" alt="Profile" class="brand-avatar" />
+          </a>
+          <a href="#profitability" class="brand-logo-link" title="Wealthrate Terminal">
+            <div class="brand-text">
+              <span class="brand-title">Wealthrate</span>
+              <span class="brand-subtitle" id="header-updated-pill">
+                <span class="status-dot"></span>
+                <span id="header-updated-text">Loading data...</span>
+              </span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Primary Navigation Tabs -->
+        <nav class="primary-nav" id="primary-nav" aria-label="Main Navigation">
+          <button type="button" class="nav-tab active" data-section="profitability">
+            <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M3 15l4-4 3 3 7-7M13 7h4v4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Profitability</span>
+          </button>
+          <button type="button" class="nav-tab" data-section="market">
+            <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M3 5h14M3 10h14M3 15h10" stroke-linecap="round"/>
+            </svg>
+            <span>Market</span>
+          </button>
+        </nav>
+
+        <!-- Utility Actions (Live Refresh & Guide) -->
+        <div class="header-actions">
+          <button type="button" class="icon-btn" id="btn-live-refresh" title="Refresh latest data slices without reloading page">
+            <svg class="refresh-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M16.5 10a6.5 6.5 0 1 1-1.9-4.6M16.5 3.5v3.5H13" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button type="button" class="icon-btn" id="btn-open-guide" title="Section Guide & Formulas">
+            <span>?</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="terminal-main" id="app-root">
+      <!-- SECTION 1: PROFITABILITY -->
+      <section id="view-profitability" class="view-section active">
+        <div id="profitability-mount">
+          <div class="skeleton-loader">Loading Profitability Analytics...</div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: MARKET -->
+      <section id="view-market" class="view-section" hidden>
+        <!-- Market Sub-Navigation Bar -->
+        <div class="market-subnav-bar">
+          <div class="market-subnav-pills" role="tablist">
+            <button type="button" class="subnav-pill active" data-subtab="orderbook">
+              <span class="pill-indicator both"></span>
+              <span>Order Book</span>
+              <span class="pill-badge">Buy &amp; Sell</span>
+            </button>
+            <button type="button" class="subnav-pill" data-subtab="trades">
+              <span class="pill-indicator btc"></span>
+              <span>Trades</span>
+            </button>
+            <button type="button" class="subnav-pill" data-subtab="leaderboards">
+              <span class="pill-indicator pp"></span>
+              <span>Leaderboards</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Market Subviews -->
+        <div id="subview-orderbook" class="market-subview active">
+          <div class="skeleton-loader">Loading Unified Order Book...</div>
+        </div>
+        <div id="subview-trades" class="market-subview" hidden>
+          <div class="skeleton-loader">Loading Market Transactions...</div>
+        </div>
+        <div id="subview-leaderboards" class="market-subview" hidden>
+          <div class="skeleton-loader">Loading Top-25 Leaderboards...</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="terminal-footer">
+      <span>Wealthrate v2.0 • Warera Economic &amp; Market Terminal</span>
+      <span id="footer-sync-info" class="mono"></span>
+    </footer>
+  </div>
+
+  <!-- Guide Modal -->
+  <div class="modal-backdrop" id="modal-guide" hidden>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-guide-title">
+      <div class="modal-header">
+        <h3 id="modal-guide-title">FAQ</h3>
+        <button type="button" class="modal-close-btn" id="btn-close-guide" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-guide-content"></div>
+    </div>
+  </div>
+
+  <!-- Application Entry Point (ES Modules) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
+
