@@ -48,7 +48,7 @@ class DataStore {
       return this.inflight.get(filename);
     }
 
-    const baseUrl = IS_LOCAL ? `data/${filename}` : `${REMOTE_DATA_BASE}/${filename}`;
+    const baseUrl = `${REMOTE_DATA_BASE}/${filename}`;
     const cacheBust = forceRefresh
       ? `?t=${Date.now()}`
       : `?v=${Math.floor(Date.now() / 60000)}`;
@@ -58,7 +58,7 @@ class DataStore {
       cache: forceRefresh ? 'no-store' : 'default',
     })
       .then(async (res) => {
-        if (!res.ok && !IS_LOCAL) {
+        if (!res.ok) {
           const fallbackRes = await fetch(`data/${filename}${cacheBust}`);
           if (fallbackRes.ok) return fallbackRes.json();
         }

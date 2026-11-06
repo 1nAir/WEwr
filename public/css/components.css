@@ -98,7 +98,7 @@
   padding: 5px 10px 5px 28px;
   font-size: 0.8rem;
   color: var(--text-primary);
-  width: 170px;
+  width: 190px;
   transition: border-color var(--transition-fast);
 }
 
@@ -493,6 +493,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -508,14 +509,23 @@
   font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--text-muted);
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .formula-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   font-size: 0.81rem;
   padding: 2px 0;
+}
+
+.formula-line > span:last-child {
+  text-align: right;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .formula-line.sub-ingredient {
@@ -540,8 +550,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   font-family: var(--font-mono);
   font-size: 0.82rem;
+}
+
+.formula-result-banner > strong {
+  text-align: right;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ============================================================================
@@ -1295,6 +1312,12 @@
   padding-top: 10px;
 }
 
+.chart-chips-grid.is-scrollable {
+  max-height: 152px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .chart-item-chip {
   position: relative;
   display: flex;
@@ -1414,6 +1437,16 @@
   line-height: 1;
 }
 
+.comp-country-flag {
+  width: 28px;
+  height: 20px;
+  border-radius: 3px;
+  object-fit: cover;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
 .country-code-badge {
   display: inline-flex;
   align-items: center;
@@ -1459,7 +1492,7 @@
 
 .comp-country-cards-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
@@ -1545,9 +1578,9 @@
 
 .comp-region-tax-sub {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 4px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
   font-size: 0.66rem;
   color: var(--text-muted);
   margin-top: 2px;
@@ -1697,6 +1730,11 @@
 
   .comp-share-pct {
     font-size: 0.63rem;
+  }
+
+  .comp-country-flag {
+    width: 22px;
+    height: 16px;
   }
 
   .country-code-badge {

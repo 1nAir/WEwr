@@ -54,7 +54,7 @@ export class OrderBookView {
           <thead>
             <tr>
               <th class="sortable ${this.sortField === 'name' ? 'sorted' : ''}" data-sort="name" style="width:32%;text-align:left" title="Sort by 75% Depth Liquidity (%)">
-                Product ${this.renderSortArrow('name')}
+                Liquidity ${this.renderSortArrow('name')}
               </th>
               <th class="sortable ${this.sortField === 'spread' ? 'sorted' : ''}" data-sort="spread" style="width:24%;text-align:right" title="Sort by Spread (%)">
                 Spread ${this.renderSortArrow('spread')}

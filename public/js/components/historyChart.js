@@ -67,6 +67,7 @@ export class HistoryChartWidget {
     includeCases = false,
     historyKey = 'items',
     customEntities = null,
+    defaultVisibleCount = 0,
     yFormatter = (v) => v,
   }) {
     this.mountEl = mountEl;
@@ -78,6 +79,7 @@ export class HistoryChartWidget {
     this.includeCases = includeCases;
     this.historyKey = historyKey;
     this.customEntities = customEntities;
+    this.defaultVisibleCount = defaultVisibleCount;
     this.yFormatter = yFormatter;
 
     this.historyData = null;
@@ -103,6 +105,11 @@ export class HistoryChartWidget {
       this.chartInstance = null;
     }
     this.historyData = historyData;
+    if (this.defaultVisibleCount > 0) {
+      const codes = this.getAvailableItemCodes();
+      this.hiddenItems.clear();
+      codes.slice(this.defaultVisibleCount).forEach((c) => this.hiddenItems.add(c));
+    }
     this.renderShell();
     this.updateChart();
   }
@@ -242,9 +249,11 @@ export class HistoryChartWidget {
         const meta = this.getEntityMeta(code);
         const isHidden = this.hiddenItems.has(code);
         const latestVal = this.getLatestValueForCode(code);
-        const iconOrBadgeHtml = meta.badgeText
-          ? `<span class="country-code-badge chart-chip-badge">${escapeHtml(meta.badgeText)}</span>`
-          : `<img src="assets/${escapeHtml(code)}.webp" alt="" class="chart-chip-icon" loading="lazy" />`;
+        const iconOrBadgeHtml = meta.iconUrl
+          ? `<img src="${escapeHtml(meta.iconUrl)}" alt="" class="chart-chip-icon" loading="lazy" onerror="this.onerror=null;this.src='assets/guide.webp';" />`
+          : meta.badgeText
+            ? `<span class="country-code-badge chart-chip-badge">${escapeHtml(meta.badgeText)}</span>`
+            : `<img src="assets/${escapeHtml(code)}.webp" alt="" class="chart-chip-icon" loading="lazy" />`;
         return `
           <button
             type="button"
@@ -283,7 +292,7 @@ export class HistoryChartWidget {
         </div>
 
         <!-- Compact Interactive Item Chips with Live Scrubbed Values -->
-        <div class="chart-chips-grid" data-role="chips-grid">
+        <div class="chart-chips-grid ${itemCodes.length > 25 ? 'is-scrollable' : ''}" data-role="chips-grid">
           ${toggleAllBtnHtml}
           ${chipsHtml}
         </div>
@@ -319,7 +328,7 @@ export class HistoryChartWidget {
     if (btnToggleAll) {
       btnToggleAll.addEventListener('click', () => {
         const allCodes = this.getAvailableItemCodes();
-        if (this.hiddenItems.size === 0) {
+        if (this.hiddenItems.size < allCodes.length) {
           allCodes.forEach((c) => this.hiddenItems.add(c));
         } else {
           this.hiddenItems.clear();

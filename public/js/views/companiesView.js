@@ -18,6 +18,21 @@ const COUNTRY_PALETTE = [
   '#4ade80', '#f87171', '#2dd4bf', '#a3e635', '#fb923c', '#94a3b8',
 ];
 
+function formatMetric(val) {
+  const n = Number(val) || 0;
+  const abs = Math.abs(n);
+  if (abs > 0 && abs < 50) {
+    const rounded1 = Math.round(n * 10) / 10;
+    return Number.isInteger(rounded1)
+      ? rounded1.toLocaleString('en-US')
+      : rounded1.toLocaleString('en-US', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        });
+  }
+  return Math.round(n).toLocaleString('en-US');
+}
+
 /**
  * View Module: Section 3 — Companies (Global Level 15+ Production, Wages & Country/Regional Taxes).
  * Divided into 2 Subtabs:
@@ -36,7 +51,7 @@ export class CompaniesView {
     this.itemSortField = 'pp_hr'; // 'name' | 'companies' | 'pp_hr' | 'wages_hr'
     this.itemSortDesc = true;
 
-    this.countrySortField = 'pp_hr'; // 'name' | 'companies' | 'pp_hr' | 'tax_total_hr'
+    this.countrySortField = 'wages_hr'; // 'name' | 'companies' | 'wages_hr' | 'tax_total_hr'
     this.countrySortDesc = true;
 
     this.expandedItems = new Set();
@@ -69,25 +84,33 @@ export class CompaniesView {
     return `<span class="sort-arrow">${isDesc ? '↓' : '↑'}</span>`;
   }
 
-  renderDeltaBadge(val, isPct = true) {
-    const n = Number(val) || 0;
-    if (Math.abs(n) < 0.05) return '';
-    const cls = n > 0 ? 'text-buy' : 'text-sell';
-    const sign = n > 0 ? '+' : '';
-    const formatted = isPct ? `${sign}${n.toFixed(1)}%` : `${sign}${formatInt(n)}`;
-    return `<span class="comp-delta-pill mono ${cls}">${formatted}</span>`;
+  getCountryFlagUrl(c, cKey) {
+    const rawCode = String((c && c.code) || cKey || '')
+      .split('_')[0]
+      .trim()
+      .toLowerCase();
+    return rawCode
+      ? `https://flagcdn.com/w40/${encodeURIComponent(rawCode)}.png`
+      : 'assets/guide.webp';
   }
 
   render() {
     if (!this.mountEl || !this.data) return;
 
     const summary = this.data.summary || {};
-    const taxInc = summary.global_tax_income || {};
+    const countriesMap = this.data.by_countries || {};
     const itemsCount = Object.keys(this.data.by_items || {}).length;
-    const countriesCount = Object.keys(this.data.by_countries || {}).length;
+    const countriesCount = Object.keys(countriesMap).length;
 
-    const empPlusMgrTax =
-      (Number(taxInc.employee_tax) || 0) + (Number(taxInc.manager_tax) || 0);
+    let globalWageTaxHr = 0;
+    for (const c of Object.values(countriesMap)) {
+      const taxes = c.taxes || {};
+      const incRate = (Number(taxes.income) || 0) / 100;
+      const mgrRate = (Number(taxes.manager) || 0) / 100;
+      globalWageTaxHr +=
+        (Number(c.emp_wages_hr) || 0) * incRate +
+        (Number(c.mgr_wages_hr) || 0) * mgrRate;
+    }
 
     const searchHtml =
       this.subtab === 'countries'
@@ -102,7 +125,7 @@ export class CompaniesView {
               type="search"
               class="search-input"
               data-role="comp-country-search"
-              placeholder="Search country or region..."
+              placeholder="Search country..."
               value="${escapeHtml(this.countrySearchQuery)}"
             />
           </div>
@@ -133,7 +156,6 @@ export class CompaniesView {
           <div class="kpi-label">Active Companies (15+ Lvl)</div>
           <div class="kpi-value mono">
             ${formatInt(summary.total_companies)}
-            ${this.renderDeltaBadge(summary.delta_companies, false)}
           </div>
           <div class="kpi-sub mono">
             Players 15+ Lvl: ${formatInt(summary.eligible_players)}
@@ -143,31 +165,30 @@ export class CompaniesView {
         <div class="kpi-card">
           <div class="kpi-label">Global Output (PP/hr)</div>
           <div class="kpi-value mono text-pp">
-            ${formatCompact(summary.total_pp_hr)} PP/h
-            ${this.renderDeltaBadge(summary.delta_pp_pct, true)}
+            ${formatMetric(summary.total_pp_hr)} PP/h
           </div>
           <div class="kpi-sub mono">
-            ${formatCompact(summary.total_pp_24h)} PP / 24h
+            ${formatMetric(summary.total_pp_24h)} PP / 24h
           </div>
         </div>
 
         <div class="kpi-card">
           <div class="kpi-label">Total Wages (Emp + Mgr)</div>
           <div class="kpi-value mono text-btc">
-            ${formatMoney(summary.total_wages_hr, 2)} ₿/h
+            ${formatMetric(summary.total_wages_hr)} ₿/h
           </div>
           <div class="kpi-sub mono">
-            ${formatCompact(summary.total_wages_24h)} ₿ / 24h
+            ${formatMetric(summary.total_wages_24h)} ₿ / 24h
           </div>
         </div>
 
         <div class="kpi-card">
-          <div class="kpi-label">Global State Revenue</div>
+          <div class="kpi-label">Total Tax (Emp + Mgr)</div>
           <div class="kpi-value mono text-buy">
-            +${formatMoney(taxInc.total, 2)} ₿/h
+            +${formatMetric(globalWageTaxHr)} ₿/h
           </div>
           <div class="kpi-sub mono">
-            Tax: ${formatMoney(empPlusMgrTax, 2)} • Dev: ${formatMoney(taxInc.development, 2)} ₿/h
+            +${formatMetric(globalWageTaxHr * 24)} ₿ / 24h
           </div>
         </div>
       </div>
@@ -195,8 +216,8 @@ export class CompaniesView {
       <table class="terminal-table">
         <thead>
           <tr>
-            <th class="sortable ${sf === 'name' ? 'sorted' : ''}" data-sort-item="name" style="width:30%;text-align:left">
-              Product ${this.renderSortArrow(sf, 'name', sd)}
+            <th class="sortable ${sf === 'market_vs_prod_pct' ? 'sorted' : ''}" data-sort-item="market_vs_prod_pct" style="width:30%;text-align:left" title="Sort by 24h Market Traded vs Output (%)">
+              Traded % ${this.renderSortArrow(sf, 'market_vs_prod_pct', sd)}
             </th>
             <th class="sortable ${sf === 'companies' ? 'sorted' : ''}" data-sort-item="companies" style="width:22%;text-align:right">
               Companies ${this.renderSortArrow(sf, 'companies', sd)}
@@ -207,8 +228,8 @@ export class CompaniesView {
               ${this.renderSortArrow(sf, 'pp_hr', sd)}
             </th>
             <th class="sortable ${sf === 'wages_hr' ? 'sorted' : ''}" data-sort-item="wages_hr" style="width:23%;text-align:right">
-              <span class="desktop-only">Wages / Output</span>
-              <span class="mobile-only">Wages (₿/h)</span>
+              <span class="desktop-only">Wages (₿/hr)</span>
+              <span class="mobile-only">Wages</span>
               ${this.renderSortArrow(sf, 'wages_hr', sd)}
             </th>
           </tr>
@@ -225,21 +246,16 @@ export class CompaniesView {
       <table class="terminal-table">
         <thead>
           <tr>
-            <th class="sortable ${sf === 'name' ? 'sorted' : ''}" data-sort-country="name" style="width:31%;text-align:left">
+            <th class="sortable ${sf === 'name' ? 'sorted' : ''}" data-sort-country="name" style="width:40%;text-align:left">
               Country &amp; Tax ${this.renderSortArrow(sf, 'name', sd)}
             </th>
-            <th class="sortable ${sf === 'companies' ? 'sorted' : ''}" data-sort-country="companies" style="width:21%;text-align:right">
+            <th class="sortable ${sf === 'companies' ? 'sorted' : ''}" data-sort-country="companies" style="width:28%;text-align:right">
               Companies ${this.renderSortArrow(sf, 'companies', sd)}
             </th>
-            <th class="sortable ${sf === 'pp_hr' ? 'sorted' : ''}" data-sort-country="pp_hr" style="width:24%;text-align:right">
-              <span class="desktop-only">Output (PP/hr)</span>
-              <span class="mobile-only">PP/hr</span>
-              ${this.renderSortArrow(sf, 'pp_hr', sd)}
-            </th>
-            <th class="sortable ${sf === 'tax_total_hr' ? 'sorted' : ''}" data-sort-country="tax_total_hr" style="width:24%;text-align:right">
-              <span class="desktop-only">Treasury (₿/hr)</span>
-              <span class="mobile-only">Treasury</span>
-              ${this.renderSortArrow(sf, 'tax_total_hr', sd)}
+            <th class="sortable ${sf === 'wages_hr' ? 'sorted' : ''}" data-sort-country="wages_hr" style="width:32%;text-align:right">
+              <span class="desktop-only">Wages &amp; Tax (₿/hr)</span>
+              <span class="mobile-only">Wages &amp; Tax</span>
+              ${this.renderSortArrow(sf, 'wages_hr', sd)}
             </th>
           </tr>
         </thead>
@@ -286,7 +302,12 @@ export class CompaniesView {
       }
       const valA = Number(itA[this.itemSortField]) || 0;
       const valB = Number(itB[this.itemSortField]) || 0;
-      const cmp = valA - valB;
+      let cmp = valA - valB;
+      if (cmp === 0) {
+        const nameA = store.getItemMeta(a).name || a;
+        const nameB = store.getItemMeta(b).name || b;
+        cmp = nameA.localeCompare(nameB);
+      }
       return this.itemSortDesc ? -cmp : cmp;
     });
   }
@@ -314,6 +335,16 @@ export class CompaniesView {
       const it = itemsMap[code];
       const meta = store.getItemMeta(code);
       const isExpanded = this.expandedItems.has(code);
+      const mktPct = Number(it.market_vs_prod_pct) || 0;
+      const mktBarWidth = Math.max(0, Math.min(100, mktPct));
+      const mktColorClass =
+        mktPct >= 80 ? 'text-buy' : mktPct >= 30 ? 'text-pp' : 'text-secondary';
+      const mktBarColor =
+        mktPct >= 80
+          ? 'var(--color-buy)'
+          : mktPct >= 30
+            ? 'var(--color-pp)'
+            : 'var(--text-muted)';
 
       rowsHtml.push(`
         <tr class="item-row ${isExpanded ? 'expanded' : ''}" data-comp-item-row="${escapeHtml(code)}">
@@ -325,8 +356,11 @@ export class CompaniesView {
                 <div class="item-name-line">
                   ${renderItemName(meta)}
                 </div>
-                <div class="item-sub-line desktop-only">
-                  <span>1 pcs = ${it.pp_per_unit} PP</span>
+                <div class="liquidity-group">
+                  <div class="liquidity-bar-track" style="background:rgba(255,255,255,0.08)" title="24h Traded vs Output: ${formatPct(mktPct, 0)} (${formatMetric(it.traded_pp_24h)} / ${formatMetric(it.pp_24h)} PP)">
+                    <div class="liquidity-bar-buy" style="width:${mktBarWidth}%;background:${mktBarColor}"></div>
+                  </div>
+                  <span class="liquidity-pct ${mktColorClass}" title="24h Traded vs Output">${formatPct(mktPct, 0)}</span>
                 </div>
               </div>
             </div>
@@ -336,12 +370,11 @@ export class CompaniesView {
             ${this.renderShareSubLine(it.companies_share_pct, 'var(--accent-primary)')}
           </td>
           <td class="text-right">
-            <span class="metric-primary text-pp">${formatCompact(it.pp_hr)} <span class="desktop-only">PP/h</span></span>
+            <span class="metric-primary text-pp">${formatMetric(it.pp_hr)} <span class="desktop-only">PP/h</span></span>
             ${this.renderShareSubLine(it.pp_share_pct, 'var(--color-pp)')}
           </td>
           <td class="text-right">
-            <span class="metric-primary text-btc">${formatMoney(it.wages_hr, 2)} ₿</span>
-            <span class="metric-sub">${formatCompact(it.units_hr)} pcs/h</span>
+            <span class="metric-primary text-btc">${formatMetric(it.wages_hr)} <span class="desktop-only">₿/h</span><span class="mobile-only">₿</span></span>
           </td>
         </tr>
       `);
@@ -364,19 +397,9 @@ export class CompaniesView {
         this.renderItemsRows();
       });
     });
-
-    this.bindIsolateChartButtons(tbody);
   }
 
-  renderItemDrawer(code, it, meta) {
-    const spark = it.sparkline_7d || {};
-    const sparkSvg = renderSparklineSvg({
-      seriesA: spark.pp_hr || [],
-      seriesB: spark.wages_hr || [],
-      colorA: '#38bdf8',
-      colorB: '#f59e0b',
-    });
-
+  renderItemDrawer(code, it) {
     const mktPct = Number(it.market_vs_prod_pct) || 0;
     const mktColorClass =
       mktPct >= 80 ? 'text-buy' : mktPct >= 30 ? 'text-pp' : 'text-secondary';
@@ -385,58 +408,24 @@ export class CompaniesView {
       <tr class="drawer-row">
         <td colspan="4">
           <div class="drawer-container">
-            <div class="drawer-top-strip">
-              <div class="drawer-meta-info">
-                <div class="drawer-meta-title">
-                  <span>${escapeHtml(meta.name)}</span>
-                  <span class="pp-badge">1 pcs = ${it.pp_per_unit} PP</span>
-                  <button type="button" class="comp-isolate-btn" data-isolate-entity="${escapeHtml(code)}" title="Isolate ${escapeHtml(meta.name)} on History Chart">
-                    📈 Chart
-                  </button>
-                </div>
-                <div class="drawer-meta-subtitle">
-                  Active Companies: <strong class="text-primary">${formatInt(it.companies)}</strong> (${formatPct(it.companies_share_pct, 2)} share) •
-                  Output Share: <strong class="text-pp">${formatPct(it.pp_share_pct, 2)}</strong>
-                </div>
-              </div>
-
-              <div class="sparkline-box" title="7-Day Trend (Solid Blue: Output PP/hr • Dashed Gold: Wages ₿/hr)">
-                <div class="sparkline-labels">
-                  <span class="text-pp">PP/h: ${formatCompact(it.pp_hr)}</span>
-                  <span class="text-btc">Wages: ${formatMoney(it.wages_hr, 2)} ₿/h</span>
-                </div>
-                <div class="sparkline-canvas-wrap">
-                  ${sparkSvg}
-                </div>
-              </div>
-            </div>
-
             <div class="recipe-grid">
-              <!-- Card 1: Production & Market Absorption (Supply vs Demand) -->
+              <!-- Card 1: Production & Market Absorption (Output vs Market) -->
               <div class="recipe-card conservative">
                 <div class="recipe-card-header">
                   <span class="recipe-card-title text-pp">Production &amp; Market Volume</span>
-                  <span class="recipe-card-badge">Supply vs 24h Traded</span>
+                  <span class="recipe-card-badge">24h Output vs Market</span>
                 </div>
                 <div class="formula-line">
-                  <span>Hourly Output (AE + Employees)</span>
-                  <span class="mono text-pp">${formatInt(it.pp_hr)} PP/hr (${formatPct(it.pp_share_pct, 2)})</span>
-                </div>
-                <div class="formula-line sub-ingredient">
-                  <span>Daily Output (24h PP)</span>
-                  <span class="mono">${formatInt(it.pp_24h)} PP / 24h</span>
+                  <span>Daily Output (24h)</span>
+                  <span class="mono text-pp">${formatMetric(it.pp_24h)} PP</span>
                 </div>
                 <div class="formula-line">
-                  <span>Units Produced (1h / 24h)</span>
-                  <span class="mono text-primary">${formatCompact(it.units_hr)} pcs/h • <strong>${formatInt(it.units_24h)} pcs/24h</strong></span>
-                </div>
-                <div class="formula-line sub-ingredient">
-                  <span>24h Market Traded Volume</span>
-                  <span class="mono text-btc">${formatInt(it.traded_units_24h)} pcs/24h (${formatCompact(it.traded_pp_24h)} PP)</span>
+                  <span>Market Volume (24h)</span>
+                  <span class="mono text-btc">${formatMetric(it.traded_pp_24h)} PP</span>
                 </div>
                 <div class="formula-result-banner">
-                  <span class="text-secondary">Market Turnover vs 24h Production</span>
-                  <strong class="${mktColorClass}">${formatPct(mktPct, 1)} Traded on Market</strong>
+                  <span class="text-secondary">Traded vs Output (24h)</span>
+                  <strong class="${mktColorClass}">${formatPct(mktPct, 0)} Traded</strong>
                 </div>
               </div>
 
@@ -447,20 +436,16 @@ export class CompaniesView {
                   <span class="recipe-card-badge">Employees + Managers</span>
                 </div>
                 <div class="formula-line">
-                  <span>Employee Wages (1h / 24h)</span>
-                  <span class="mono">${formatMoney(it.emp_wages_hr, 3)} ₿/h • ${formatMoney(it.emp_wages_hr * 24, 2)} ₿/24h</span>
+                  <span>Employees (1h / 24h)</span>
+                  <span class="mono">${formatMetric(it.emp_wages_hr)} ₿/h • ${formatMetric((it.emp_wages_hr || 0) * 24)} ₿</span>
                 </div>
                 <div class="formula-line">
-                  <span>Manager Wages (1h / 24h)</span>
-                  <span class="mono">${formatMoney(it.mgr_wages_hr, 3)} ₿/h • ${formatMoney(it.mgr_wages_hr * 24, 2)} ₿/24h</span>
-                </div>
-                <div class="formula-line total-line">
-                  <span>Total Hourly Payroll (Emp + Mgr)</span>
-                  <span class="mono text-btc">${formatMoney(it.wages_hr, 3)} ₿/hr</span>
+                  <span>Managers (1h / 24h)</span>
+                  <span class="mono">${formatMetric(it.mgr_wages_hr)} ₿/h • ${formatMetric((it.mgr_wages_hr || 0) * 24)} ₿</span>
                 </div>
                 <div class="formula-result-banner">
-                  <span class="text-secondary">Total Daily Payroll (24h)</span>
-                  <strong class="text-btc">${formatMoney(it.wages_24h, 2)} ₿ / 24h</strong>
+                  <span class="text-secondary">Daily Payroll (24h)</span>
+                  <strong class="text-btc">${formatMetric(it.wages_24h)} ₿ / 24h</strong>
                 </div>
               </div>
             </div>
@@ -482,17 +467,9 @@ export class CompaniesView {
       .filter((cKey) => {
         if (!q) return true;
         const c = countriesMap[cKey];
-        if (
+        return (
           cKey.toLowerCase().includes(q) ||
           (c.name && c.name.toLowerCase().includes(q))
-        ) {
-          return true;
-        }
-        const regs = c.regions || [];
-        return regs.some(
-          (r) =>
-            (r.name && r.name.toLowerCase().includes(q)) ||
-            (r.code && r.code.toLowerCase().includes(q))
         );
       })
       .sort((a, b) => {
@@ -500,12 +477,6 @@ export class CompaniesView {
         const cB = countriesMap[b];
         if (this.countrySortField === 'name') {
           const cmp = (cA.name || a).localeCompare(cB.name || b);
-          return this.countrySortDesc ? -cmp : cmp;
-        }
-        if (this.countrySortField === 'tax_total_hr') {
-          const incA = Number((cA.income || {}).total) || 0;
-          const incB = Number((cB.income || {}).total) || 0;
-          const cmp = incA - incB;
           return this.countrySortDesc ? -cmp : cmp;
         }
         const valA = Number(cA[this.countrySortField]) || 0;
@@ -525,8 +496,8 @@ export class CompaniesView {
     if (!cKeys.length) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="4" class="text-center text-muted" style="padding:28px">
-            No matching countries or regions found.
+          <td colspan="3" class="text-center text-muted" style="padding:28px">
+            No matching countries found.
           </td>
         </tr>
       `;
@@ -538,15 +509,25 @@ export class CompaniesView {
       const c = countriesMap[cKey];
       const isExpanded = this.expandedCountries.has(cKey);
       const taxes = c.taxes || {};
-      const inc = c.income || {};
-      const badgeCode = String(c.code || cKey).slice(0, 3).toUpperCase();
+      const incRate = (Number(taxes.income) || 0) / 100;
+      const mgrRate = (Number(taxes.manager) || 0) / 100;
+      const flagUrl = this.getCountryFlagUrl(c, cKey);
+      const wageTaxHr =
+        (Number(c.emp_wages_hr) || 0) * incRate +
+        (Number(c.mgr_wages_hr) || 0) * mgrRate;
 
       rowsHtml.push(`
         <tr class="item-row ${isExpanded ? 'expanded' : ''}" data-comp-country-row="${escapeHtml(cKey)}">
           <td>
             <div class="product-cell">
               <span class="expand-caret">▶</span>
-              <span class="country-code-badge">${escapeHtml(badgeCode)}</span>
+              <img
+                src="${flagUrl}"
+                alt=""
+                class="comp-country-flag"
+                loading="lazy"
+                onerror="this.onerror=null;this.src='assets/guide.webp';"
+              />
               <div class="item-title-group">
                 <div class="item-name-line">
                   <span>${escapeHtml(c.name)}</span>
@@ -564,13 +545,8 @@ export class CompaniesView {
             ${this.renderShareSubLine(c.companies_share_pct, 'var(--accent-primary)')}
           </td>
           <td class="text-right">
-            <span class="metric-primary text-pp">${formatCompact(c.pp_hr)} <span class="desktop-only">PP/h</span></span>
-            ${this.renderShareSubLine(c.pp_share_pct, 'var(--color-pp)')}
-          </td>
-          <td class="text-right">
-            <span class="metric-primary text-buy">+${formatMoney(inc.total, 2)} ₿</span>
-            <span class="metric-sub desktop-only">Wages: ${formatMoney(c.wages_hr, 2)} ₿/h</span>
-            <span class="metric-sub mobile-only">Tax: ${formatMoney((inc.employee_tax || 0) + (inc.manager_tax || 0), 2)} ₿</span>
+            <span class="metric-primary text-btc">${formatMetric(c.wages_hr)} <span class="desktop-only">₿/h</span><span class="mobile-only">₿</span></span>
+            <span class="metric-sub">Tax: <span class="text-buy">+${formatMetric(wageTaxHr)} ₿/h</span></span>
           </td>
         </tr>
       `);
@@ -593,136 +569,86 @@ export class CompaniesView {
         this.renderCountriesRows();
       });
     });
-
-    this.bindIsolateChartButtons(tbody);
   }
 
   renderCountryDrawer(cKey, c) {
     const taxes = c.taxes || {};
-    const inc = c.income || {};
-    const spark = c.sparkline_7d || {};
-    const sparkSvg = renderSparklineSvg({
-      seriesA: spark.pp_hr || [],
-      seriesB: spark.tax_total_hr || [],
-      colorA: '#38bdf8',
-      colorB: '#10b981',
-    });
+    const incRate = (Number(taxes.income) || 0) / 100;
+    const mgrRate = (Number(taxes.manager) || 0) / 100;
+    const empTax = (Number(c.emp_wages_hr) || 0) * incRate;
+    const mgrTax = (Number(c.mgr_wages_hr) || 0) * mgrRate;
+    const totalWageTax = empTax + mgrTax;
 
-    const regions = c.regions || [];
-    const q = this.countrySearchQuery.trim().toLowerCase();
+    const regions = [...(c.regions || [])].sort(
+      (a, b) => (Number(b.wages_hr) || 0) - (Number(a.wages_hr) || 0)
+    );
 
     const regionRowsHtml = regions.length
       ? regions
           .map((r) => {
-            const rInc = r.income || {};
-            const isMatched =
-              q &&
-              ((r.name && r.name.toLowerCase().includes(q)) ||
-                (r.code && r.code.toLowerCase().includes(q)));
+            const rEmpTax = (Number(r.emp_wages_hr) || 0) * incRate;
+            const rMgrTax = (Number(r.mgr_wages_hr) || 0) * mgrRate;
+            const rWageTax = rEmpTax + rMgrTax;
+
             return `
-              <tr class="comp-region-row ${isMatched ? 'region-match-highlight' : ''}">
+              <tr class="comp-region-row">
                 <td>
                   <div class="comp-region-name">${escapeHtml(r.name)}</div>
-                  <div class="comp-region-sub mono">
-                    Wages: <span class="text-btc">${formatMoney(r.wages_hr, 3)} ₿/h</span>
-                    <span class="desktop-only">(${formatMoney(r.wages_24h, 2)} ₿/24h)</span>
-                  </div>
                 </td>
                 <td class="text-right">
                   <span class="mono font-semibold">${formatInt(r.companies)}</span>
                   ${this.renderShareSubLine(r.companies_country_share_pct, 'var(--accent-primary)')}
                 </td>
                 <td class="text-right">
-                  <span class="mono font-semibold text-pp">${formatCompact(r.pp_hr)}</span>
-                  ${this.renderShareSubLine(r.pp_country_share_pct, 'var(--color-pp)')}
-                </td>
-                <td class="text-right">
-                  <div class="mono font-semibold text-buy">+${formatMoney(rInc.total, 3)} ₿/h</div>
+                  <div class="mono font-semibold text-btc">${formatMetric(r.wages_hr)} ₿/h</div>
                   <div class="comp-region-tax-sub mono">
-                    <span>Emp: ${formatMoney(rInc.employee_tax, 3)}</span>
-                    <span>• Mgr: ${formatMoney(rInc.manager_tax, 3)}</span>
-                    <span>• Dev: ${formatMoney(rInc.development, 3)}</span>
+                    <div>Emp: ${formatMetric(r.emp_wages_hr)} • Mgr: ${formatMetric(r.mgr_wages_hr)}</div>
+                    <div class="text-buy">Tax: +${formatMetric(rWageTax)} ₿/h</div>
                   </div>
                 </td>
               </tr>
             `;
           })
           .join('')
-      : `<tr><td colspan="4" class="text-center text-muted" style="padding:14px">No regions controlled by this country.</td></tr>`;
+      : `<tr><td colspan="3" class="text-center text-muted" style="padding:14px">No regions controlled by this country.</td></tr>`;
 
     return `
       <tr class="drawer-row">
-        <td colspan="4">
+        <td colspan="3">
           <div class="drawer-container">
-            <!-- Top Strip: Country Info, Tax Rates & 7D Trend Sparkline -->
-            <div class="drawer-top-strip">
-              <div class="drawer-meta-info">
-                <div class="drawer-meta-title">
-                  <span>${escapeHtml(c.name)}</span>
-                  <span class="pp-badge">${regions.length} Regions</span>
-                  <button type="button" class="comp-isolate-btn" data-isolate-entity="${escapeHtml(cKey)}" title="Isolate ${escapeHtml(c.name)} on History Chart">
-                    📈 Chart
-                  </button>
-                </div>
-                <div class="drawer-meta-subtitle">
-                  Employee Income Tax: <strong class="text-primary">${formatPct(taxes.income, 1)}</strong> •
-                  Manager Tax: <strong class="text-primary">${formatPct(taxes.manager, 1)}</strong> •
-                  Total Wages Paid: <strong class="text-btc">${formatMoney(c.wages_hr, 2)} ₿/h</strong> (${formatMoney(c.wages_24h, 2)} ₿/24h)
-                </div>
-              </div>
-
-              <div class="sparkline-box" title="7-Day Trend (Solid Blue: Output PP/hr • Dashed Green: Treasury Income ₿/hr)">
-                <div class="sparkline-labels">
-                  <span class="text-pp">PP/h: ${formatCompact(c.pp_hr)}</span>
-                  <span class="text-buy">Treasury: +${formatMoney(inc.total, 2)} ₿/h</span>
-                </div>
-                <div class="sparkline-canvas-wrap">
-                  ${sparkSvg}
-                </div>
-              </div>
-            </div>
-
-            <!-- 4-Card Country Treasury & Payroll Breakdown Grid -->
+            <!-- 3-Card Country Wage & Tax Breakdown Grid -->
             <div class="comp-country-cards-grid">
               <div class="comp-stat-box">
-                <div class="comp-stat-label">Total Treasury (total)</div>
-                <div class="comp-stat-val mono text-buy">+${formatMoney(inc.total, 3)} ₿/h</div>
-                <div class="comp-stat-sub mono">+${formatMoney((inc.total || 0) * 24, 2)} ₿ / 24h</div>
+                <div class="comp-stat-label">Total Tax (Emp + Mgr)</div>
+                <div class="comp-stat-val mono text-buy">+${formatMetric(totalWageTax)} ₿/h</div>
+                <div class="comp-stat-sub mono">+${formatMetric(totalWageTax * 24)} ₿ / 24h</div>
               </div>
 
               <div class="comp-stat-box">
                 <div class="comp-stat-label">Employee Tax (${formatPct(taxes.income, 0)})</div>
-                <div class="comp-stat-val mono text-pp">+${formatMoney(inc.employee_tax, 3)} ₿/h</div>
-                <div class="comp-stat-sub mono">+${formatMoney((inc.employee_tax || 0) * 24, 2)} ₿ / 24h</div>
+                <div class="comp-stat-val mono text-pp">+${formatMetric(empTax)} ₿/h</div>
+                <div class="comp-stat-sub mono">Emp Wages: <span class="text-btc">${formatMetric(c.emp_wages_hr)} ₿/h</span></div>
               </div>
 
               <div class="comp-stat-box">
                 <div class="comp-stat-label">Manager Tax (${formatPct(taxes.manager, 0)})</div>
-                <div class="comp-stat-val mono text-pp">+${formatMoney(inc.manager_tax, 3)} ₿/h</div>
-                <div class="comp-stat-sub mono">+${formatMoney((inc.manager_tax || 0) * 24, 2)} ₿ / 24h</div>
-              </div>
-
-              <div class="comp-stat-box">
-                <div class="comp-stat-label">Development &amp; Wages</div>
-                <div class="comp-stat-val mono">+${formatMoney(inc.development, 3)} ₿/h <span class="text-muted" style="font-size:0.7rem">Dev</span></div>
-                <div class="comp-stat-sub mono text-btc">Wages: ${formatMoney(c.wages_hr, 2)} ₿/h</div>
+                <div class="comp-stat-val mono text-pp">+${formatMetric(mgrTax)} ₿/h</div>
+                <div class="comp-stat-sub mono">Mgr Wages: <span class="text-btc">${formatMetric(c.mgr_wages_hr)} ₿/h</span></div>
               </div>
             </div>
 
             <!-- Regional Breakdown Table inside the Country -->
             <div class="comp-regions-panel">
               <div class="comp-regions-header">
-                <span>Regions in ${escapeHtml(c.name)} (Share % inside country)</span>
-                <span class="mono text-muted">${formatInt(c.companies)} Companies • ${formatCompact(c.pp_hr)} PP/hr</span>
+                <span>Regions in ${escapeHtml(c.name)} (${regions.length})</span>
               </div>
               <div class="comp-regions-table-wrap">
                 <table class="terminal-table comp-regions-table">
                   <thead>
                     <tr>
-                      <th style="width:29%;text-align:left">Region</th>
-                      <th style="width:20%;text-align:right">Companies</th>
-                      <th style="width:21%;text-align:right">PP/hr</th>
-                      <th style="width:30%;text-align:right">Region Income (₿/h)</th>
+                      <th style="width:36%;text-align:left">Region</th>
+                      <th style="width:24%;text-align:right">Companies</th>
+                      <th style="width:40%;text-align:right">Wages &amp; Tax (₿/h)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -740,22 +666,6 @@ export class CompaniesView {
   // ===========================================================================
   // EVENTS & HISTORICAL CHART
   // ===========================================================================
-
-  bindIsolateChartButtons(container) {
-    container.querySelectorAll('[data-isolate-entity]').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const code = btn.dataset.isolateEntity;
-        const chartMount = this.mountEl.querySelector('#companies-history-mount');
-        if (chartMount) {
-          chartMount.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        if (this.chartWidget) {
-          this.chartWidget.isolateEntity(code);
-        }
-      });
-    });
-  }
 
   bindEvents() {
     this.mountEl.querySelectorAll('[data-comp-subtab]').forEach((btn) => {
@@ -853,15 +763,18 @@ export class CompaniesView {
   buildCountryEntitiesMap() {
     const countriesMap = (this.data && this.data.by_countries) || {};
     const sortedKeys = Object.keys(countriesMap).sort((a, b) => {
-      const ppDiff = (Number(countriesMap[b].pp_hr) || 0) - (Number(countriesMap[a].pp_hr) || 0);
-      if (ppDiff !== 0) return ppDiff;
-      return (Number(countriesMap[b].companies) || 0) - (Number(countriesMap[a].companies) || 0);
+      const wDiff =
+        (Number(countriesMap[b].wages_hr) || 0) -
+        (Number(countriesMap[a].wages_hr) || 0);
+      if (wDiff !== 0) return wDiff;
+      return (
+        (Number(countriesMap[b].companies) || 0) -
+        (Number(countriesMap[a].companies) || 0)
+      );
     });
 
-    // Display top 24 countries on the chart chip grid so it stays clean and fast
-    const topKeys = sortedKeys.slice(0, 24);
     const out = {};
-    topKeys.forEach((cKey, idx) => {
+    sortedKeys.forEach((cKey, idx) => {
       const c = countriesMap[cKey];
       const name = c.name || cKey.toUpperCase();
       const short = name.length > 11 ? `${name.slice(0, 10)}.` : name;
@@ -869,6 +782,7 @@ export class CompaniesView {
         code: cKey,
         name,
         short,
+        iconUrl: this.getCountryFlagUrl(c, cKey),
         badgeText: String(c.code || cKey).slice(0, 2).toUpperCase(),
         color: COUNTRY_PALETTE[idx % COUNTRY_PALETTE.length],
         pp: 1,
@@ -901,20 +815,20 @@ export class CompaniesView {
               {
                 key: 'pp_hr',
                 label: 'Output (PP/hr)',
-                yFormatter: (v) => `${formatCompact(v)} PP`,
-                itemFormatter: (v) => `${formatCompact(v)} PP/h`,
+                yFormatter: (v) => `${formatMetric(v)} PP`,
+                itemFormatter: (v) => `${formatMetric(v)} PP/h`,
               },
               {
                 key: 'companies',
                 label: 'Companies',
-                yFormatter: (v) => formatCompact(v),
+                yFormatter: (v) => formatInt(v),
                 itemFormatter: (v) => formatInt(v),
               },
               {
                 key: 'wages_hr',
                 label: 'Wages (₿/hr)',
-                yFormatter: (v) => `${formatMoney(v, 2)} ₿`,
-                itemFormatter: (v) => `${formatMoney(v, 2)} ₿/h`,
+                yFormatter: (v) => `${formatMetric(v)} ₿`,
+                itemFormatter: (v) => `${formatMetric(v)} ₿/h`,
               },
             ],
             defaultMetric: 'pp_hr',
@@ -924,36 +838,25 @@ export class CompaniesView {
           const countryEntities = this.buildCountryEntitiesMap();
           this.chartWidget = new HistoryChartWidget({
             mountEl: chartMount,
-            title: 'Companies History — Top Countries',
+            title: 'Companies History — By Countries',
             historyKey: 'countries',
             customEntities: countryEntities,
+            defaultVisibleCount: 5,
             metrics: [
               {
-                key: 'pp_hr',
-                label: 'Output (PP/hr)',
-                yFormatter: (v) => `${formatCompact(v)} PP`,
-                itemFormatter: (v) => `${formatCompact(v)} PP/h`,
+                key: 'wages_hr',
+                label: 'Wages (₿/hr)',
+                yFormatter: (v) => `${formatMetric(v)} ₿`,
+                itemFormatter: (v) => `${formatMetric(v)} ₿/h`,
               },
               {
                 key: 'companies',
                 label: 'Companies',
-                yFormatter: (v) => formatCompact(v),
+                yFormatter: (v) => formatInt(v),
                 itemFormatter: (v) => formatInt(v),
               },
-              {
-                key: 'wages_hr',
-                label: 'Wages (₿/hr)',
-                yFormatter: (v) => `${formatMoney(v, 2)} ₿`,
-                itemFormatter: (v) => `${formatMoney(v, 2)} ₿/h`,
-              },
-              {
-                key: 'tax_total_hr',
-                label: 'Treasury (₿/hr)',
-                yFormatter: (v) => `${formatMoney(v, 2)} ₿`,
-                itemFormatter: (v) => `+${formatMoney(v, 2)} ₿/h`,
-              },
             ],
-            defaultMetric: 'pp_hr',
+            defaultMetric: 'wages_hr',
           });
         }
 
