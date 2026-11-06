@@ -1,0 +1,82 @@
+name: Update Wealthrate v2 Companies Data
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: warera-api-lock
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout repository code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Checkout data branch
+      uses: actions/checkout@v4
+      with:
+        ref: data
+        path: data_branch
+        fetch-depth: 1
+
+    - name: Restore existing data store from data branch
+      run: |
+        mkdir -p data_store public/data
+        cp -f data_branch/data_store/*.json data_store/ 2>/dev/null || true
+        rm -f data_store/player_meta_cache.json data_branch/data_store/player_meta_cache.json 2>/dev/null || true
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Execute companies analyzer & build static JSON slices
+      env:
+        WEALTHRATE1: ${{ secrets.WEALTHRATE1 }}
+        WEALTHRATE2: ${{ secrets.WEALTHRATE2 }}
+        WEALTHRATE3: ${{ secrets.WEALTHRATE3 }}
+      run: python main.py --task companies
+
+    - name: Commit and push results to data branch
+      run: |
+        rm -f data_branch/*.json 2>/dev/null || true
+        rm -rf data_branch/data_store data_branch/public
+        mkdir -p data_branch/data_store data_branch/public
+        cp -f data_store/*.json data_branch/data_store/
+        cp -rf public/* data_branch/public/
+        cat << 'EOF' > data_branch/vercel.json
+        {
+          "outputDirectory": "public",
+          "git": {
+            "deploymentEnabled": false
+          },
+          "rewrites": [
+            {
+              "source": "/data/:file",
+              "destination": "https://raw.githubusercontent.com/1nAir/WEwr/data/public/data/:file"
+            }
+          ]
+        }
+        EOF
+        cd data_branch
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add -A
+        if ! git diff --staged --quiet; then
+          git checkout --orphan data_squashed
+          git commit -m "chore(companies): update wealthrate v2 companies data"
+          git push --force origin data_squashed:data
+        fi

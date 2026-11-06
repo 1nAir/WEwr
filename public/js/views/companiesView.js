@@ -34,6 +34,30 @@ function formatMetric(val) {
 }
 
 /**
+ * Returns bar and text RGB colors for Traded vs Output %:
+ * - < 100%: Blue (--color-pp), dimming from 90% -> 100%
+ * - >= 100%: Green (--color-buy), dimming from 110% -> 100%
+ */
+function getTradedPctColors(pct) {
+  const n = Number(pct) || 0;
+  const isOver100 = n >= 100;
+  const baseBar = isOver100 ? [16, 185, 129] : [56, 189, 248];
+  const baseText = isOver100 ? [52, 211, 153] : [125, 211, 252];
+
+  const dist = Math.min(10, Math.abs(n - 100));
+  const t = dist / 10; // 1.0 outside [90..110], 0.0 at 100%
+  const barScale = 0.45 + 0.55 * t;
+  const textScale = 0.55 + 0.45 * t;
+
+  const barRgb = baseBar.map((c) => Math.round(c * barScale)).join(', ');
+  const textRgb = baseText.map((c) => Math.round(c * textScale)).join(', ');
+  return {
+    barColor: `rgb(${barRgb})`,
+    textColor: `rgb(${textRgb})`,
+  };
+}
+
+/**
  * View Module: Section 3 — Companies (Global Level 15+ Production, Wages & Country/Regional Taxes).
  * Divided into 2 Subtabs:
  *   1. By Items (По предметам)
@@ -337,14 +361,8 @@ export class CompaniesView {
       const isExpanded = this.expandedItems.has(code);
       const mktPct = Number(it.market_vs_prod_pct) || 0;
       const mktBarWidth = Math.max(0, Math.min(100, mktPct));
-      const mktColorClass =
-        mktPct >= 80 ? 'text-buy' : mktPct >= 30 ? 'text-pp' : 'text-secondary';
-      const mktBarColor =
-        mktPct >= 80
-          ? 'var(--color-buy)'
-          : mktPct >= 30
-            ? 'var(--color-pp)'
-            : 'var(--text-muted)';
+      const { barColor: mktBarColor, textColor: mktTextColor } =
+        getTradedPctColors(mktPct);
 
       rowsHtml.push(`
         <tr class="item-row ${isExpanded ? 'expanded' : ''}" data-comp-item-row="${escapeHtml(code)}">
@@ -360,7 +378,7 @@ export class CompaniesView {
                   <div class="liquidity-bar-track" style="background:rgba(255,255,255,0.08)" title="24h Traded vs Output: ${formatPct(mktPct, 0)} (${formatMetric(it.traded_pp_24h)} / ${formatMetric(it.pp_24h)} PP)">
                     <div class="liquidity-bar-buy" style="width:${mktBarWidth}%;background:${mktBarColor}"></div>
                   </div>
-                  <span class="liquidity-pct ${mktColorClass}" title="24h Traded vs Output">${formatPct(mktPct, 0)}</span>
+                  <span class="liquidity-pct" style="color:${mktTextColor}" title="24h Traded vs Output">${formatPct(mktPct, 0)}</span>
                 </div>
               </div>
             </div>
@@ -401,8 +419,7 @@ export class CompaniesView {
 
   renderItemDrawer(code, it) {
     const mktPct = Number(it.market_vs_prod_pct) || 0;
-    const mktColorClass =
-      mktPct >= 80 ? 'text-buy' : mktPct >= 30 ? 'text-pp' : 'text-secondary';
+    const { textColor: mktTextColor } = getTradedPctColors(mktPct);
 
     return `
       <tr class="drawer-row">
@@ -425,7 +442,7 @@ export class CompaniesView {
                 </div>
                 <div class="formula-result-banner">
                   <span class="text-secondary">Traded vs Output (24h)</span>
-                  <strong class="${mktColorClass}">${formatPct(mktPct, 0)} Traded</strong>
+                  <strong style="color:${mktTextColor}">${formatPct(mktPct, 0)} Traded</strong>
                 </div>
               </div>
 

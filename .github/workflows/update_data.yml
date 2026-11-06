@@ -43,12 +43,12 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Execute all analyzers & build static JSON slices
+    - name: Execute market & profitability analyzers and build static JSON slices
       env:
         WEALTHRATE1: ${{ secrets.WEALTHRATE1 }}
         WEALTHRATE2: ${{ secrets.WEALTHRATE2 }}
         WEALTHRATE3: ${{ secrets.WEALTHRATE3 }}
-      run: python main.py --task all
+      run: python main.py --task all --skip-companies
 
     - name: Commit and push results to data branch
       run: |
