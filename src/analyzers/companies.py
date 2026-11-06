@@ -19,8 +19,6 @@ class CompanyAnalyzer:
         self.client = client
 
     def analyze(self) -> dict[str, Any]:
-        now_ts = int(datetime.now(timezone.utc).timestamp())
-
         # ---------------------------------------------------------------------
         # 1. Fetch Countries & Regions (Taxes & Real Treasury Income)
         # ---------------------------------------------------------------------
@@ -595,6 +593,7 @@ class CompanyAnalyzer:
             },
         }
 
+        now_ts = int(datetime.now(timezone.utc).timestamp())
         return {
             "timestamp": now_ts,
             "summary": summary,
