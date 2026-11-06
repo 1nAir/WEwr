@@ -539,6 +539,160 @@ class Storage:
         pass
 
     # =========================================================================
+    # 3B. COMPANIES & REGIONAL TAX STORAGE
+    # =========================================================================
+
+    @staticmethod
+    def save_latest_companies(snapshot: dict[str, Any]) -> None:
+        if "timestamp" not in snapshot:
+            snapshot["timestamp"] = int(datetime.now(timezone.utc).timestamp())
+        Storage._write_json(config.LATEST_COMPANIES_FILE, snapshot)
+
+    @staticmethod
+    def load_latest_companies() -> tuple[dict[str, Any] | None, int | None]:
+        raw = Storage._read_json(config.LATEST_COMPANIES_FILE)
+        if isinstance(raw, dict) and ("by_items" in raw or "by_countries" in raw):
+            return raw, raw.get("timestamp")
+        return None, None
+
+    @staticmethod
+    def load_companies_history() -> dict[str, Any]:
+        raw = Storage._read_json(config.HISTORY_COMPANIES_FILE)
+        if (
+            isinstance(raw, dict)
+            and "labels" in raw
+            and "items" in raw
+            and "countries" in raw
+            and "global" in raw
+        ):
+            return raw
+        return {
+            "labels": [],
+            "global": {
+                "companies": [],
+                "pp_hr": [],
+                "wages_hr": [],
+                "tax_total_hr": [],
+            },
+            "items": {
+                item: {
+                    "companies": [],
+                    "pp_hr": [],
+                    "wages_hr": [],
+                }
+                for item in config.ITEM_PRETTY_NAMES
+            },
+            "countries": {},
+            "countries_meta": {},
+        }
+
+    @staticmethod
+    def append_companies_snapshot(
+        history: dict[str, Any], snapshot: dict[str, Any]
+    ) -> dict[str, Any]:
+        now_ts = int(
+            snapshot.get("timestamp") or datetime.now(timezone.utc).timestamp()
+        )
+        history["labels"].append(now_ts)
+        prev_len = len(history["labels"]) - 1
+
+        if "global" not in history:
+            history["global"] = {}
+        summary = snapshot.get("summary") or {}
+        tax_inc = summary.get("global_tax_income") or {}
+        global_vals = {
+            "companies": int(summary.get("total_companies", 0) or 0),
+            "pp_hr": round(float(summary.get("total_pp_hr", 0.0) or 0.0), 2),
+            "wages_hr": round(float(summary.get("total_wages_hr", 0.0) or 0.0), 4),
+            "tax_total_hr": round(float(tax_inc.get("total", 0.0) or 0.0), 4),
+        }
+        for gk, gval in global_vals.items():
+            if gk not in history["global"]:
+                history["global"][gk] = [0] * prev_len
+            while len(history["global"][gk]) < prev_len:
+                history["global"][gk].insert(0, 0)
+            history["global"][gk].append(gval)
+
+        # Per-item history
+        by_items = snapshot.get("by_items") or {}
+        if "items" not in history:
+            history["items"] = {}
+        for code in config.ITEM_PRETTY_NAMES:
+            if code not in history["items"]:
+                history["items"][code] = {
+                    k: [0] * prev_len for k in ("companies", "pp_hr", "wages_hr")
+                }
+            ih = history["items"][code]
+            it_snap = by_items.get(code) or {}
+            for k, val in (
+                ("companies", int(it_snap.get("companies", 0) or 0)),
+                ("pp_hr", round(float(it_snap.get("pp_hr", 0.0) or 0.0), 2)),
+                ("wages_hr", round(float(it_snap.get("wages_hr", 0.0) or 0.0), 4)),
+            ):
+                if k not in ih:
+                    ih[k] = [0] * prev_len
+                while len(ih[k]) < prev_len:
+                    ih[k].insert(0, 0)
+                ih[k].append(val)
+
+        # Per-country history
+        by_countries = snapshot.get("by_countries") or {}
+        if "countries" not in history:
+            history["countries"] = {}
+        if "countries_meta" not in history:
+            history["countries_meta"] = {}
+
+        all_c_keys = set(history["countries"].keys()) | set(by_countries.keys())
+        for c_key in all_c_keys:
+            if c_key not in history["countries"]:
+                history["countries"][c_key] = {
+                    k: [0] * prev_len
+                    for k in ("companies", "pp_hr", "wages_hr", "tax_total_hr")
+                }
+            ch = history["countries"][c_key]
+            c_snap = by_countries.get(c_key) or {}
+            if c_snap.get("name"):
+                history["countries_meta"][c_key] = {
+                    "code": c_key,
+                    "name": c_snap["name"],
+                }
+            c_inc = c_snap.get("income") or {}
+            for k, val in (
+                ("companies", int(c_snap.get("companies", 0) or 0)),
+                ("pp_hr", round(float(c_snap.get("pp_hr", 0.0) or 0.0), 2)),
+                ("wages_hr", round(float(c_snap.get("wages_hr", 0.0) or 0.0), 4)),
+                ("tax_total_hr", round(float(c_inc.get("total", 0.0) or 0.0), 4)),
+            ):
+                if k not in ch:
+                    ch[k] = [0] * prev_len
+                while len(ch[k]) < prev_len:
+                    ch[k].insert(0, 0)
+                ch[k].append(val)
+
+        # Trim to MAX_HISTORY_POINTS
+        if len(history["labels"]) > config.MAX_HISTORY_POINTS:
+            history["labels"] = history["labels"][-config.MAX_HISTORY_POINTS :]
+            for gk in history["global"]:
+                if isinstance(history["global"][gk], list):
+                    history["global"][gk] = history["global"][gk][
+                        -config.MAX_HISTORY_POINTS :
+                    ]
+            for ih in history["items"].values():
+                for k in ih:
+                    if isinstance(ih[k], list):
+                        ih[k] = ih[k][-config.MAX_HISTORY_POINTS :]
+            for ch in history["countries"].values():
+                for k in ch:
+                    if isinstance(ch[k], list):
+                        ch[k] = ch[k][-config.MAX_HISTORY_POINTS :]
+
+        return history
+
+    @staticmethod
+    def save_companies_history(history: dict[str, Any]) -> None:
+        Storage._write_json(config.HISTORY_COMPANIES_FILE, history)
+
+    # =========================================================================
     # 4. FRONTEND STATIC DATA SLICES BUILDER (public/data/*.json)
     # =========================================================================
 
@@ -698,6 +852,9 @@ class Storage:
 
         leaderboards = Storage.load_market_leaderboards() or {}
 
+        comp_snap, comp_ts = Storage.load_latest_companies()
+        comp_hist = Storage.load_companies_history()
+
         # Determine line mapping per item
         item_to_line = {}
         for line_name, codes in config.PRODUCTION_LINES.items():
@@ -734,6 +891,7 @@ class Storage:
                 "orderbook": ob_ts or now_ts,
                 "trades": trades_ts or now_ts,
                 "leaderboards": leaderboards.get("timestamp", now_ts),
+                "companies": comp_ts or now_ts,
             },
             "items": items_meta,
             "production_lines": config.PRODUCTION_LINES,
@@ -902,5 +1060,196 @@ class Storage:
         # 5. Build leaderboards.json
         Storage._write_json(config.FE_LEADERBOARDS_FILE, leaderboards, compact=True)
 
-        logger.info(f"Exported 8 static frontend JSON slices to {config.PUBLIC_DATA_DIR}")
+        # 6. Build companies.json & companies_history.json
+        comp_labels = comp_hist.get("labels", [])
+        spark_labels_comp = comp_labels[-config.SPARKLINE_POINTS :]
+        if len(spark_labels_comp) < 2:
+            spark_labels_comp = [now_ts - 86400, now_ts]
+
+        trades_24h_items = (
+            (trades_snap or {}).get("periods", {}).get("24h", {}).get("items", {})
+        )
+
+        comp_items_out: dict[str, Any] = {}
+        raw_comp_items = (comp_snap or {}).get("by_items") or {}
+        for code in config.ITEM_PRETTY_NAMES:
+            pp_unit = max(1, int(config.ITEM_PRODUCTION_POINTS.get(code, 1) or 1))
+            it_src = raw_comp_items.get(code) or {
+                "code": code,
+                "pp_per_unit": pp_unit,
+                "companies": 0,
+                "companies_share_pct": 0.0,
+                "pp_hr": 0.0,
+                "pp_24h": 0.0,
+                "pp_share_pct": 0.0,
+                "ae_pp_hr": 0.0,
+                "emp_pp_hr": 0.0,
+                "units_hr": 0.0,
+                "units_24h": 0.0,
+                "wages_hr": 0.0,
+                "wages_24h": 0.0,
+                "emp_wages_hr": 0.0,
+                "mgr_wages_hr": 0.0,
+            }
+
+            # 24h Market Traded Volume vs 24h Production (Supply vs Market Volume)
+            tr_24h = trades_24h_items.get(code) or {}
+            traded_units_24h = int(tr_24h.get("total_units", 0) or 0)
+            traded_pp_24h = traded_units_24h * pp_unit
+            units_24h_val = float(it_src.get("units_24h", 0.0) or 0.0)
+            market_vs_prod_pct = (
+                round((traded_units_24h / units_24h_val) * 100, 1)
+                if units_24h_val > 0
+                else 0.0
+            )
+
+            ih = comp_hist.get("items", {}).get(code, {})
+            pp_series = [
+                x
+                for x in (ih.get("pp_hr") or [])[-config.SPARKLINE_POINTS :]
+                if x is not None
+            ]
+            comp_series = [
+                x
+                for x in (ih.get("companies") or [])[-config.SPARKLINE_POINTS :]
+                if x is not None
+            ]
+            wages_series = [
+                x
+                for x in (ih.get("wages_hr") or [])[-config.SPARKLINE_POINTS :]
+                if x is not None
+            ]
+
+            cur_pp = float(it_src.get("pp_hr", 0.0) or 0.0)
+            cur_comp = int(it_src.get("companies", 0) or 0)
+            cur_wages = float(it_src.get("wages_hr", 0.0) or 0.0)
+
+            if len(pp_series) < 2:
+                pp_series = [cur_pp, cur_pp]
+            if len(comp_series) < 2:
+                comp_series = [cur_comp, cur_comp]
+            if len(wages_series) < 2:
+                wages_series = [cur_wages, cur_wages]
+
+            first_pp = next((x for x in pp_series if x and x > 0), cur_pp)
+            first_comp = next((x for x in comp_series if x and x > 0), cur_comp)
+            delta_pp_pct = (
+                round(((cur_pp - first_pp) / first_pp) * 100, 1)
+                if first_pp > 0
+                else 0.0
+            )
+            delta_comp = cur_comp - int(first_comp)
+
+            comp_items_out[code] = {
+                **it_src,
+                "traded_units_24h": traded_units_24h,
+                "traded_pp_24h": traded_pp_24h,
+                "market_vs_prod_pct": market_vs_prod_pct,
+                "delta_pp_pct": delta_pp_pct,
+                "delta_companies": delta_comp,
+                "sparkline_7d": {
+                    "labels": spark_labels_comp,
+                    "pp_hr": pp_series,
+                    "companies": comp_series,
+                    "wages_hr": wages_series,
+                },
+            }
+
+        comp_countries_out: dict[str, Any] = {}
+        raw_comp_countries = (comp_snap or {}).get("by_countries") or {}
+        for c_key, c_src in raw_comp_countries.items():
+            ch = comp_hist.get("countries", {}).get(c_key, {})
+            c_pp_series = [
+                x
+                for x in (ch.get("pp_hr") or [])[-config.SPARKLINE_POINTS :]
+                if x is not None
+            ]
+            c_comp_series = [
+                x
+                for x in (ch.get("companies") or [])[-config.SPARKLINE_POINTS :]
+                if x is not None
+            ]
+            c_wages_series = [
+                x
+                for x in (ch.get("wages_hr") or [])[-config.SPARKLINE_POINTS :]
+                if x is not None
+            ]
+            c_tax_series = [
+                x
+                for x in (ch.get("tax_total_hr") or [])[-config.SPARKLINE_POINTS :]
+                if x is not None
+            ]
+
+            cur_c_pp = float(c_src.get("pp_hr", 0.0) or 0.0)
+            cur_c_comp = int(c_src.get("companies", 0) or 0)
+            cur_c_wages = float(c_src.get("wages_hr", 0.0) or 0.0)
+            cur_c_tax = float((c_src.get("income") or {}).get("total", 0.0) or 0.0)
+
+            if len(c_pp_series) < 2:
+                c_pp_series = [cur_c_pp, cur_c_pp]
+            if len(c_comp_series) < 2:
+                c_comp_series = [cur_c_comp, cur_c_comp]
+            if len(c_wages_series) < 2:
+                c_wages_series = [cur_c_wages, cur_c_wages]
+            if len(c_tax_series) < 2:
+                c_tax_series = [cur_c_tax, cur_c_tax]
+
+            first_c_pp = next((x for x in c_pp_series if x and x > 0), cur_c_pp)
+            first_c_comp = next((x for x in c_comp_series if x and x > 0), cur_c_comp)
+            delta_c_pp_pct = (
+                round(((cur_c_pp - first_c_pp) / first_c_pp) * 100, 1)
+                if first_c_pp > 0
+                else 0.0
+            )
+            delta_c_comp = cur_c_comp - int(first_c_comp)
+
+            comp_countries_out[c_key] = {
+                **c_src,
+                "delta_pp_pct": delta_c_pp_pct,
+                "delta_companies": delta_c_comp,
+                "sparkline_7d": {
+                    "labels": spark_labels_comp,
+                    "pp_hr": c_pp_series,
+                    "companies": c_comp_series,
+                    "wages_hr": c_wages_series,
+                    "tax_total_hr": c_tax_series,
+                },
+            }
+
+        comp_summary = dict((comp_snap or {}).get("summary") or {})
+        glob_hist = comp_hist.get("global", {})
+        glob_pp_s = [
+            x
+            for x in (glob_hist.get("pp_hr") or [])[-config.SPARKLINE_POINTS :]
+            if x is not None and x > 0
+        ]
+        glob_comp_s = [
+            x
+            for x in (glob_hist.get("companies") or [])[-config.SPARKLINE_POINTS :]
+            if x is not None and x > 0
+        ]
+        cur_g_pp = float(comp_summary.get("total_pp_hr", 0.0) or 0.0)
+        cur_g_comp = int(comp_summary.get("total_companies", 0) or 0)
+        comp_summary["delta_pp_pct"] = (
+            round(((cur_g_pp - glob_pp_s[0]) / glob_pp_s[0]) * 100, 1)
+            if glob_pp_s and glob_pp_s[0] > 0
+            else 0.0
+        )
+        comp_summary["delta_companies"] = (
+            cur_g_comp - int(glob_comp_s[0]) if glob_comp_s else 0
+        )
+
+        Storage._write_json(
+            config.FE_COMPANIES_FILE,
+            {
+                "timestamp": comp_ts or now_ts,
+                "summary": comp_summary,
+                "by_items": comp_items_out,
+                "by_countries": comp_countries_out,
+            },
+            compact=True,
+        )
+        Storage._write_json(config.FE_COMPANIES_HISTORY_FILE, comp_hist, compact=True)
+
+        logger.info(f"Exported 10 static frontend JSON slices to {config.PUBLIC_DATA_DIR}")
 

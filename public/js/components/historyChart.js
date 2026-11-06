@@ -65,6 +65,8 @@ export class HistoryChartWidget {
     defaultPeriod = '24h',
     defaultMetric = '',
     includeCases = false,
+    historyKey = 'items',
+    customEntities = null,
     yFormatter = (v) => v,
   }) {
     this.mountEl = mountEl;
@@ -74,6 +76,8 @@ export class HistoryChartWidget {
     this.activePeriod = defaultPeriod;
     this.activeMetric = defaultMetric || (metrics[0] && metrics[0].key) || '';
     this.includeCases = includeCases;
+    this.historyKey = historyKey;
+    this.customEntities = customEntities;
     this.yFormatter = yFormatter;
 
     this.historyData = null;
@@ -85,14 +89,40 @@ export class HistoryChartWidget {
     liveChartWidgets.add(this);
   }
 
+  destroy() {
+    if (this.chartInstance) {
+      this.chartInstance.destroy();
+      this.chartInstance = null;
+    }
+    liveChartWidgets.delete(this);
+  }
+
   setData(historyData) {
+    if (this.chartInstance) {
+      this.chartInstance.destroy();
+      this.chartInstance = null;
+    }
     this.historyData = historyData;
     this.renderShell();
     this.updateChart();
   }
 
+  getSeriesMap() {
+    return (this.historyData && this.historyData[this.historyKey]) || {};
+  }
+
+  getEntityMeta(code) {
+    if (this.customEntities && this.customEntities[code]) {
+      return this.customEntities[code];
+    }
+    return store.getItemMeta(code);
+  }
+
   getAvailableItemCodes() {
-    const itemsMap = (this.historyData && this.historyData.items) || {};
+    const itemsMap = this.getSeriesMap();
+    if (this.customEntities) {
+      return Object.keys(this.customEntities).filter((code) => code in itemsMap);
+    }
     const prodLines = store.meta && store.meta.production_lines;
     const orderedRef = prodLines
       ? Object.values(prodLines).flat()
@@ -101,7 +131,7 @@ export class HistoryChartWidget {
 
     return Object.keys(itemsMap)
       .filter((code) => {
-        const meta = store.getItemMeta(code);
+        const meta = this.getEntityMeta(code);
         return this.includeCases || meta.pp > 0;
       })
       .sort((a, b) => {
@@ -148,8 +178,8 @@ export class HistoryChartWidget {
   }
 
   getLatestValueForCode(code) {
-    const itemsMap = (this.historyData && this.historyData.items) || {};
-    const meta = store.getItemMeta(code);
+    const itemsMap = this.getSeriesMap();
+    const meta = this.getEntityMeta(code);
     const arr = this.resolveItemSeries(itemsMap[code], meta);
     for (let i = arr.length - 1; i >= 0; i--) {
       const v = arr[i];
@@ -158,6 +188,17 @@ export class HistoryChartWidget {
       }
     }
     return 0;
+  }
+
+  isolateEntity(code) {
+    const allCodes = this.getAvailableItemCodes();
+    if (!allCodes.includes(code)) return;
+    allCodes.forEach((c) => {
+      if (c !== code) this.hiddenItems.add(c);
+    });
+    this.hiddenItems.delete(code);
+    this.syncChipClasses();
+    this.updateChart();
   }
 
   renderShell() {
@@ -198,9 +239,12 @@ export class HistoryChartWidget {
 
     const chipsHtml = itemCodes
       .map((code) => {
-        const meta = store.getItemMeta(code);
+        const meta = this.getEntityMeta(code);
         const isHidden = this.hiddenItems.has(code);
         const latestVal = this.getLatestValueForCode(code);
+        const iconOrBadgeHtml = meta.badgeText
+          ? `<span class="country-code-badge chart-chip-badge">${escapeHtml(meta.badgeText)}</span>`
+          : `<img src="assets/${escapeHtml(code)}.webp" alt="" class="chart-chip-icon" loading="lazy" />`;
         return `
           <button
             type="button"
@@ -210,7 +254,7 @@ export class HistoryChartWidget {
             title="Click to toggle • Double-click to isolate ${escapeHtml(meta.name)}"
           >
             <span class="chart-chip-bar" style="background:${escapeHtml(meta.color)}"></span>
-            <img src="assets/${escapeHtml(code)}.webp" alt="" class="chart-chip-icon" loading="lazy" />
+            ${iconOrBadgeHtml}
             <span class="chart-chip-name">${renderItemName(meta)}</span>
             <span class="chart-chip-val mono" data-chip-val="${escapeHtml(code)}">
               ${latestVal ? escapeHtml(this.formatItemVal(latestVal, meta)) : '—'}
@@ -342,7 +386,7 @@ export class HistoryChartWidget {
       for (const ds of this.currentDatasets) {
         const valEl = this.mountEl.querySelector(`[data-chip-val="${ds.itemCode}"]`);
         if (!valEl) continue;
-        const meta = store.getItemMeta(ds.itemCode);
+        const meta = this.getEntityMeta(ds.itemCode);
         let lastVal = null;
         for (let i = ds.data.length - 1; i >= 0; i--) {
           if (ds.data[i] !== null && ds.data[i] !== undefined) {
@@ -363,7 +407,7 @@ export class HistoryChartWidget {
     for (const ds of this.currentDatasets) {
       const valEl = this.mountEl.querySelector(`[data-chip-val="${ds.itemCode}"]`);
       if (!valEl) continue;
-      const meta = store.getItemMeta(ds.itemCode);
+      const meta = this.getEntityMeta(ds.itemCode);
       const v = ds.data[dataIndex];
       valEl.textContent = v !== null && v !== undefined ? this.formatItemVal(v, meta) : '—';
     }
@@ -406,7 +450,7 @@ export class HistoryChartWidget {
     const rowsHtml = visiblePoints
       .map((dp) => {
         const code = dp.dataset.itemCode;
-        const meta = store.getItemMeta(code);
+        const meta = this.getEntityMeta(code);
         return `
           <div class="chart-tt-item">
             <span class="chart-tt-left">
@@ -448,7 +492,7 @@ export class HistoryChartWidget {
   updateChart() {
     if (!this.historyData || !window.Chart) return;
     const rawLabels = this.historyData.labels || [];
-    const itemsMap = this.historyData.items || {};
+    const itemsMap = this.getSeriesMap();
     if (!rawLabels.length) return;
 
     const pObj = this.periods.find((p) => p.key === this.activePeriod) || this.periods[0];
@@ -484,9 +528,12 @@ export class HistoryChartWidget {
     };
 
     const datasets = [];
-    for (const [code, seriesObj] of Object.entries(itemsMap)) {
-      const meta = store.getItemMeta(code);
-      if (!this.includeCases && meta.pp === 0) continue;
+    const orderedCodes = this.getAvailableItemCodes();
+    for (const code of orderedCodes) {
+      const seriesObj = itemsMap[code];
+      if (!seriesObj) continue;
+      const meta = this.getEntityMeta(code);
+      if (!this.customEntities && !this.includeCases && meta.pp === 0) continue;
       const rawSeries = this.resolveItemSeries(seriesObj, meta);
       if (!rawSeries.length) continue;
 

@@ -12,18 +12,18 @@
     ]
   },
   {
+    "procedure": "alliance.getByIds",
+    "desc": "Retrieves detailed information about multiple alliances by their IDs",
+    "params": [
+      "ids"
+    ]
+  },
+  {
     "procedure": "alliance.getManyPaginated",
     "desc": "Retrieves a paginated list of alliances with optional filtering",
     "params": [
       "page",
       "limit"
-    ]
-  },
-  {
-    "procedure": "alliance.getByIds",
-    "desc": "Retrieves detailed information about multiple alliances by their IDs",
-    "params": [
-      "ids"
     ]
   },
   {
@@ -53,11 +53,21 @@
     ]
   },
   {
+    "procedure": "article.getPinnedArticles",
+    "desc": "Retrieves the globally pinned articles (official WarEra announcements, e.g. patch notes like v0.27). Confirmed live and reachable with our normal keys; takes no parameters.",
+    "params": []
+  },
+  {
     "procedure": "article.getWelcomeArticleByCountryId",
-    "desc": "Retrieves a country&#39;s pinned welcome article shown to new citizens",
+    "desc": "Retrieves a country's pinned welcome article shown to new citizens",
     "params": [
       "countryId"
     ]
+  },
+  {
+    "procedure": "assetSale.getLastSkinGifts",
+    "desc": "Retrieves a live feed of the most recent skin gifts bought between players. Confirmed live and reachable with our normal keys; takes no parameters.",
+    "params": []
   },
   {
     "procedure": "battle.getBattles",
@@ -134,14 +144,14 @@
   },
   {
     "procedure": "company.getProductionBonus",
-    "desc": "Retrieves the production bonus information for a specific company",
+    "desc": "Retrieves the production bonus information for a specific company. Re-verified live after the v0.27 update (2026-10-26, companies-get-employees patch): the response shrank a lot — strategicBonus, ethicSpecializationBonus and ethicDepositBonus are gone (party ethics and strategic-resource production bonuses were both removed this patch), leaving only depositBonus and total. depositBonus is now always 0 on every company we checked, since this same patch also turned off deposits entirely (country specialization removed) — the field still exists but there's currently no way for it to be non-zero. There is no separate region-level production-bonus endpoint; a company's own +5% core-region bonus (new in v0.27) is applied server-side and isn't broken out anywhere in this response.",
     "params": [
       "companyId"
     ]
   },
   {
     "procedure": "company.getRecommendedRegionIdsByItemCode",
-    "desc": "Retrieves a ranked list of regions with production bonuses for a specific item code",
+    "desc": "Retrieves a ranked list of regions with production bonuses for a specific item code. Re-verified live after the v0.27 update (2026-10-26): still responds 200 but now always returns an empty array, since this same patch turned off deposits entirely (country specialization removed) and the frontend no longer calls this procedure at all — it's effectively dead, though still technically reachable.",
     "params": [
       "itemCode",
       "count"
@@ -149,7 +159,7 @@
   },
   {
     "procedure": "contribution.getCountryUnrestContributions",
-    "desc": "Retrieves a paginated list of citizen contributions (e.g. resources donated) toward a country&#39;s unrest",
+    "desc": "Retrieves a paginated list of citizen contributions (e.g. resources donated) toward a country's unrest",
     "params": [
       "countryId",
       "page",
@@ -158,7 +168,7 @@
   },
   {
     "procedure": "contribution.getRegionContributions",
-    "desc": "Retrieves a paginated list of citizen contributions (e.g. resources donated) toward a region&#39;s resistance",
+    "desc": "Retrieves a paginated list of citizen contributions (e.g. resources donated) toward a region's resistance",
     "params": [
       "regionId",
       "page",
@@ -179,14 +189,14 @@
   },
   {
     "procedure": "country.getUnrestData",
-    "desc": "Retrieves a country&#39;s current unrest/revolution bar level",
+    "desc": "Retrieves a country's current unrest/revolution bar level",
     "params": [
       "countryId"
     ]
   },
   {
     "procedure": "countryDiplomacy.getByCountry",
-    "desc": "Retrieves a country&#39;s sworn enemy and defensive pacts, with damage dealt totals",
+    "desc": "Retrieves a country's sworn enemy and defensive pacts, with damage dealt totals",
     "params": [
       "countryId"
     ]
@@ -228,6 +238,68 @@
     ]
   },
   {
+    "procedure": "employee.getById",
+    "desc": "Retrieves one employee by ID — same shape as one entry of employee.getCompanyRoster's `employees` list. Confirmed live, public, reachable with our normal, non-premium keys; an unknown employeeId returns `null` rather than erroring.",
+    "params": [
+      "employeeId"
+    ]
+  },
+  {
+    "procedure": "employee.getCompanyEmployees",
+    "desc": "Retrieves one company's employee roster — same per-employee shape as employee.getMyEmployees. Confirmed live, public and reachable with our normal, non-premium keys for ANY companyId, not just ones the calling key's account owns.",
+    "params": [
+      "companyId"
+    ]
+  },
+  {
+    "procedure": "employee.getCompanyEstimate",
+    "desc": "Just the `hourly` block from employee.getCompanyRoster, without the employee list — the cheapest call for a company's current real employee profit: hourly profit = production * gameStat.getPpMoneyValue - wageCost - managerCost, in money, live right now (`production` is raw production POINTS per hour, the two costs are already money; no lag, unlike work.getStatsByCompany's daily-aggregated and currently ~1-day-delayed figures). `cap` is the company's current max employee slots. Confirmed live, public, reachable with our normal, non-premium keys for any companyId.",
+    "params": [
+      "companyId"
+    ]
+  },
+  {
+    "procedure": "employee.getCompanyRoster",
+    "desc": "Like employee.getCompanyEmployees, but also includes an `hourly` block with the company-wide totals — confirmed these are the exact sum, across every employee, of each one's own `estimate.production`/`estimate.wage`: `{production, toolboxes, wageCost, managerCost, cap}`. `production` is raw production POINTS per hour, NOT money, while `wageCost` and `managerCost` are money per hour, so production has to be converted before subtracting. This is the single best source for a company's current real employee profit: hourly profit = hourly.production * gameStat.getPpMoneyValue - hourly.wageCost - hourly.managerCost, live right now, no lag. Confirmed live, public, reachable with our normal, non-premium keys for any companyId.",
+    "params": [
+      "companyId"
+    ]
+  },
+  {
+    "procedure": "employee.getManagerPointValue",
+    "desc": "Retrieves the hourly production one additional Management skill point from a manager would add to this company. Confirmed live, public, reachable with our normal, non-premium keys for any companyId.",
+    "params": [
+      "companyId"
+    ]
+  },
+  {
+    "procedure": "employee.getMyEmployees",
+    "desc": "Retrieves every employee the calling account owns, across all of its companies (v0.27's new hired-employee system). Confirmed live and reachable with our normal, non-premium keys — scoped to whichever account the API key itself belongs to, no parameters taken. Each employee carries its stats (base/trained/revealed), traits, potential, wage, wageExpectation, training/specialization history, happiness breakdown, production bonus breakdown, and an `estimate` of its own hourly output: `production` is raw production POINTS per hour, not money (multiply by gameStat.getPpMoneyValue to get money), and `wage` is money per hour. These sum exactly to the company-level `hourly` totals from employee.getCompanyRoster.",
+    "params": []
+  },
+  {
+    "procedure": "employee.getMyWorkforceSummary",
+    "desc": "Retrieves a one-call summary of the calling account's entire workforce across all companies: headcount, how many are trainable today, how many managers are assigned, toolboxes found so far, and hourly totals: `production` in raw production POINTS (multiply by gameStat.getPpMoneyValue to get money), toolbox find rate, and `wageCost` and `managerCost` in money. Confirmed live and reachable with our normal, non-premium keys; no parameters taken.",
+    "params": []
+  },
+  {
+    "procedure": "employeeEvent.getHistory",
+    "desc": "Retrieves one of the calling account's own employees' event history, newest first (training-card picks, trait gains, etc. — matches the shape seen in that employee's own `trainingHistory`). Confirmed live and reachable with our normal, non-premium keys; returned an empty list for an employee with no recorded events at probe time.",
+    "params": [
+      "employeeId"
+    ]
+  },
+  {
+    "procedure": "employeeEvent.getMine",
+    "desc": "Retrieves the calling account's pending employee events (e.g. training-card picks) and any auto-picked outcomes not yet acknowledged. Confirmed live and reachable with our normal, non-premium keys; no parameters taken. Returned empty for our test account (no pending events at probe time).",
+    "params": []
+  },
+  {
+    "procedure": "employeeEvent.getPendingCount",
+    "desc": "Retrieves just the count of employee events waiting for the calling account's decision. Confirmed live and reachable with our normal, non-premium keys; no parameters taken.",
+    "params": []
+  },
+  {
     "procedure": "event.getEventsPaginated",
     "desc": "Retrieves a paginated list of events with optional country and event type filters",
     "params": [
@@ -248,11 +320,21 @@
     "params": []
   },
   {
+    "procedure": "gameConfig.getMaxBountyRate",
+    "desc": "Retrieves the current server-wide cap on bounty rate. Confirmed live and reachable with our normal keys; tolerates both no input at all and an empty {} — unlike gameStat.getPpMoneyValue, it doesn't reject an object body with a void-input error, so it's not listed as a void-input procedure.",
+    "params": []
+  },
+  {
     "procedure": "gameStat.getEquipmentAvgByCode",
     "desc": "Retrieves the average rolled stats for a given equipment item code",
     "params": [
       "itemCode"
     ]
+  },
+  {
+    "procedure": "gameStat.getPpMoneyValue",
+    "desc": "Retrieves the current money value of one production point (used e.g. to turn an employee's raw Production stat into a wage, per the v0.27 patch's employee system). Confirmed live and reachable with our normal keys. Its real input schema is z.void(), not an empty object — an empty {} answers 400 'Expected void, received object' — but this never matters through this site's own proxy/explorer, which only ever sends an 'input' query param when the request body is non-empty, so a param-less form here already calls it correctly.",
+    "params": []
   },
   {
     "procedure": "gameStat.getWorldDevelopment",
@@ -289,8 +371,28 @@
     ]
   },
   {
+    "procedure": "itemTrading.getItemTrading",
+    "desc": "Retrieves one item's trading document. values holds the last 30 days, oldest first, with the last row being the current (in-progress) day — confirmed live: avgValue always equals totalValue / totalQuantity on every row, and currentValue equals the last row's avgValue. sellOrders/buyOrders came back empty on every item checked, so they're typed unknown[] here rather than guessed at. An item with no trading record at all (e.g. a toolbox) answers 404 NOT_FOUND, not an empty document.",
+    "params": [
+      "itemCode"
+    ]
+  },
+  {
     "procedure": "itemTrading.getPrices",
     "desc": "Retrieves current market prices for all tradeable items",
+    "params": []
+  },
+  {
+    "procedure": "managerOffer.getManyPaginated",
+    "desc": "Retrieves the paginated manager job market — companies currently looking for a manager (v0.27's new 'Managers' feature, added alongside hired employees: a manager is a player hired to run another player's company for a cut of its production). Confirmed live and reachable with our normal keys. Params are a guess by analogy with this spec's other getManyPaginated endpoints (limit/cursor) — not confirmed against a real zod error, since this procedure doesn't reject unknown or missing fields.",
+    "params": [
+      "limit",
+      "cursor"
+    ]
+  },
+  {
+    "procedure": "managerOffer.getWageStats",
+    "desc": "Retrieves current market-wide manager wage stats (v0.27's new 'Managers' feature) — the allowed pay range per Management point that the game enforces (80%-120% of the average), and the current top offer. Confirmed live and reachable with our normal keys; takes no parameters.",
     "params": []
   },
   {
@@ -347,6 +449,21 @@
       "limit",
       "cursor",
       "countryId"
+    ]
+  },
+  {
+    "procedure": "poll.getPoll",
+    "desc": "Retrieves a poll by ID (v0.27's new 'Polls in articles' feature — a question with 2-10 answers attached to an article). Confirmed live and reachable with our normal keys. Exact output shape unconfirmed: we only verified a real pollId is required (a missing one 400s with a zod 'Required' error on the pollId field); we don't have a live poll ID handy to see a real 200 response.",
+    "params": [
+      "pollId"
+    ]
+  },
+  {
+    "procedure": "poll.getPollVoters",
+    "desc": "Retrieves who voted for a given option on a poll (v0.27's new 'Polls in articles' feature says who voted for what is public). Confirmed live and reachable with our normal keys. Exact output shape unconfirmed: we only verified real pollId/optionId values are required (missing either one 400s with zod 'Required' errors naming both fields); we don't have a live poll ID handy to see a real 200 response.",
+    "params": [
+      "pollId",
+      "optionId"
     ]
   },
   {
@@ -469,7 +586,7 @@
   },
   {
     "procedure": "tradingOrder.getPublicOrdersByOwner",
-    "desc": "Retrieves a user&#39;s, MU&#39;s, country&#39;s or party&#39;s public trading orders",
+    "desc": "Retrieves a user's, MU's, country's or party's public trading orders",
     "params": [
       "userId",
       "muId",
@@ -482,6 +599,14 @@
     "desc": "Retrieves the best orders for an item",
     "params": [
       "itemCode",
+      "limit"
+    ]
+  },
+  {
+    "procedure": "tradingOrder.getTopOrdersPerItemCode",
+    "desc": "Like tradingOrder.getTopOrders, but several order books in one call. Every requested itemCode is a key in the response, even an unknown one (which just gets two empty lists) — confirmed live. limit caps orders PER SIDE per item; omitting it returns one per side (same default as getTopOrders). The order objects share the same fields as getPublicOrdersByOwner's.",
+    "params": [
+      "itemCodes",
       "limit"
     ]
   },
@@ -523,7 +648,7 @@
   },
   {
     "procedure": "upgradeConstruction.listConstructions",
-    "desc": "Retrieves a paginated list of upgrade construction projects, filtered by region or country (at least one of the two is required \u2014 confirmed live: omitting both returns a 400 &#39;regionId or countryId is required&#39;). Cursor pagination uses the construction document&#39;s own Mongo _id (confirmed live: a non-ObjectId cursor value 500s with a Mongoose cast error naming the underlying &#39;UpgradeConstruction&#39; model).",
+    "desc": "Retrieves a paginated list of upgrade construction projects, filtered by region or country (at least one of the two is required — confirmed live: omitting both returns a 400 'regionId or countryId is required'). Cursor pagination uses the construction document's own Mongo _id (confirmed live: a non-ObjectId cursor value 500s with a Mongoose cast error naming the underlying 'UpgradeConstruction' model).",
     "params": [
       "regionId",
       "countryId",
@@ -562,91 +687,36 @@
     ]
   },
   {
+    "procedure": "work.getLastByEmployee",
+    "desc": "Retrieves the most recent work entry/entries for one employee (v0.27's new hired-employee system, added when the job market was removed). Confirmed live and reachable with our normal (non-premium) keys. Real output shape unconfirmed: employee IDs come from employee.getMyEmployees, which requires a logged-in session and isn't reachable with an API key, so this could only be probed with a dummy ID (returns an empty array, no error).",
+    "params": [
+      "employeeId"
+    ]
+  },
+  {
     "procedure": "work.getStatsByCompany",
-    "desc": "Retrieves a company&#39;s daily work stats (aggregated across all its workers) over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra&#39;s own public API reference.",
+    "desc": "Retrieves a company's daily work stats over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra's own public API reference. Re-verified live after the v0.27 update (2026-10-26, companies-get-employees patch): fields are a subset of selfWork/wage/employeeProd/automatedEngine depending on what that company actually earned that day (zero-valued fields are sometimes omitted entirely, not just set to 0) — employeeProd is production from hired employees (v0.27+); there is no workerProd here (that legacy job-market field only ever appeared on work.getStatsByUserId, scoped to the worker/user, not the hiring company).",
     "params": [
       "companyId",
       "days",
       "timezone"
+    ]
+  },
+  {
+    "procedure": "work.getStatsByEmployee",
+    "desc": "Retrieves one hired employee's daily work stats over a period of days (v0.27's new hired-employee system, added when the job market was removed). Confirmed live and reachable with our normal (non-premium) keys — unlike work.getStatsByCompany/ByUserId this does NOT require WarEra Premium. Real output shape unconfirmed: employee IDs come from employee.getMyEmployees, which requires a logged-in session and isn't reachable with an API key, so this could only be probed with a dummy ID (returns an empty array, no error). Likely mirrors the dailyDate/total-style shape of work.getStatsByCompany.",
+    "params": [
+      "employeeId",
+      "days"
     ]
   },
   {
     "procedure": "work.getStatsByUserId",
-    "desc": "Retrieves a user&#39;s daily work stats (production, wage, self-work vs. automated engine) over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra&#39;s own public API reference.",
+    "desc": "Retrieves a user's daily work stats (production, wage, self-work vs. automated engine) over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra's own public API reference. Re-verified live after the v0.27 update (2026-10-26, companies-get-employees patch): now carries both workerProd (legacy — production as someone else's hired worker under the old job market, which v0.27 removed; present in history, should trend to 0 going forward) and employeeProd (new — production credited from this user's own hired employees).",
     "params": [
       "userId",
       "days",
       "timezone"
-    ]
-  },
-  {
-    "procedure": "work.getStatsByWorker",
-    "desc": "Retrieves a worker&#39;s daily work stats across all companies (not scoped to one company) over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra&#39;s own public API reference.",
-    "params": [
-      "workerId",
-      "days",
-      "timezone"
-    ]
-  },
-  {
-    "procedure": "work.getStatsByWorkerAndCompany",
-    "desc": "Retrieves a worker&#39;s daily work stats scoped to one specific company over a period of days. Requires the calling account to have WarEra Premium; undocumented in WarEra&#39;s own public API reference.",
-    "params": [
-      "workerId",
-      "companyId",
-      "days",
-      "timezone"
-    ]
-  },
-  {
-    "procedure": "workOffer.getById",
-    "desc": "Retrieves detailed information about a specific work offer",
-    "params": [
-      "workOfferId"
-    ]
-  },
-  {
-    "procedure": "workOffer.getWageStats",
-    "desc": "Retrieves the allowed wage range and top eligible work offers for a worker&#39;s stats",
-    "params": [
-      "energy",
-      "production",
-      "citizenship"
-    ]
-  },
-  {
-    "procedure": "workOffer.getWorkOfferByCompanyId",
-    "desc": "Retrieves work offer for a specific company",
-    "params": [
-      "companyId"
-    ]
-  },
-  {
-    "procedure": "workOffer.getWorkOffersPaginated",
-    "desc": "Retrieves a paginated list of work offers with optional user and region filtering",
-    "params": [
-      "userId",
-      "regionId",
-      "cursor",
-      "limit",
-      "energy",
-      "production",
-      "citizenship"
-    ]
-  },
-  {
-    "procedure": "worker.getTotalWorkersCount",
-    "desc": "Get total workers count for a user",
-    "params": [
-      "userId"
-    ]
-  },
-  {
-    "procedure": "worker.getWorkers",
-    "desc": "Get workers for a company or user",
-    "params": [
-      "companyId",
-      "userId"
     ]
   }
 ]

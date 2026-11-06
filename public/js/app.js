@@ -5,6 +5,7 @@ import { ProfitabilityView } from './views/profitabilityView.js';
 import { OrderBookView } from './views/orderbookView.js';
 import { TradesView } from './views/tradesView.js';
 import { LeaderboardsView } from './views/leaderboardsView.js';
+import { CompaniesView } from './views/companiesView.js';
 
 /**
  * Main Application Controller & Hash Router for Wealthrate v2.0.
@@ -22,6 +23,9 @@ class WealthrateApp {
     );
     this.leaderboardsView = new LeaderboardsView(
       document.getElementById('subview-leaderboards')
+    );
+    this.companiesView = new CompaniesView(
+      document.getElementById('companies-mount')
     );
 
     this.loadedViews = new Set();
@@ -49,14 +53,22 @@ class WealthrateApp {
         : store.state.marketSubtab || 'orderbook';
       return { section: 'market', subtab: sub };
     }
+    if (segments[0] === 'companies') {
+      const sub = ['items', 'countries'].includes(segments[1])
+        ? segments[1]
+        : store.state.companiesSubtab || 'items';
+      return { section: 'companies', subtab: sub };
+    }
     return { section: 'profitability', subtab: null };
   }
 
   async handleRouteChange(forceRefresh = false) {
     const { section, subtab } = this.parseHash();
     store.state.section = section;
-    if (subtab) {
+    if (section === 'market' && subtab) {
       store.state.marketSubtab = subtab;
+    } else if (section === 'companies' && subtab) {
+      store.state.companiesSubtab = subtab;
     }
 
     // Sync top navigation buttons & section visibility
@@ -66,13 +78,23 @@ class WealthrateApp {
 
     const profSection = document.getElementById('view-profitability');
     const mktSection = document.getElementById('view-market');
+    const compSection = document.getElementById('view-companies');
     if (profSection) profSection.hidden = section !== 'profitability';
     if (mktSection) mktSection.hidden = section !== 'market';
+    if (compSection) compSection.hidden = section !== 'companies';
 
     if (section === 'profitability') {
       if (forceRefresh || !this.loadedViews.has('profitability')) {
         await this.profitabilityView.init(forceRefresh);
         this.loadedViews.add('profitability');
+      }
+    } else if (section === 'companies') {
+      const activeCompSub = store.state.companiesSubtab || 'items';
+      if (forceRefresh || !this.loadedViews.has('companies')) {
+        await this.companiesView.init(forceRefresh, activeCompSub);
+        this.loadedViews.add('companies');
+      } else {
+        this.companiesView.setSubtab(activeCompSub);
       }
     } else if (section === 'market') {
       const activeSub = store.state.marketSubtab || 'orderbook';
@@ -114,7 +136,12 @@ class WealthrateApp {
 
     const section = store.state.section;
     const sub = store.state.marketSubtab;
-    const tsKey = section === 'profitability' ? 'profitability' : sub || 'orderbook';
+    const tsKey =
+      section === 'profitability'
+        ? 'profitability'
+        : section === 'companies'
+          ? 'companies'
+          : sub || 'orderbook';
     const ts = meta.timestamps[tsKey] || meta.generated_at;
 
     const headerText = document.getElementById('header-updated-text');
@@ -135,6 +162,8 @@ class WealthrateApp {
         const sec = btn.dataset.section;
         if (sec === 'market') {
           window.location.hash = `#market/${store.state.marketSubtab || 'orderbook'}`;
+        } else if (sec === 'companies') {
+          window.location.hash = `#companies/${store.state.companiesSubtab || 'items'}`;
         } else {
           window.location.hash = `#${sec}`;
         }
@@ -175,7 +204,9 @@ class WealthrateApp {
         const key =
           store.state.section === 'profitability'
             ? 'profitability'
-            : store.state.marketSubtab || 'orderbook';
+            : store.state.section === 'companies'
+              ? 'companies'
+              : store.state.marketSubtab || 'orderbook';
         modalBody.innerHTML = GUIDE_CONTENT[key] || GUIDE_CONTENT.profitability;
         modal.hidden = false;
       });

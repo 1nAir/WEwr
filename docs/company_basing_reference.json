@@ -1,0 +1,2048 @@
+{
+  "_meta": {
+    "title": "WarEra Company Basing (Archive v1 Flow) & v0.27 Company/Employee API Reference",
+    "generated_at": "2026-10-31",
+    "description": "Complete specification of the legacy Company Basing flow from archive-v1 (src/production_analyzer.py & src/region_analyzer.py), the exact data structures it produced (latest_companies.json & history_companies.json), and all new/updated v0.27 API endpoints related to companies, employees, managers, and regional production."
+  },
+  "archive_v1_company_basing_flow": {
+    "overview": "In archive-v1, Company Basing analyzed all active player companies across the map to determine how many factories, workers, and Automated Engine (AE) levels were located in 'Best Bonus' regions vs. suboptimal ('Other') regions for each of the 20 manufactured/raw items.",
+    "pipeline_steps": [
+      {
+        "step": 1,
+        "name": "World State & Regional Bonus Calculation (RegionBonusAnalyzer.collect_all_bonuses)",
+        "endpoints_called": [
+          "country.getAllCountries",
+          "region.getRegionsObject",
+          "party.getById (batched for each country.rulingParty)"
+        ],
+        "logic": "Calculated total production bonus % per item in every region by summing: country_strategic_bonus + ethic_specialization_bonus + deposit_bonus + ethic_deposit_bonus. Identified 'best_regions_map[item]' as the set of region IDs having the global maximum total_bonus (> 0) for that item."
+      },
+      {
+        "step": 2,
+        "name": "Filter Eligible Business Owners (Level >= 20)",
+        "endpoints_called": [
+          "ranking.getRanking (rankingType='userLevel')"
+        ],
+        "logic": "Fetched global player level ranking and filtered users with value (XP) >= 12600 (Level 20+)."
+      },
+      {
+        "step": 3,
+        "name": "Enumerate All Company IDs",
+        "endpoints_called": [
+          "company.getCompanies (batched per userId, perPage=100, cursor pagination)"
+        ],
+        "logic": "Collected unique company IDs across all eligible players."
+      },
+      {
+        "step": 4,
+        "name": "Fetch Company Details & Aggregate Basing Metrics",
+        "endpoints_called": [
+          "company.getById (batched per companyId)"
+        ],
+        "logic": "Ignored disabled companies (disabledAt != null). Extracted itemCode, region, workerCount, and activeUpgradeLevels.automatedEngine. Categorized each company into 'comp_best_*' (if region in best_regions_map[itemCode]) or 'comp_others_*', and grouped regional counts into ranked 'locations' (sorted by total_bonus desc, company_count desc)."
+      }
+    ],
+    "archive_output_schemas": {
+      "region_bonus_analyzer_return_schema": {
+        "by_region": {
+          "<regionId>": {
+            "region_id": "string",
+            "region_name": "string",
+            "country_id": "string",
+            "country_name": "string",
+            "tax_percent": "number",
+            "specialized_item": "string | null",
+            "bonuses": {
+              "<itemCode>": {
+                "total_bonus": "float (e.g. 56.0)",
+                "breakdown": {
+                  "country_strategic_bonus": "float",
+                  "ethic_specialization_bonus": "float",
+                  "deposit_bonus": "float",
+                  "ethic_deposit_bonus": "float"
+                },
+                "has_deposit": "bool",
+                "deposit": {
+                  "type": "string (itemCode)",
+                  "bonus": "float",
+                  "ends_at": "ISO-8601 string",
+                  "ends_at_timestamp": "float",
+                  "remaining_seconds": "int"
+                },
+                "deposit_ends_at": "ISO-8601 string | null",
+                "remaining_seconds": "int | null"
+              }
+            }
+          }
+        },
+        "by_item": {
+          "<itemCode>": [
+            {
+              "country_id": "string",
+              "country_name": "string",
+              "tax_percent": "number",
+              "specialized_item": "string | null",
+              "has_deposit": "bool",
+              "total_bonus": "float",
+              "breakdown": "object (same as above)",
+              "deposit": "object | null",
+              "deposit_ends_at": "string | null",
+              "remaining_seconds": "int | null",
+              "regions": [
+                {
+                  "id": "string (regionId)",
+                  "name": "string (regionName)"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "latest_companies_json": {
+        "file": "latest_companies.json",
+        "schema_description": {
+          "timestamp": "int (Unix UTC seconds)",
+          "data": {
+            "<itemCode>": {
+              "comp_best_count": "int — companies located in global #1 max-bonus region(s) for this item",
+              "comp_best_workers": "int — workers in best-bonus companies",
+              "comp_best_ae": "int — sum of Automated Engine upgrade levels in best-bonus companies",
+              "comp_others_count": "int — companies located outside best-bonus regions",
+              "comp_others_workers": "int — workers in non-best companies",
+              "comp_others_ae": "int — sum of Automated Engine upgrade levels in non-best companies",
+              "comp_total_count": "int — total active companies for this item (best + others)",
+              "comp_total_workers": "int — total workers for this item (best + others)",
+              "comp_total_ae": "int — total Automated Engine levels for this item (best + others)",
+              "comp_best_regions_count": "int — number of regions tied for the #1 highest bonus",
+              "locations": [
+                {
+                  "rank": "int | null — bonus tier rank (1 = highest bonus; null for 0% bonus group)",
+                  "country_name": "string — country name or 'Other regions (0% bonus)'",
+                  "region_name": "string — specific region name if has_deposit=true, 'All regions' if country-wide bonus, or '' for 0% group",
+                  "total_bonus": "float — production bonus %",
+                  "has_deposit": "bool — true if bonus comes from a regional deposit",
+                  "tax_percent": "int | float | null — country income tax %",
+                  "company_count": "int — companies in this location group",
+                  "worker_count": "int — workers in this location group",
+                  "is_zero_group": "bool (optional, true only on the trailing 0% bonus bucket)"
+                }
+              ]
+            }
+          }
+        },
+        "real_archive_example_iron": {
+          "comp_best_count": 15910,
+          "comp_best_workers": 1992,
+          "comp_best_ae": 97881,
+          "comp_others_count": 8082,
+          "comp_others_workers": 1294,
+          "comp_others_ae": 49983,
+          "comp_total_count": 23992,
+          "comp_total_workers": 3286,
+          "comp_total_ae": 147864,
+          "comp_best_regions_count": 19,
+          "locations": [
+            {
+              "company_count": 15910,
+              "worker_count": 1992,
+              "country_name": "Brazil",
+              "region_name": "All regions",
+              "total_bonus": 56.0,
+              "has_deposit": false,
+              "tax_percent": 10,
+              "rank": 1
+            },
+            {
+              "company_count": 6144,
+              "worker_count": 1126,
+              "country_name": "Thailand",
+              "region_name": "All regions",
+              "total_bonus": 55.0,
+              "has_deposit": false,
+              "tax_percent": 45,
+              "rank": 2
+            },
+            {
+              "company_count": 3,
+              "worker_count": 2,
+              "country_name": "Poland",
+              "region_name": "Pomerania",
+              "total_bonus": 40.0,
+              "has_deposit": true,
+              "tax_percent": 5,
+              "rank": 3
+            },
+            {
+              "company_count": 102,
+              "worker_count": 15,
+              "country_name": "Colombia",
+              "region_name": "Colombian Orinoco",
+              "total_bonus": 38.0,
+              "has_deposit": true,
+              "tax_percent": 3,
+              "rank": 4
+            },
+            {
+              "rank": null,
+              "country_name": "Other regions (0% bonus)",
+              "region_name": "",
+              "total_bonus": 0.0,
+              "has_deposit": false,
+              "tax_percent": null,
+              "company_count": 1541,
+              "worker_count": 133,
+              "is_zero_group": true
+            }
+          ]
+        }
+      },
+      "history_companies_json": {
+        "file": "history_companies.json",
+        "schema_description": {
+          "labels": "list[int] — Unix UTC timestamps of snapshots",
+          "items": {
+            "<itemCode>": {
+              "comp_total_count": "list[int]",
+              "comp_best_count": "list[int]",
+              "comp_others_count": "list[int]",
+              "comp_total_workers": "list[int]",
+              "comp_best_workers": "list[int]",
+              "comp_others_workers": "list[int]",
+              "comp_total_ae": "list[int]",
+              "comp_best_ae": "list[int]",
+              "comp_others_ae": "list[int]"
+            }
+          }
+        },
+        "real_archive_example_iron_last_5_points": {
+          "labels": [
+            1793011416,
+            1793012727,
+            1793013840,
+            1793015041,
+            1793016253
+          ],
+          "iron": {
+            "comp_total_workers": [
+              3289,
+              3287,
+              3296,
+              3288,
+              3286
+            ],
+            "comp_best_ae": [
+              96771,
+              96986,
+              97212,
+              97552,
+              97881
+            ],
+            "comp_total_ae": [
+              147446,
+              147534,
+              147570,
+              147656,
+              147864
+            ],
+            "comp_best_workers": [
+              1924,
+              1943,
+              1959,
+              1982,
+              1992
+            ],
+            "comp_others_ae": [
+              50675,
+              50548,
+              50358,
+              50104,
+              49983
+            ],
+            "comp_others_count": [
+              8191,
+              8173,
+              8143,
+              8103,
+              8082
+            ],
+            "comp_others_workers": [
+              1365,
+              1344,
+              1337,
+              1306,
+              1294
+            ],
+            "comp_best_count": [
+              15728,
+              15764,
+              15803,
+              15857,
+              15910
+            ],
+            "comp_total_count": [
+              23919,
+              23937,
+              23946,
+              23960,
+              23992
+            ]
+          }
+        }
+      }
+    }
+  },
+  "v0_27_changes_affecting_company_basing": {
+    "summary": "On 2026-10-26 (WarEra v0.27 'Companies Get Employees' update), the old player job market, regional deposits, party production ethics, and country strategic resource bonuses were replaced with NPC Hired Employees, Player Managers, Break Room upgrades, and Core Region bonuses.",
+    "key_changes": [
+      {
+        "area": "Workforce (Workers -> Employees & Managers)",
+        "old_v1": "company.getById returned 'workerCount' (int) and 'workers' (array of player worker records). Endpoints worker.* and workOffer.* existed.",
+        "new_v0_27": "company.getById no longer has 'workerCount' ('workers' is an empty legacy array []). Instead, companies hire NPC employees (up to 'cap', increased by 'activeUpgradeLevels.breakRoom') and an optional player Manager. Any company's live employee count, hourly PP production, toolbox find rate, wageCost, managerCost, and slot cap can be queried via 'employee.getCompanyRoster' or 'employee.getCompanyEstimate'."
+      },
+      {
+        "area": "Regional & Company Production Bonuses",
+        "old_v1": "Calculated from country.specializedItem + strategicResources.bonuses + party.ethics.industrialism + region.deposit.",
+        "new_v0_27": "Deposits, country item specialization, and party ethics bonuses were turned off (region.deposit is gone, company.getProductionBonus returns {depositBonus: 0, total: 0}, company.getRecommendedRegionIdsByItemCode returns []). Instead, production bonuses now come from: (1) 'coreRegion' (+5% when company is in a core region of the owning country), (2) 'happiness' (employee happiness %, boosted by Break Room, responsibility, low incomeTax, events), (3) 'management' (bonus % from hired Manager's Management skill), (4) 'specialization' (employee's trained item specialization %). The exact breakdown is exposed per employee in 'employee.productionBonus'."
+      },
+      {
+        "area": "Direct Region-Level Company & Employee Counts",
+        "old_v1": "region.getRegionsObject did not expose company or worker counts; you had to scrape all companies to count how many were in each region.",
+        "new_v0_27": "region.getRegionsObject now directly includes 'companyCount' (int) and 'employeeCount' (int) on every region object, plus 'income.employeeIncomeTax' and 'income.managerIncomeTax', and country.getAllCountries now includes 'taxes.manager' alongside 'taxes.income' and 'taxes.market'."
+      },
+      {
+        "area": "Company Real-Time Hourly Production & Profit",
+        "old_v1": "company.getById only had a static 'production' float; estimating profit required complex worker/AE formulas.",
+        "new_v0_27": "employee.getCompanyEstimate (or employee.getCompanyRoster.hourly) gives live hourly employee output: { itemCode, production (PP/hr), toolboxes (per hr), wageCost (₿/hr), managerCost (₿/hr), cap }. Combined with gameStat.getPpMoneyValue (or market item price) and activeUpgradeLevels.automatedEngine, exact company output and net profit are available immediately."
+      }
+    ]
+  },
+  "new_and_related_endpoints": {
+    "1_any_company_employee_endpoints": [
+      {
+        "procedure": "employee.getCompanyEmployees",
+        "params": [
+          "companyId"
+        ],
+        "auth_scope": "Public (works for ANY companyId with standard non-premium API keys)",
+        "description": "Retrieves a company's full employee roster. Each employee object contains base/trained/revealed stats (production, luck, responsibility), traits, potential, wage, wageExpectation, specializations, trainingHistory, happinessBreakdown, productionBonus breakdown, and an 'estimate' of hourly output ({ production (PP/hr), wage (₿/hr), itemCode }).",
+        "live_response_example": [
+          {
+            "_id": "6adf69a16d36a7591993d0df",
+            "owner": "69635dc2d83cd4e381a66dce",
+            "company": "6970b3fbbcd04419d186dcc3",
+            "region": "6813b7079403bc4170a5d885",
+            "name": "Tomoya Nakayama",
+            "gender": "male",
+            "age": 26,
+            "base": {
+              "production": 9,
+              "luck": 8,
+              "responsibility": 2
+            },
+            "trained": {
+              "production": 5,
+              "luck": 5,
+              "responsibility": 1
+            },
+            "revealed": {
+              "production": true,
+              "luck": true,
+              "responsibility": true
+            },
+            "traits": [
+              {
+                "code": "anchor",
+                "revealed": true
+              },
+              {
+                "code": "mentor",
+                "revealed": true
+              },
+              {
+                "code": "specialist",
+                "revealed": true,
+                "arg": "lead"
+              },
+              {
+                "code": "earlyBloomer",
+                "revealed": true
+              }
+            ],
+            "potential": 11,
+            "potentialMax": 15,
+            "wage": 0.203199,
+            "wageExpectation": 0.915,
+            "nationality": "6813b6d546e731854c7ac81d",
+            "retireAskAt": "2026-12-08T14:54:25.683Z",
+            "createdAt": "2026-10-26T14:54:25.684Z",
+            "updatedAt": "2026-10-31T11:14:05.794Z",
+            "__v": 0,
+            "lastTrainedAt": "2026-10-31T00:24:43.090Z",
+            "trainingsToday": 2,
+            "trainingHistory": [
+              {
+                "card": "drill",
+                "rarity": "uncommon",
+                "stat": "production",
+                "delta": 2,
+                "outcome": {
+                  "stat": "production",
+                  "statGain": 2
+                },
+                "pickedAt": "2026-10-26T14:55:06.626Z"
+              },
+              {
+                "card": "drill",
+                "rarity": "common",
+                "stat": "luck",
+                "delta": 1,
+                "outcome": {
+                  "stat": "luck",
+                  "statGain": 1
+                },
+                "pickedAt": "2026-10-27T00:56:53.838Z"
+              },
+              {
+                "card": "drill",
+                "rarity": "uncommon",
+                "stat": "luck",
+                "delta": 2,
+                "outcome": {
+                  "stat": "luck",
+                  "statGain": 2
+                },
+                "pickedAt": "2026-10-27T17:02:57.204Z"
+              },
+              {
+                "card": "drill",
+                "rarity": "common",
+                "stat": "luck",
+                "delta": 1,
+                "outcome": {
+                  "stat": "luck",
+                  "statGain": 1
+                },
+                "pickedAt": "2026-10-28T00:14:40.141Z"
+              },
+              {
+                "card": "drill",
+                "rarity": "uncommon",
+                "stat": "production",
+                "delta": 2,
+                "outcome": {
+                  "stat": "production",
+                  "statGain": 2
+                },
+                "pickedAt": "2026-10-28T00:15:40.399Z"
+              },
+              {
+                "card": "secondWind",
+                "rarity": "rare",
+                "delta": 2,
+                "outcome": {
+                  "potentialMax": 11
+                },
+                "pickedAt": "2026-10-29T00:22:32.090Z"
+              },
+              {
+                "card": "wildCard",
+                "rarity": "uncommon",
+                "outcome": {
+                  "stat": "luck",
+                  "statGain": 1,
+                  "gained": [
+                    {
+                      "code": "mentor",
+                      "revealed": true
+                    }
+                  ]
+                },
+                "pickedAt": "2026-10-29T00:22:38.311Z"
+              },
+              {
+                "card": "habit",
+                "rarity": "epic",
+                "traitTo": "specialist",
+                "outcome": {
+                  "gained": [
+                    {
+                      "code": "specialist",
+                      "revealed": true,
+                      "arg": "lead"
+                    }
+                  ]
+                },
+                "pickedAt": "2026-10-30T00:45:49.929Z"
+              },
+              {
+                "card": "wildCard",
+                "rarity": "uncommon",
+                "outcome": {
+                  "stat": "responsibility",
+                  "statGain": 1,
+                  "gained": [
+                    {
+                      "code": "earlyBloomer",
+                      "revealed": true
+                    }
+                  ]
+                },
+                "pickedAt": "2026-10-30T00:46:06.312Z"
+              },
+              {
+                "card": "secondWind",
+                "rarity": "legendary",
+                "delta": 4,
+                "outcome": {
+                  "potentialMax": 15
+                },
+                "pickedAt": "2026-10-31T00:21:54.534Z"
+              },
+              {
+                "card": "drill",
+                "rarity": "common",
+                "stat": "production",
+                "delta": 1,
+                "outcome": {
+                  "stat": "production",
+                  "statGain": 1
+                },
+                "pickedAt": "2026-10-31T00:24:47.989Z"
+              }
+            ],
+            "lastSpecializedDay": "2026-10-31",
+            "specializations": {
+              "lead": 6
+            },
+            "coworkerFiredAts": [
+              "2026-10-27T17:01:41.458Z"
+            ],
+            "lastMovedAt": "2026-10-31T00:26:04.380Z",
+            "estimate": {
+              "production": 6.59,
+              "wage": 0.203199,
+              "itemCode": "lead"
+            },
+            "breakdown": {
+              "production": {
+                "base": 4,
+                "trained": 5,
+                "contributions": [
+                  {
+                    "code": "mentor",
+                    "delta": -1,
+                    "revealed": true
+                  },
+                  {
+                    "code": "specialist",
+                    "delta": 3,
+                    "revealed": true
+                  },
+                  {
+                    "code": "earlyBloomer",
+                    "delta": 6,
+                    "revealed": true
+                  },
+                  {
+                    "code": "specialization",
+                    "delta": 6,
+                    "revealed": true,
+                    "percent": true
+                  }
+                ],
+                "total": 17
+              },
+              "luck": {
+                "base": 3,
+                "trained": 5,
+                "contributions": [
+                  {
+                    "code": "luckyCharm",
+                    "delta": 3,
+                    "revealed": true
+                  }
+                ],
+                "total": 11
+              },
+              "responsibility": {
+                "base": 1,
+                "trained": 1,
+                "contributions": [],
+                "total": 2
+              }
+            },
+            "happinessBreakdown": {
+              "base": 50,
+              "contributions": [
+                {
+                  "reason": "responsibility",
+                  "delta": 6,
+                  "revealed": true
+                },
+                {
+                  "reason": "incomeTax",
+                  "delta": -1,
+                  "revealed": true
+                },
+                {
+                  "reason": "trait",
+                  "delta": 5,
+                  "code": "specialist",
+                  "revealed": true
+                }
+              ],
+              "mitigated": 0,
+              "value": 60,
+              "quitChance": 0
+            },
+            "productionBonus": {
+              "total": 55,
+              "contributions": [
+                {
+                  "source": "management",
+                  "percent": 24
+                },
+                {
+                  "source": "manager",
+                  "percent": 10
+                },
+                {
+                  "source": "coreRegion",
+                  "percent": 5
+                },
+                {
+                  "source": "happiness",
+                  "percent": 10
+                },
+                {
+                  "source": "specialization",
+                  "percent": 6
+                }
+              ]
+            },
+            "trainingsPerDay": 1
+          }
+        ]
+      },
+      {
+        "procedure": "employee.getCompanyRoster",
+        "params": [
+          "companyId"
+        ],
+        "auth_scope": "Public (works for ANY companyId with standard non-premium API keys)",
+        "description": "Returns the exact same 'employees' array as employee.getCompanyEmployees PLUS an 'hourly' summary object aggregating the company's total employee production (in raw PP/hour), toolboxes/hour, wageCost (₿/hour), managerCost (₿/hour), and employee slot cap.",
+        "live_response_example": {
+          "employees": [
+            {
+              "_id": "6adf69a16d36a7591993d0df",
+              "owner": "69635dc2d83cd4e381a66dce",
+              "company": "6970b3fbbcd04419d186dcc3",
+              "region": "6813b7079403bc4170a5d885",
+              "name": "Tomoya Nakayama",
+              "gender": "male",
+              "age": 26,
+              "base": {
+                "production": 9,
+                "luck": 8,
+                "responsibility": 2
+              },
+              "trained": {
+                "production": 5,
+                "luck": 5,
+                "responsibility": 1
+              },
+              "revealed": {
+                "production": true,
+                "luck": true,
+                "responsibility": true
+              },
+              "traits": [
+                {
+                  "code": "anchor",
+                  "revealed": true
+                },
+                {
+                  "code": "mentor",
+                  "revealed": true
+                },
+                {
+                  "code": "specialist",
+                  "revealed": true,
+                  "arg": "lead"
+                },
+                {
+                  "code": "earlyBloomer",
+                  "revealed": true
+                }
+              ],
+              "potential": 11,
+              "potentialMax": 15,
+              "wage": 0.203199,
+              "wageExpectation": 0.915,
+              "nationality": "6813b6d546e731854c7ac81d",
+              "retireAskAt": "2026-12-08T14:54:25.683Z",
+              "createdAt": "2026-10-26T14:54:25.684Z",
+              "updatedAt": "2026-10-31T11:14:05.794Z",
+              "__v": 0,
+              "lastTrainedAt": "2026-10-31T00:24:43.090Z",
+              "trainingsToday": 2,
+              "trainingHistory": [
+                {
+                  "card": "drill",
+                  "rarity": "uncommon",
+                  "stat": "production",
+                  "delta": 2,
+                  "outcome": {
+                    "stat": "production",
+                    "statGain": 2
+                  },
+                  "pickedAt": "2026-10-26T14:55:06.626Z"
+                },
+                {
+                  "card": "drill",
+                  "rarity": "common",
+                  "stat": "luck",
+                  "delta": 1,
+                  "outcome": {
+                    "stat": "luck",
+                    "statGain": 1
+                  },
+                  "pickedAt": "2026-10-27T00:56:53.838Z"
+                },
+                {
+                  "card": "drill",
+                  "rarity": "uncommon",
+                  "stat": "luck",
+                  "delta": 2,
+                  "outcome": {
+                    "stat": "luck",
+                    "statGain": 2
+                  },
+                  "pickedAt": "2026-10-27T17:02:57.204Z"
+                },
+                {
+                  "card": "drill",
+                  "rarity": "common",
+                  "stat": "luck",
+                  "delta": 1,
+                  "outcome": {
+                    "stat": "luck",
+                    "statGain": 1
+                  },
+                  "pickedAt": "2026-10-28T00:14:40.141Z"
+                },
+                {
+                  "card": "drill",
+                  "rarity": "uncommon",
+                  "stat": "production",
+                  "delta": 2,
+                  "outcome": {
+                    "stat": "production",
+                    "statGain": 2
+                  },
+                  "pickedAt": "2026-10-28T00:15:40.399Z"
+                },
+                {
+                  "card": "secondWind",
+                  "rarity": "rare",
+                  "delta": 2,
+                  "outcome": {
+                    "potentialMax": 11
+                  },
+                  "pickedAt": "2026-10-29T00:22:32.090Z"
+                },
+                {
+                  "card": "wildCard",
+                  "rarity": "uncommon",
+                  "outcome": {
+                    "stat": "luck",
+                    "statGain": 1,
+                    "gained": [
+                      {
+                        "code": "mentor",
+                        "revealed": true
+                      }
+                    ]
+                  },
+                  "pickedAt": "2026-10-29T00:22:38.311Z"
+                },
+                {
+                  "card": "habit",
+                  "rarity": "epic",
+                  "traitTo": "specialist",
+                  "outcome": {
+                    "gained": [
+                      {
+                        "code": "specialist",
+                        "revealed": true,
+                        "arg": "lead"
+                      }
+                    ]
+                  },
+                  "pickedAt": "2026-10-30T00:45:49.929Z"
+                },
+                {
+                  "card": "wildCard",
+                  "rarity": "uncommon",
+                  "outcome": {
+                    "stat": "responsibility",
+                    "statGain": 1,
+                    "gained": [
+                      {
+                        "code": "earlyBloomer",
+                        "revealed": true
+                      }
+                    ]
+                  },
+                  "pickedAt": "2026-10-30T00:46:06.312Z"
+                },
+                {
+                  "card": "secondWind",
+                  "rarity": "legendary",
+                  "delta": 4,
+                  "outcome": {
+                    "potentialMax": 15
+                  },
+                  "pickedAt": "2026-10-31T00:21:54.534Z"
+                },
+                {
+                  "card": "drill",
+                  "rarity": "common",
+                  "stat": "production",
+                  "delta": 1,
+                  "outcome": {
+                    "stat": "production",
+                    "statGain": 1
+                  },
+                  "pickedAt": "2026-10-31T00:24:47.989Z"
+                }
+              ],
+              "lastSpecializedDay": "2026-10-31",
+              "specializations": {
+                "lead": 6
+              },
+              "coworkerFiredAts": [
+                "2026-10-27T17:01:41.458Z"
+              ],
+              "lastMovedAt": "2026-10-31T00:26:04.380Z",
+              "estimate": {
+                "production": 6.59,
+                "wage": 0.203199,
+                "itemCode": "lead"
+              },
+              "breakdown": {
+                "production": {
+                  "base": 4,
+                  "trained": 5,
+                  "contributions": [
+                    {
+                      "code": "mentor",
+                      "delta": -1,
+                      "revealed": true
+                    },
+                    {
+                      "code": "specialist",
+                      "delta": 3,
+                      "revealed": true
+                    },
+                    {
+                      "code": "earlyBloomer",
+                      "delta": 6,
+                      "revealed": true
+                    },
+                    {
+                      "code": "specialization",
+                      "delta": 6,
+                      "revealed": true,
+                      "percent": true
+                    }
+                  ],
+                  "total": 17
+                },
+                "luck": {
+                  "base": 3,
+                  "trained": 5,
+                  "contributions": [
+                    {
+                      "code": "luckyCharm",
+                      "delta": 3,
+                      "revealed": true
+                    }
+                  ],
+                  "total": 11
+                },
+                "responsibility": {
+                  "base": 1,
+                  "trained": 1,
+                  "contributions": [],
+                  "total": 2
+                }
+              },
+              "happinessBreakdown": {
+                "base": 50,
+                "contributions": [
+                  {
+                    "reason": "responsibility",
+                    "delta": 6,
+                    "revealed": true
+                  },
+                  {
+                    "reason": "incomeTax",
+                    "delta": -1,
+                    "revealed": true
+                  },
+                  {
+                    "reason": "trait",
+                    "delta": 5,
+                    "code": "specialist",
+                    "revealed": true
+                  }
+                ],
+                "mitigated": 0,
+                "value": 60,
+                "quitChance": 0
+              },
+              "productionBonus": {
+                "total": 55,
+                "contributions": [
+                  {
+                    "source": "management",
+                    "percent": 24
+                  },
+                  {
+                    "source": "manager",
+                    "percent": 10
+                  },
+                  {
+                    "source": "coreRegion",
+                    "percent": 5
+                  },
+                  {
+                    "source": "happiness",
+                    "percent": 10
+                  },
+                  {
+                    "source": "specialization",
+                    "percent": 6
+                  }
+                ]
+              },
+              "trainingsPerDay": 1
+            }
+          ],
+          "hourly": {
+            "itemCode": "lead",
+            "production": 21.54,
+            "toolboxes": 0.020999999999999998,
+            "wageCost": 0.620404,
+            "managerCost": 0.055,
+            "cap": 3
+          }
+        }
+      },
+      {
+        "procedure": "employee.getCompanyEstimate",
+        "params": [
+          "companyId"
+        ],
+        "auth_scope": "Public (works for ANY companyId with standard non-premium API keys)",
+        "description": "Lightweight call returning ONLY the 'hourly' summary object from employee.getCompanyRoster (without the employees array). Ideal for batch-querying many companies' live production, wage costs, manager costs, and capacity.",
+        "live_response_example": {
+          "itemCode": "lead",
+          "production": 21.54,
+          "toolboxes": 0.020999999999999998,
+          "wageCost": 0.620404,
+          "managerCost": 0.055,
+          "cap": 3
+        }
+      },
+      {
+        "procedure": "employee.getManagerPointValue",
+        "params": [
+          "companyId"
+        ],
+        "auth_scope": "Public (works for ANY companyId with standard non-premium API keys)",
+        "description": "Retrieves the hourly production (in PP/hour) that 1 additional Management skill point from a hired manager would add to this specific company.",
+        "live_response_example": {
+          "productionPerPoint": 0.24
+        }
+      },
+      {
+        "procedure": "employee.getById",
+        "params": [
+          "employeeId"
+        ],
+        "auth_scope": "Public (works for ANY employeeId with standard non-premium API keys)",
+        "description": "Retrieves a single employee by ID — identical structure to one element of employee.getCompanyRoster's 'employees' array. Returns null if employeeId is unknown.",
+        "live_response_example": {
+          "_id": "6adf69a16d36a7591993d0df",
+          "owner": "69635dc2d83cd4e381a66dce",
+          "company": "6970b3fbbcd04419d186dcc3",
+          "region": "6813b7079403bc4170a5d885",
+          "name": "Tomoya Nakayama",
+          "gender": "male",
+          "age": 26,
+          "base": {
+            "production": 9,
+            "luck": 8,
+            "responsibility": 2
+          },
+          "trained": {
+            "production": 5,
+            "luck": 5,
+            "responsibility": 1
+          },
+          "revealed": {
+            "production": true,
+            "luck": true,
+            "responsibility": true
+          },
+          "traits": [
+            {
+              "code": "anchor",
+              "revealed": true
+            },
+            {
+              "code": "mentor",
+              "revealed": true
+            },
+            {
+              "code": "specialist",
+              "revealed": true,
+              "arg": "lead"
+            },
+            {
+              "code": "earlyBloomer",
+              "revealed": true
+            }
+          ],
+          "potential": 11,
+          "potentialMax": 15,
+          "wage": 0.203199,
+          "wageExpectation": 0.915,
+          "nationality": "6813b6d546e731854c7ac81d",
+          "retireAskAt": "2026-12-08T14:54:25.683Z",
+          "createdAt": "2026-10-26T14:54:25.684Z",
+          "updatedAt": "2026-10-31T11:14:05.794Z",
+          "__v": 0,
+          "lastTrainedAt": "2026-10-31T00:24:43.090Z",
+          "trainingsToday": 2,
+          "trainingHistory": [
+            {
+              "card": "drill",
+              "rarity": "uncommon",
+              "stat": "production",
+              "delta": 2,
+              "outcome": {
+                "stat": "production",
+                "statGain": 2
+              },
+              "pickedAt": "2026-10-26T14:55:06.626Z"
+            },
+            {
+              "card": "drill",
+              "rarity": "common",
+              "stat": "luck",
+              "delta": 1,
+              "outcome": {
+                "stat": "luck",
+                "statGain": 1
+              },
+              "pickedAt": "2026-10-27T00:56:53.838Z"
+            },
+            {
+              "card": "drill",
+              "rarity": "uncommon",
+              "stat": "luck",
+              "delta": 2,
+              "outcome": {
+                "stat": "luck",
+                "statGain": 2
+              },
+              "pickedAt": "2026-10-27T17:02:57.204Z"
+            },
+            {
+              "card": "drill",
+              "rarity": "common",
+              "stat": "luck",
+              "delta": 1,
+              "outcome": {
+                "stat": "luck",
+                "statGain": 1
+              },
+              "pickedAt": "2026-10-28T00:14:40.141Z"
+            },
+            {
+              "card": "drill",
+              "rarity": "uncommon",
+              "stat": "production",
+              "delta": 2,
+              "outcome": {
+                "stat": "production",
+                "statGain": 2
+              },
+              "pickedAt": "2026-10-28T00:15:40.399Z"
+            },
+            {
+              "card": "secondWind",
+              "rarity": "rare",
+              "delta": 2,
+              "outcome": {
+                "potentialMax": 11
+              },
+              "pickedAt": "2026-10-29T00:22:32.090Z"
+            },
+            {
+              "card": "wildCard",
+              "rarity": "uncommon",
+              "outcome": {
+                "stat": "luck",
+                "statGain": 1,
+                "gained": [
+                  {
+                    "code": "mentor",
+                    "revealed": true
+                  }
+                ]
+              },
+              "pickedAt": "2026-10-29T00:22:38.311Z"
+            },
+            {
+              "card": "habit",
+              "rarity": "epic",
+              "traitTo": "specialist",
+              "outcome": {
+                "gained": [
+                  {
+                    "code": "specialist",
+                    "revealed": true,
+                    "arg": "lead"
+                  }
+                ]
+              },
+              "pickedAt": "2026-10-30T00:45:49.929Z"
+            },
+            {
+              "card": "wildCard",
+              "rarity": "uncommon",
+              "outcome": {
+                "stat": "responsibility",
+                "statGain": 1,
+                "gained": [
+                  {
+                    "code": "earlyBloomer",
+                    "revealed": true
+                  }
+                ]
+              },
+              "pickedAt": "2026-10-30T00:46:06.312Z"
+            },
+            {
+              "card": "secondWind",
+              "rarity": "legendary",
+              "delta": 4,
+              "outcome": {
+                "potentialMax": 15
+              },
+              "pickedAt": "2026-10-31T00:21:54.534Z"
+            },
+            {
+              "card": "drill",
+              "rarity": "common",
+              "stat": "production",
+              "delta": 1,
+              "outcome": {
+                "stat": "production",
+                "statGain": 1
+              },
+              "pickedAt": "2026-10-31T00:24:47.989Z"
+            }
+          ],
+          "lastSpecializedDay": "2026-10-31",
+          "specializations": {
+            "lead": 6
+          },
+          "coworkerFiredAts": [
+            "2026-10-27T17:01:41.458Z"
+          ],
+          "lastMovedAt": "2026-10-31T00:26:04.380Z",
+          "estimate": {
+            "production": 6.59,
+            "wage": 0.203199,
+            "itemCode": "lead"
+          },
+          "breakdown": {
+            "production": {
+              "base": 4,
+              "trained": 5,
+              "contributions": [
+                {
+                  "code": "mentor",
+                  "delta": -1,
+                  "revealed": true
+                },
+                {
+                  "code": "specialist",
+                  "delta": 3,
+                  "revealed": true
+                },
+                {
+                  "code": "earlyBloomer",
+                  "delta": 6,
+                  "revealed": true
+                },
+                {
+                  "code": "specialization",
+                  "delta": 6,
+                  "revealed": true,
+                  "percent": true
+                }
+              ],
+              "total": 17
+            },
+            "luck": {
+              "base": 3,
+              "trained": 5,
+              "contributions": [
+                {
+                  "code": "luckyCharm",
+                  "delta": 3,
+                  "revealed": true
+                }
+              ],
+              "total": 11
+            },
+            "responsibility": {
+              "base": 1,
+              "trained": 1,
+              "contributions": [],
+              "total": 2
+            }
+          },
+          "happinessBreakdown": {
+            "base": 50,
+            "contributions": [
+              {
+                "reason": "responsibility",
+                "delta": 6,
+                "revealed": true
+              },
+              {
+                "reason": "incomeTax",
+                "delta": -1,
+                "revealed": true
+              },
+              {
+                "reason": "trait",
+                "delta": 5,
+                "code": "specialist",
+                "revealed": true
+              }
+            ],
+            "mitigated": 0,
+            "value": 60,
+            "quitChance": 0
+          },
+          "productionBonus": {
+            "total": 55,
+            "contributions": [
+              {
+                "source": "management",
+                "percent": 24
+              },
+              {
+                "source": "manager",
+                "percent": 10
+              },
+              {
+                "source": "coreRegion",
+                "percent": 5
+              },
+              {
+                "source": "happiness",
+                "percent": 10
+              },
+              {
+                "source": "specialization",
+                "percent": 6
+              }
+            ]
+          },
+          "trainingsPerDay": 1
+        }
+      }
+    ],
+    "2_company_core_and_upgrade_endpoints": [
+      {
+        "procedure": "company.getById",
+        "params": [
+          "companyId"
+        ],
+        "auth_scope": "Public",
+        "description": "Retrieves full details of a company: owner ('user'), 'region', 'itemCode', 'name', 'production', 'estimatedValue', 'concreteInvested', 'freeMoves', 'movedUpAt', 'disabledAt', and 'activeUpgradeLevels' ({ automatedEngine, storage, breakRoom }).",
+        "live_response_example": {
+          "_id": "6970b3fbbcd04419d186dcc3",
+          "user": "69635dc2d83cd4e381a66dce",
+          "region": "6813b7079403bc4170a5d885",
+          "itemCode": "lead",
+          "isFull": false,
+          "name": "Flevance White Lead",
+          "concreteInvested": 200,
+          "production": 56.13250000000006,
+          "activeUpgradeLevels": {
+            "storage": 2,
+            "automatedEngine": 6,
+            "breakRoom": 3
+          },
+          "createdAt": "2026-01-21T11:09:47.638Z",
+          "updatedAt": "2026-10-31T13:30:10.642Z",
+          "__v": 0,
+          "estimatedValue": 1955.5578019240434,
+          "freeMoves": 0
+        }
+      },
+      {
+        "procedure": "company.getCompanies",
+        "params": [
+          "userId",
+          "perPage",
+          "cursor"
+        ],
+        "auth_scope": "Public",
+        "description": "Retrieves a paginated list of company IDs (strings) owned by a user (or globally if userId omitted).",
+        "live_response_example": {
+          "items": [
+            "69790583d401e6448c44e356",
+            "697b77811a0bc85db302b0a2",
+            "69635dc2d83cd4e381a66dde"
+          ],
+          "nextCursor": "v2.W3sidCI6ImRhdGUiLCJ2IjoiMjAyNi0wMi0wNVQxNjowMzozNS40OTlaIn0seyJ0IjoiZGF0ZSIsInYiOiIyMDI2LTAxLTExVDA4OjIyOjI2Ljk3M1oifSx7InQiOiJzdHIiLCJ2IjoiNjk2MzVkYzJkODNjZDRlMzgxYTY2ZGRlIn1d"
+        }
+      },
+      {
+        "procedure": "company.getProductionBonus",
+        "params": [
+          "companyId"
+        ],
+        "auth_scope": "Public",
+        "description": "Legacy production bonus endpoint. After v0.27, strategicBonus and ethic bonuses were removed and deposits turned off, so this currently returns { depositBonus: 0, total: 0 }. Actual v0.27 bonuses (coreRegion +5%, happiness, management, specialization) are in employee.getCompanyRoster -> employees[i].productionBonus.",
+        "live_response_example": {
+          "depositBonus": 0,
+          "total": 0
+        }
+      },
+      {
+        "procedure": "upgrade.getUpgradeByTypeAndEntity",
+        "params": [
+          "upgradeType",
+          "regionId",
+          "companyId",
+          "muId"
+        ],
+        "auth_scope": "Public",
+        "description": "Retrieves level and status of a specific upgrade for a company (upgradeType: 'automatedEngine' | 'breakRoom' | 'storage'), region, or MU.",
+        "live_response_examples": {
+          "automatedEngine": {
+            "_id": "6970b3fbbcd04419d186dcc7",
+            "company": "6970b3fbbcd04419d186dcc3",
+            "upgradeType": "automatedEngine",
+            "level": 6,
+            "status": "active",
+            "investedMoney": 0,
+            "investedConcrete": 0,
+            "investedSteel": 620,
+            "dependantUsersCount": 0,
+            "createdAt": "2026-01-21T11:09:47.639Z",
+            "updatedAt": "2026-02-22T19:18:08.925Z",
+            "__v": 0
+          },
+          "breakRoom": {
+            "_id": "6970b3fbbcd04419d186dcc9",
+            "company": "6970b3fbbcd04419d186dcc3",
+            "upgradeType": "breakRoom",
+            "level": 3,
+            "status": "active",
+            "investedMoney": 0,
+            "investedConcrete": 0,
+            "investedSteel": 100,
+            "dependantUsersCount": 0,
+            "createdAt": "2026-01-21T11:09:47.640Z",
+            "updatedAt": "2026-10-26T14:51:26.487Z",
+            "__v": 0
+          }
+        }
+      }
+    ],
+    "3_manager_and_economy_endpoints": [
+      {
+        "procedure": "gameStat.getPpMoneyValue",
+        "params": [],
+        "auth_scope": "Public (Note: z.void() input — call GET without 'input' query param)",
+        "description": "Retrieves the current reference money value (₿) of 1 Production Point (PP), used by the v0.27 employee/manager wage and profit formulas.",
+        "live_response_example": 0.0987
+      },
+      {
+        "procedure": "managerOffer.getWageStats",
+        "params": [],
+        "auth_scope": "Public",
+        "description": "Retrieves the market-wide allowed manager pay range per Management skill point (min, max, average — 80% to 120% of market average) and current top offer.",
+        "live_response_example": {
+          "allowedRange": {
+            "min": 0.087786,
+            "max": 0.131678,
+            "average": 0.109732,
+            "source": "market"
+          },
+          "topOffer": 0.13167,
+          "topEligibleOffer": null
+        }
+      },
+      {
+        "procedure": "managerOffer.getManyPaginated",
+        "params": [
+          "limit",
+          "cursor"
+        ],
+        "auth_scope": "Public",
+        "description": "Retrieves paginated active manager job offers posted by companies looking to hire a player manager.",
+        "live_response_example": {
+          "items": [
+            {
+              "_id": "6ae5ac40f00192f002e66d44",
+              "company": "6a0c20eebc32eb0815b18a17",
+              "user": "69fbbf3434d2404777939f0d",
+              "region": "6813b7039403bc4170a5d671",
+              "rateManagement": 0.01197,
+              "maxHourlyWage": 0.13167,
+              "minManagement": 7,
+              "citizenship": "6813b6d446e731854c7ac7a0",
+              "createdAt": "2026-10-31T08:52:16.568Z",
+              "updatedAt": "2026-10-31T13:41:30.274Z",
+              "__v": 0
+            },
+            {
+              "_id": "6ae5513d689158ec38ad6749",
+              "company": "69fc2f9b88925a2a8669c59b",
+              "user": "69f1add783a70af6d31199ce",
+              "region": "6813b7039403bc4170a5d679",
+              "rateManagement": 0.01197,
+              "maxHourlyWage": 0.13167,
+              "minManagement": 7,
+              "createdAt": "2026-10-31T02:23:57.252Z",
+              "updatedAt": "2026-10-31T12:25:52.798Z",
+              "__v": 0,
+              "citizenship": "6813b6d446e731854c7ac7a0"
+            }
+          ],
+          "nextCursor": "v2.W3sidCI6Im51bSIsInYiOjAuMTMxNjd9LHsidCI6InN0ciIsInYiOiI2YWU1NTEzZDY4OTE1OGVjMzhhZDY3NDkifV0"
+        }
+      }
+    ],
+    "4_account_scoped_employee_endpoints": [
+      {
+        "procedure": "employee.getMyWorkforceSummary",
+        "params": [],
+        "auth_scope": "Account-scoped (returns summary for the owner of the API key)",
+        "description": "One-call summary of the calling account's entire workforce across all owned companies: employeeCount, trainableCount, managerCount, foundToolboxes, total hourly PP production, productionByItem breakdown, toolboxesPerHour, wageCost, and managerCost.",
+        "live_response_example": {
+          "employeeCount": 18,
+          "trainableCount": 0,
+          "managerCount": 2,
+          "foundToolboxes": 0,
+          "production": 65.16,
+          "productionByItem": {
+            "paper": 23.31,
+            "limestone": 7.56,
+            "lead": 34.29
+          },
+          "toolboxesPerHour": 0.08600000000000001,
+          "wageCost": 2.235506,
+          "managerCost": 0.066
+        }
+      },
+      {
+        "procedure": "employee.getMyEmployees",
+        "params": [],
+        "auth_scope": "Account-scoped (returns employees for the owner of the API key)",
+        "description": "Retrieves all employees across all companies owned by the calling API key's account. Each item has the same schema as employee.getCompanyEmployees."
+      },
+      {
+        "procedure": "employeeEvent.getMine",
+        "params": [],
+        "auth_scope": "Account-scoped",
+        "description": "Retrieves pending employee training/random events awaiting decision for the calling account."
+      },
+      {
+        "procedure": "employeeEvent.getPendingCount",
+        "params": [],
+        "auth_scope": "Account-scoped",
+        "description": "Retrieves integer count of pending employee events for the calling account."
+      },
+      {
+        "procedure": "employeeEvent.getHistory",
+        "params": [
+          "employeeId"
+        ],
+        "auth_scope": "Account-scoped (must own the employee)",
+        "description": "Retrieves historical training card picks and event outcomes for one owned employee."
+      }
+    ],
+    "5_work_stats_and_region_aggregates": [
+      {
+        "procedure": "region.getRegionsObject",
+        "params": [],
+        "auth_scope": "Public",
+        "description": "Retrieves all regions keyed by regionId. In v0.27, each region directly includes 'companyCount' (total companies based in the region), 'employeeCount' (total employees in the region), and 'income' breakdown (development, employeeIncomeTax, managerIncomeTax, total).",
+        "live_response_example_single_region": {
+          "_id": "6813b7079403bc4170a5d885",
+          "code": "jp-kanto",
+          "country": "6813b6d546e731854c7ac81d",
+          "initialCountry": "6813b6d546e731854c7ac81d",
+          "isCapital": true,
+          "isLinkedToCapital": true,
+          "upgradesV2": {
+            "upgrades": {
+              "bunker": {
+                "level": 2,
+                "constructionPoints": 0,
+                "investedMoney": 300,
+                "constructionStartedAt": "2025-06-10T03:59:41.993Z",
+                "isUnderConstruction": null,
+                "lastConstructions": [],
+                "status": "active",
+                "constructionEndedAt": "2025-06-10T16:00:50.428Z"
+              }
+            },
+            "activeConstructionCount": 0
+          },
+          "name": "Kanto",
+          "mainCity": "Tokyo",
+          "development": 7.88,
+          "baseDevelopment": 7.88,
+          "countryCode": "jp",
+          "position": [
+            139.6917,
+            35.6895
+          ],
+          "biome": "plains",
+          "climate": "moderate",
+          "__v": 32,
+          "stats": {
+            "investedMoney": 0
+          },
+          "activeUpgradeLevels": {},
+          "resistance": 0,
+          "resistanceMax": 788,
+          "currentPopulation": 10,
+          "dates": {
+            "lastOwnershipChangeAt": "2026-08-01T16:03:11.160Z"
+          },
+          "lastBattleEndedAt": "2026-07-22T13:21:04.970Z",
+          "lastResistanceContributionAt": "2026-07-30T07:13:50.644Z",
+          "population": 8,
+          "residents": 8,
+          "companyCount": 277,
+          "income": {
+            "development": 0.6567,
+            "strategicResourcesBonus": 0,
+            "employeeIncomeTax": 0.6361,
+            "managerIncomeTax": 0,
+            "govType": 0,
+            "total": 1.2928
+          },
+          "employeeCount": 667
+        }
+      },
+      {
+        "procedure": "work.getStatsByCompany",
+        "params": [
+          "companyId",
+          "days",
+          "timezone"
+        ],
+        "auth_scope": "Requires WarEra Premium on the calling API key",
+        "description": "Retrieves daily aggregated work stats for a company over N days. In v0.27+, daily entries include selfWork, wage, employeeProd, and automatedEngine."
+      },
+      {
+        "procedure": "work.getStatsByEmployee",
+        "params": [
+          "employeeId",
+          "days"
+        ],
+        "auth_scope": "Public / Non-premium",
+        "description": "Retrieves daily work stats for a specific hired employee over N days."
+      },
+      {
+        "procedure": "work.getLastByEmployee",
+        "params": [
+          "employeeId"
+        ],
+        "auth_scope": "Public / Non-premium",
+        "description": "Retrieves the most recent work log entries for a specific hired employee."
+      }
+    ],
+    "6_removed_legacy_endpoints_v0_27": [
+      {
+        "procedure": "worker.getWorkers",
+        "old_params": [
+          "companyId",
+          "userId"
+        ],
+        "status": "REMOVED (404 No procedure found on path)",
+        "replaced_by": "employee.getCompanyEmployees / employee.getCompanyRoster / employee.getMyEmployees"
+      },
+      {
+        "procedure": "worker.getTotalWorkersCount",
+        "old_params": [
+          "userId"
+        ],
+        "status": "REMOVED (404 No procedure found on path)",
+        "replaced_by": "employee.getMyWorkforceSummary (employeeCount)"
+      },
+      {
+        "procedure": "workOffer.getById",
+        "old_params": [
+          "workOfferId"
+        ],
+        "status": "REMOVED (404 No procedure found on path)",
+        "replaced_by": "managerOffer.getManyPaginated (for managers) / NPC employee hiring"
+      },
+      {
+        "procedure": "workOffer.getWorkOfferByCompanyId",
+        "old_params": [
+          "companyId"
+        ],
+        "status": "REMOVED (404 No procedure found on path)",
+        "replaced_by": "employee.getCompanyRoster / managerOffer.getManyPaginated"
+      },
+      {
+        "procedure": "workOffer.getWorkOffersPaginated",
+        "old_params": [
+          "userId",
+          "regionId",
+          "cursor",
+          "limit",
+          "energy",
+          "production",
+          "citizenship"
+        ],
+        "status": "REMOVED (404 No procedure found on path)",
+        "replaced_by": "managerOffer.getManyPaginated"
+      },
+      {
+        "procedure": "workOffer.getWageStats",
+        "old_params": [
+          "energy",
+          "production",
+          "citizenship"
+        ],
+        "status": "REMOVED (404 No procedure found on path)",
+        "replaced_by": "managerOffer.getWageStats / gameStat.getPpMoneyValue"
+      },
+      {
+        "procedure": "work.getStatsByWorker",
+        "old_params": [
+          "workerId",
+          "days",
+          "timezone"
+        ],
+        "status": "REMOVED (404 No procedure found on path)",
+        "replaced_by": "work.getStatsByEmployee"
+      },
+      {
+        "procedure": "work.getStatsByWorkerAndCompany",
+        "old_params": [
+          "workerId",
+          "companyId",
+          "days",
+          "timezone"
+        ],
+        "status": "REMOVED (404 No procedure found on path)",
+        "replaced_by": "work.getStatsByEmployee / work.getStatsByCompany"
+      }
+    ]
+  },
+  "old_flow_endpoints_live_v0_27_responses": {
+    "description": "Exact live responses returned TODAY (v0.27) when calling every endpoint from the old archive-v1 Company Basing flow",
+    "1_country.getAllCountries_single_country_sample": {
+      "procedure": "country.getAllCountries",
+      "params": [],
+      "v0_27_notes": "Notice: 'specializedItem' and 'strategicResources.bonuses' are gone (strategicResources is now {'resources': {}}). 'taxes' now includes 'manager' tax alongside 'income' and 'market'. New development fields: 'coreDevelopment', 'averageDevelopment', 'currentDevelopment'.",
+      "live_response_sample": {
+        "_id": "6813b6d546e731854c7ac85c",
+        "name": "Bolivia",
+        "code": "bo",
+        "money": 105.05249999999995,
+        "orgs": [
+          "6813b6f23e57e0601e792d9c"
+        ],
+        "taxes": {
+          "income": 0,
+          "market": 0,
+          "manager": 0
+        },
+        "allies": [
+          "683ddd2c24b5a2e114af1603",
+          "6873d0ea1758b40e712b5f16",
+          "687eab339142f76907295e50",
+          "6813b6d546e731854c7ac8dd",
+          "6873d0ea1758b40e712b5f40",
+          "6813b6d546e731854c7ac868",
+          "6813b6d546e731854c7ac87d",
+          "6813b6d546e731854c7ac8ce",
+          "6873d0ea1758b40e712b5f46",
+          "6813b6d546e731854c7ac8be",
+          "6873d0ea1758b40e712b5f4f",
+          "6873d0ea1758b40e712b5ef1",
+          "6873d0ea1758b40e712b5f37",
+          "6813b6d546e731854c7ac865",
+          "6813b6d446e731854c7ac7a8",
+          "6873d0ea1758b40e712b5ee9"
+        ],
+        "warsWith": [
+          "6813b6d446e731854c7ac7e5",
+          "6873d0ea1758b40e712b5f2b",
+          "6813b6d546e731854c7ac8a6",
+          "6adf5d1d58ce8dc7669676bb"
+        ],
+        "scheme": "violet",
+        "mapAccent": "dark",
+        "__v": 353,
+        "strategicResources": {
+          "resources": {}
+        },
+        "rankings": {
+          "countryRegionDiff": {
+            "value": -1,
+            "rank": 118,
+            "tier": "bronze"
+          },
+          "countryDamages": {
+            "value": 3592401084,
+            "rank": 48,
+            "tier": "gold"
+          },
+          "weeklyCountryDamages": {
+            "value": 20083786,
+            "rank": 109,
+            "tier": "bronze"
+          },
+          "countryDevelopment": {
+            "value": 10.86,
+            "rank": 141,
+            "tier": "bronze"
+          },
+          "countryActivePopulation": {
+            "value": 8,
+            "rank": 172,
+            "tier": "bronze"
+          },
+          "countryWealth": {
+            "value": 3019.5272402010196,
+            "rank": 147,
+            "tier": "bronze"
+          },
+          "countryBounty": {
+            "value": 221244.78742349122,
+            "rank": 23,
+            "tier": "platinum"
+          }
+        },
+        "updatedAt": "2026-10-31T14:03:20.862Z",
+        "unrest": {
+          "bar": 1,
+          "barMax": 723,
+          "lastContributionAt": "2026-10-02T02:22:57.206Z"
+        },
+        "enemy": "6813b6d446e731854c7ac7b2",
+        "nonAggressionUntil": {
+          "6813b6d546e731854c7ac8e0": "2026-05-22T16:26:20.230Z",
+          "6813b6d546e731854c7ac880": "2026-05-22T18:49:29.793Z",
+          "6813b6d546e731854c7ac865": "2026-06-10T22:12:12.557Z",
+          "6813b6d446e731854c7ac79e": "2026-06-05T20:02:21.262Z",
+          "6813b6d446e731854c7ac7a8": "2026-05-23T13:55:21.726Z",
+          "6873d0ea1758b40e712b5f2e": "2026-05-24T20:20:29.349Z",
+          "6813b6d546e731854c7ac87d": "2026-05-25T04:13:32.339Z",
+          "6813b6d546e731854c7ac868": "2026-05-25T12:30:40.882Z",
+          "6813b6d446e731854c7ac7b6": "2026-05-25T18:34:51.789Z",
+          "6813b6d446e731854c7ac79c": "2026-05-30T18:29:51.692Z",
+          "69614d0e5d798a861630c58e": "2026-05-26T19:44:54.088Z",
+          "6813b6d546e731854c7ac855": "2026-05-26T21:40:21.553Z",
+          "6813b6d446e731854c7ac7aa": "2026-05-26T21:57:25.555Z",
+          "6873d0ea1758b40e712b5f49": "2026-05-29T04:48:48.363Z",
+          "6873d0ea1758b40e712b5eeb": "2026-05-29T14:02:08.730Z",
+          "6813b6d546e731854c7ac8d4": "2026-05-29T14:02:10.926Z",
+          "683ddd2c24b5a2e114af1609": "2026-05-29T20:02:14.177Z",
+          "6813b6d446e731854c7ac7f2": "2026-05-29T21:50:04.626Z",
+          "6813b6d546e731854c7ac8a0": "2026-05-30T11:26:34.668Z",
+          "6813b6d446e731854c7ac802": "2026-06-01T18:00:42.977Z",
+          "6813b6d546e731854c7ac89c": "2026-06-03T09:03:24.536Z",
+          "6813b6d446e731854c7ac80b": "2026-06-04T08:22:48.428Z",
+          "6813b6d546e731854c7ac8c1": "2026-06-04T10:42:22.990Z",
+          "6813b6d546e731854c7ac889": "2026-06-05T08:05:11.891Z",
+          "6813b6d546e731854c7ac829": "2026-06-07T23:04:43.930Z",
+          "683ddd2c24b5a2e114af15bf": "2026-06-09T07:30:46.563Z",
+          "6813b6d446e731854c7ac7ac": "2026-06-09T09:31:13.664Z",
+          "683ddd2c24b5a2e114af1606": "2026-06-09T20:52:08.710Z",
+          "683ddd2c24b5a2e114af15b9": "2026-06-10T16:00:05.265Z",
+          "683ddd2c24b5a2e114af15f7": "2026-06-10T23:38:47.968Z",
+          "683ddd2c24b5a2e114af15d1": "2026-06-11T14:23:08.462Z",
+          "683ddd2c24b5a2e114af15b5": "2026-06-12T14:56:25.527Z",
+          "6813b6d546e731854c7ac85f": "2026-09-03T15:45:03.150Z",
+          "6813b6d546e731854c7ac83c": "2026-10-29T16:11:00.195Z",
+          "6813b6d546e731854c7ac858": "2026-09-12T21:28:03.700Z",
+          "6813b6d546e731854c7ac82f": "2026-09-13T13:01:18.720Z",
+          "6813b6d546e731854c7ac893": "2026-09-16T19:34:49.181Z",
+          "6813b6d446e731854c7ac79a": "2026-09-25T19:47:38.935Z"
+        },
+        "coreDevelopment": 14.465835626351417,
+        "averageDevelopment": 12.66,
+        "currentDevelopment": 10.86,
+        "currentPopulation": 10,
+        "defensivePacts": [
+          "6873d0ea1758b40e712b5f16",
+          "683ddd2c24b5a2e114af15cd",
+          "683ddd2c24b5a2e114af1609",
+          "6813b6d546e731854c7ac817",
+          "6873d0ea1758b40e712b5f40",
+          "683ddd2c24b5a2e114af1603",
+          "6813b6d546e731854c7ac814",
+          "6873d0ea1758b40e712b5f28",
+          "6813b6d546e731854c7ac8ce",
+          "6813b6d446e731854c7ac7b6",
+          "6873d0ea1758b40e712b5ef7",
+          "683ddd2c24b5a2e114af15cf",
+          "6813b6d546e731854c7ac811",
+          "683ddd2c24b5a2e114af15bf",
+          "6813b6d446e731854c7ac7ba",
+          "6813b6d546e731854c7ac8d4"
+        ],
+        "allianceId": "6a2966e8f0f195d344d5158c",
+        "rulingParty": "698cfccb842d2f3f5866bcad",
+        "income": {
+          "development": 0.905,
+          "strategicResourcesBonus": 0,
+          "employeeIncomeTax": 0.0009,
+          "managerIncomeTax": 0,
+          "govType": 0,
+          "total": 0.9059
+        }
+      }
+    },
+    "2_party.getById_sample": {
+      "procedure": "party.getById",
+      "params": [
+        "partyId"
+      ],
+      "v0_27_notes": "In v1, RegionBonusAnalyzer read party.ethics.industrialism to compute +10%/+30% agrarian/industrial bonuses. In v0.27, party ethics no longer grant production bonuses.",
+      "live_response_sample": {
+        "_id": "698cfccb842d2f3f5866bcad",
+        "name": "CSF NCSF",
+        "description": "We make our own fun.",
+        "country": "6813b6d546e731854c7ac85c",
+        "region": "6813b7099403bc4170a5d99f",
+        "leader": "686c6d8fbe1cef5842840efe",
+        "councilMembers": [
+          "686c6d8fbe1cef5842840efe"
+        ],
+        "members": [
+          "686c6d8fbe1cef5842840efe",
+          "6820f4bfdd8715f299547102"
+        ],
+        "createdAt": "2026-02-11T22:03:55.767Z",
+        "updatedAt": "2026-10-27T00:00:32.929Z",
+        "__v": 0,
+        "primaryWinner": "686c6d8fbe1cef5842840efe"
+      }
+    },
+    "3_region.getRegionsObject_single_region_sample": {
+      "procedure": "region.getRegionsObject",
+      "params": [],
+      "v0_27_notes": "Notice: 'deposit' field is gone on all regions. NEW in v0.27: every region object directly exposes 'companyCount' (int) and 'employeeCount' (int), plus 'income' with 'employeeIncomeTax' and 'managerIncomeTax'.",
+      "live_response_sample": {
+        "_id": "6813b7079403bc4170a5d885",
+        "code": "jp-kanto",
+        "country": "6813b6d546e731854c7ac81d",
+        "initialCountry": "6813b6d546e731854c7ac81d",
+        "isCapital": true,
+        "isLinkedToCapital": true,
+        "upgradesV2": {
+          "upgrades": {
+            "bunker": {
+              "level": 2,
+              "constructionPoints": 0,
+              "investedMoney": 300,
+              "constructionStartedAt": "2025-06-10T03:59:41.993Z",
+              "isUnderConstruction": null,
+              "lastConstructions": [],
+              "status": "active",
+              "constructionEndedAt": "2025-06-10T16:00:50.428Z"
+            }
+          },
+          "activeConstructionCount": 0
+        },
+        "name": "Kanto",
+        "mainCity": "Tokyo",
+        "development": 7.88,
+        "baseDevelopment": 7.88,
+        "countryCode": "jp",
+        "position": [
+          139.6917,
+          35.6895
+        ],
+        "biome": "plains",
+        "climate": "moderate",
+        "__v": 32,
+        "stats": {
+          "investedMoney": 0
+        },
+        "activeUpgradeLevels": {},
+        "resistance": 0,
+        "resistanceMax": 788,
+        "currentPopulation": 10,
+        "dates": {
+          "lastOwnershipChangeAt": "2026-08-01T16:03:11.160Z"
+        },
+        "lastBattleEndedAt": "2026-07-22T13:21:04.970Z",
+        "lastResistanceContributionAt": "2026-07-30T07:13:50.644Z",
+        "population": 8,
+        "residents": 8,
+        "companyCount": 277,
+        "income": {
+          "development": 0.6567,
+          "strategicResourcesBonus": 0,
+          "employeeIncomeTax": 0.6361,
+          "managerIncomeTax": 0,
+          "govType": 0,
+          "total": 1.2928
+        },
+        "employeeCount": 667
+      }
+    },
+    "4_ranking.getRanking_userLevel_sample": {
+      "procedure": "ranking.getRanking",
+      "params": [
+        "rankingType"
+      ],
+      "input_used": {
+        "rankingType": "userLevel"
+      },
+      "v0_27_notes": "Used in Step 2 of Company Basing to get all players with value (XP) >= 12600 (Level 20+).",
+      "live_response_sample": {
+        "_id": "6813b7acd99e5787db09724a",
+        "type": "userLevel",
+        "__v": 0,
+        "isGlobal": false,
+        "items": [
+          {
+            "country": "6873d0ea1758b40e712b5eef",
+            "user": "6813b758efecdf9bab1950b3",
+            "mu": "69d206fc97650a3fb98a8520",
+            "value": 186091,
+            "rank": 1,
+            "tier": "master",
+            "_id": "6ae5f4928c6974444ea09798"
+          },
+          {
+            "country": "6873d0ea1758b40e712b5eef",
+            "user": "6813b759efecdf9bab1951e6",
+            "mu": "69d206fc97650a3fb98a8520",
+            "value": 184514,
+            "rank": 2,
+            "tier": "master",
+            "_id": "6ae5f4928c6974444ea09799"
+          },
+          {
+            "country": "6813b6d446e731854c7ac7ba",
+            "user": "6813b764efecdf9bab195b66",
+            "mu": "6898771106abe90849bebc28",
+            "value": 184201,
+            "rank": 3,
+            "tier": "master",
+            "_id": "6ae5f4928c6974444ea0979a"
+          }
+        ],
+        "tierValues": {
+          "bronze": 0,
+          "silver": 44770,
+          "gold": 66760,
+          "platinum": 85210,
+          "diamond": 119550,
+          "master": 162646
+        },
+        "_total_items": 14671
+      }
+    },
+    "5_company.getCompanies_sample": {
+      "procedure": "company.getCompanies",
+      "params": [
+        "userId",
+        "perPage",
+        "cursor"
+      ],
+      "input_used": {
+        "userId": "69635dc2d83cd4e381a66dce",
+        "perPage": 3
+      },
+      "v0_27_notes": "Used in Step 3 of Company Basing. Returns array of companyId strings and nextCursor.",
+      "live_response_sample": {
+        "items": [
+          "69790583d401e6448c44e356",
+          "697b77811a0bc85db302b0a2",
+          "69635dc2d83cd4e381a66dde"
+        ],
+        "nextCursor": "v2.W3sidCI6ImRhdGUiLCJ2IjoiMjAyNi0wMi0wNVQxNjowMzozNS40OTlaIn0seyJ0IjoiZGF0ZSIsInYiOiIyMDI2LTAxLTExVDA4OjIyOjI2Ljk3M1oifSx7InQiOiJzdHIiLCJ2IjoiNjk2MzVkYzJkODNjZDRlMzgxYTY2ZGRlIn1d"
+      }
+    },
+    "6_company.getById_sample": {
+      "procedure": "company.getById",
+      "params": [
+        "companyId"
+      ],
+      "input_used": {
+        "companyId": "6970b3fbbcd04419d186dcc3"
+      },
+      "v0_27_notes": "Used in Step 4 of Company Basing. Notice: 'workerCount' is gone in v0.27 ('workers' is always []). 'activeUpgradeLevels' now has 'breakRoom' in addition to 'automatedEngine' and 'storage'. To get employee count and live hourly output for a company in v0.27, call 'employee.getCompanyEstimate' or 'employee.getCompanyRoster'.",
+      "live_response_sample": {
+        "_id": "6970b3fbbcd04419d186dcc3",
+        "user": "69635dc2d83cd4e381a66dce",
+        "region": "6813b7079403bc4170a5d885",
+        "itemCode": "lead",
+        "isFull": false,
+        "name": "Flevance White Lead",
+        "concreteInvested": 200,
+        "production": 56.13250000000006,
+        "activeUpgradeLevels": {
+          "storage": 2,
+          "automatedEngine": 6,
+          "breakRoom": 3
+        },
+        "createdAt": "2026-01-21T11:09:47.638Z",
+        "updatedAt": "2026-10-31T13:30:10.642Z",
+        "__v": 0,
+        "estimatedValue": 1955.5578019240434,
+        "freeMoves": 0
+      }
+    },
+    "7_company.getProductionBonus_sample": {
+      "procedure": "company.getProductionBonus",
+      "params": [
+        "companyId"
+      ],
+      "v0_27_notes": "In v0.27, returns only {depositBonus: 0, total: 0}. Actual bonuses are per-employee inside employee.getCompanyRoster.",
+      "live_response_sample": {
+        "depositBonus": 0,
+        "total": 0
+      }
+    },
+    "8_company.getRecommendedRegionIdsByItemCode_sample": {
+      "procedure": "company.getRecommendedRegionIdsByItemCode",
+      "params": [
+        "itemCode",
+        "count"
+      ],
+      "v0_27_notes": "In v0.27, always returns [] because regional deposits and country item specialization were removed.",
+      "live_response_sample": []
+    }
+  }
+}

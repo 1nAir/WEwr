@@ -65,6 +65,12 @@
             </svg>
             <span>Market</span>
           </button>
+          <button type="button" class="nav-tab" data-section="companies">
+            <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M3 17V9l4 2V9l4 2V6l6-2v13H3z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Companies</span>
+          </button>
         </nav>
 
         <!-- Utility Actions (Live Refresh & Guide) -->
@@ -120,6 +126,13 @@
         </div>
         <div id="subview-leaderboards" class="market-subview" hidden>
           <div class="skeleton-loader">Loading Top-25 Leaderboards...</div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: COMPANIES -->
+      <section id="view-companies" class="view-section" hidden>
+        <div id="companies-mount">
+          <div class="skeleton-loader">Loading Global Companies &amp; Regional Production...</div>
         </div>
       </section>
     </main>

@@ -8,6 +8,7 @@ import sys
 import webbrowser
 
 from src import config
+from src.analyzers.companies import CompanyAnalyzer
 from src.analyzers.leaderboards import MarketLeaderboardAnalyzer
 from src.analyzers.orderbook import OrderBookAnalyzer
 from src.analyzers.profitability import ProfitabilityAnalyzer
@@ -96,6 +97,21 @@ def run_leaderboards(client: TRPCClient) -> None:
     logger.info(f"Saved market leaderboards to {config.MARKET_LEADERBOARDS_FILE}")
 
 
+def run_companies(client: TRPCClient) -> None:
+    """Collects global Level 15+ company production, wages, and country/region tax revenues."""
+    logger.info("--- Starting Global Companies & Regional Tax Analysis (Level 15+) ---")
+    analyzer = CompanyAnalyzer(client)
+    snapshot = analyzer.analyze()
+
+    Storage.save_latest_companies(snapshot)
+    logger.info(f"Saved latest companies snapshot to {config.LATEST_COMPANIES_FILE}")
+
+    history = Storage.load_companies_history()
+    history = Storage.append_companies_snapshot(history, snapshot)
+    Storage.save_companies_history(history)
+    logger.info("Companies history updated successfully.")
+
+
 def run_build() -> None:
     """Exports lightweight static JSON slices to `public/data/*.json` for the modular frontend."""
     logger.info("--- Building Static Frontend JSON Slices (public/data/*.json) ---")
@@ -137,6 +153,7 @@ def main() -> None:
     parser.add_argument(
         "--task",
         choices=[
+            "companies",
             "profitability",
             "market",
             "orderbook",
@@ -150,6 +167,11 @@ def main() -> None:
         ],
         default="all",
         help="Task to execute",
+    )
+    parser.add_argument(
+        "--skip-companies",
+        action="store_true",
+        help="Skip the companies collection step when running --task all (useful if split into separate workflows later)",
     )
     parser.add_argument(
         "--port",
@@ -168,7 +190,16 @@ def main() -> None:
         return
 
     client = None
-    if args.task in ("profitability", "market", "orderbook", "depth", "trades", "leaderboards", "all"):
+    if args.task in (
+        "companies",
+        "profitability",
+        "market",
+        "orderbook",
+        "depth",
+        "trades",
+        "leaderboards",
+        "all",
+    ):
         try:
             client = init_client()
         except Exception as e:
@@ -176,6 +207,9 @@ def main() -> None:
             sys.exit(1)
 
     try:
+        if args.task == "companies" or (args.task == "all" and not args.skip_companies):
+            run_companies(client)
+
         if args.task in ("orderbook", "depth", "all"):
             run_orderbook(client)
 
@@ -188,7 +222,7 @@ def main() -> None:
         if args.task in ("profitability", "all"):
             run_profitability(client)
 
-        if args.task in ("build", "all"):
+        if args.task in ("build", "all", "companies"):
             run_build()
 
     except Exception as e:

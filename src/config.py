@@ -19,6 +19,8 @@ HISTORY_TRADES_FILE = os.path.join(DATA_STORE_DIR, "history_trades.json")
 DAILY_TRADER_STATS_FILE = os.path.join(DATA_STORE_DIR, "daily_trader_stats.json")
 
 MARKET_LEADERBOARDS_FILE = os.path.join(DATA_STORE_DIR, "market_leaderboards.json")
+LATEST_COMPANIES_FILE = os.path.join(DATA_STORE_DIR, "latest_companies.json")
+HISTORY_COMPANIES_FILE = os.path.join(DATA_STORE_DIR, "history_companies.json")
 KNOWN_PLAYERS_FILE = os.path.join(DATA_STORE_DIR, "known_players.json")
 PLAYER_META_CACHE_FILE = os.path.join(DATA_STORE_DIR, "player_meta_cache.json")
 
@@ -31,6 +33,11 @@ FE_ORDERBOOK_HISTORY_FILE = os.path.join(PUBLIC_DATA_DIR, "orderbook_history.jso
 FE_TRADES_FILE = os.path.join(PUBLIC_DATA_DIR, "trades.json")
 FE_TRADES_HISTORY_FILE = os.path.join(PUBLIC_DATA_DIR, "trades_history.json")
 FE_LEADERBOARDS_FILE = os.path.join(PUBLIC_DATA_DIR, "leaderboards.json")
+FE_COMPANIES_FILE = os.path.join(PUBLIC_DATA_DIR, "companies.json")
+FE_COMPANIES_HISTORY_FILE = os.path.join(PUBLIC_DATA_DIR, "companies_history.json")
+
+# --- Company Analyzer Configuration ---
+COMPANY_MIN_USER_XP = 6300  # Level 15+ threshold (14 * 15 * 30 = 6300 XP)
 
 # --- API Configuration ---
 API_KEYS = [

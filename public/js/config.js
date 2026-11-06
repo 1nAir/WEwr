@@ -15,6 +15,13 @@ export const NAV_SECTIONS = [
     label: 'Market',
     subtabs: ['orderbook', 'trades', 'leaderboards'],
   },
+  {
+    id: 'companies',
+    label: 'Companies',
+    subtabs: ['items', 'countries'],
+    dataSlice: 'companies.json',
+    historySlice: 'companies_history.json',
+  },
 ];
 
 /**
@@ -55,6 +62,15 @@ export const GUIDE_CONTENT = {
     <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem">
       <div><strong class="text-pp">Live Sell / Live Buy</strong> — Top-25 holders of active market orders right now.</div>
       <div><strong class="text-btc">Top Buyers / Top Sellers (₿)</strong> — Top-25 traders by completed trade volume (₿) for the selected time window.</div>
+    </div>
+  `,
+  companies: `
+    ${TEMP_NOTICE_BANNER}
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem">
+      <div><strong>Scope</strong> — Includes all active (non-disabled) companies owned by players of <strong>Level 15+</strong>.</div>
+      <div><strong class="text-pp">Output (PP/hr)</strong> — Real hourly production combining Automated Engine (<code>1 AE lvl = 1 PP/hr</code>) and hired Employee output (<code>employee.getCompanyEstimate</code>).</div>
+      <div><strong class="text-btc">Wages (₿/hr)</strong> — Total hourly payroll paid to NPC Employees + Player Managers (<code>wageCost + managerCost</code>).</div>
+      <div><strong class="text-buy">Treasury Income (₿/hr)</strong> — Real hourly revenue collected by the country and each region: <code>employeeIncomeTax</code>, <code>managerIncomeTax</code>, <code>development</code>, and <code>total</code>.</div>
     </div>
   `,
 };

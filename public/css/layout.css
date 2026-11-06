@@ -385,3 +385,25 @@
   }
 }
 
+@media (max-width: 600px) {
+  .header-inner {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .primary-nav {
+    order: 3;
+    width: 100%;
+    display: flex;
+  }
+
+  .nav-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 8px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+}
+

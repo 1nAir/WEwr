@@ -20,6 +20,7 @@ class DataStore {
     this.state = {
       section: 'profitability',
       marketSubtab: 'orderbook',
+      companiesSubtab: 'items',
       expandedItem: null,
     };
   }

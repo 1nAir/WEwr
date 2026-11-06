@@ -1363,6 +1363,197 @@
 }
 
 /* ============================================================================
+   7B. COMPANIES & REGIONAL TAX VIEW
+   ============================================================================ */
+.comp-subnav-bar {
+  flex-wrap: wrap;
+}
+
+.comp-kpi-ribbon {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.comp-delta-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.comp-share-sub {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 2px;
+  width: 100%;
+}
+
+.comp-share-bar-track {
+  width: 48px;
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.comp-share-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.comp-share-pct {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.country-code-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 24px;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.country-code-badge.chart-chip-badge {
+  width: 22px;
+  height: 16px;
+  font-size: 0.6rem;
+  border-radius: 3px;
+}
+
+.comp-isolate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.comp-isolate-btn:hover {
+  background: var(--accent-primary);
+  color: #fff;
+}
+
+.comp-country-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.comp-stat-box {
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.comp-stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.comp-stat-val {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.comp-stat-sub {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.comp-regions-panel {
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.comp-regions-header {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.comp-regions-table thead th {
+  background: rgba(255, 255, 255, 0.015);
+  padding: 7px 10px;
+  font-size: 0.68rem;
+}
+
+.comp-regions-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.comp-regions-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.comp-region-row.region-match-highlight {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.comp-region-name {
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--text-primary);
+}
+
+.comp-region-sub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.comp-region-tax-sub {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ============================================================================
    8. MOBILE RESPONSIVE OVERRIDES (<= 768px)
    ============================================================================ */
 .mobile-only { display: none; }
@@ -1494,6 +1685,64 @@
   .kpi-ribbon {
     grid-template-columns: repeat(3, 1fr);
     gap: 6px;
+  }
+
+  .comp-kpi-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .comp-share-bar-track {
+    width: 28px;
+  }
+
+  .comp-share-pct {
+    font-size: 0.63rem;
+  }
+
+  .country-code-badge {
+    width: 26px;
+    height: 20px;
+    font-size: 0.64rem;
+  }
+
+  .comp-country-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .comp-stat-box {
+    padding: 7px 8px;
+  }
+
+  .comp-stat-val {
+    font-size: 0.8rem;
+  }
+
+  .comp-stat-sub {
+    font-size: 0.63rem;
+  }
+
+  .comp-regions-header {
+    padding: 6px 8px;
+    font-size: 0.7rem;
+  }
+
+  .comp-regions-table thead th {
+    padding: 6px 5px;
+    font-size: 0.61rem;
+  }
+
+  .comp-regions-table td {
+    padding: 6px 5px;
+  }
+
+  .comp-region-name {
+    font-size: 0.76rem;
+  }
+
+  .comp-region-sub,
+  .comp-region-tax-sub {
+    font-size: 0.59rem;
   }
 
   .kpi-card {
