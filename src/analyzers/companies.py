@@ -301,7 +301,6 @@ class CompanyAnalyzer:
         # 6. Aggregate Metrics by Items, Countries, and Regions
         # ---------------------------------------------------------------------
         return self._build_aggregated_snapshot(
-            now_ts=now_ts,
             active_companies=active_companies,
             countries_by_id=countries_by_id,
             regions_by_id=regions_by_id,
@@ -311,7 +310,6 @@ class CompanyAnalyzer:
 
     def _build_aggregated_snapshot(
         self,
-        now_ts: int,
         active_companies: dict[str, dict[str, Any]],
         countries_by_id: dict[str, dict[str, Any]],
         regions_by_id: dict[str, dict[str, Any]],

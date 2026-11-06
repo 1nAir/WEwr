@@ -822,6 +822,12 @@ export class CompaniesView {
           historyKey: 'items',
           metrics: [
             {
+              key: 'traded_pct',
+              label: 'Traded (%)',
+              yFormatter: (v) => `${Math.round(Number(v))}%`,
+              itemFormatter: (v) => `${Number(v).toFixed(1)}%`,
+            },
+            {
               key: 'pp_hr',
               label: 'Output (PP/hr)',
               yFormatter: (v) => `${formatMetric(v)} PP`,
@@ -840,7 +846,7 @@ export class CompaniesView {
               itemFormatter: (v) => `${formatMetric(v)} ₿/h`,
             },
           ],
-          defaultMetric: 'pp_hr',
+          defaultMetric: 'traded_pct',
           includeCases: false,
         });
 

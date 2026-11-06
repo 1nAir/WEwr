@@ -579,6 +579,7 @@ class Storage:
                     "companies": [],
                     "pp_hr": [],
                     "wages_hr": [],
+                    "traded_pct": [],
                 }
                 for item in config.ITEM_PRETTY_NAMES
             },
@@ -617,17 +618,35 @@ class Storage:
         by_items = snapshot.get("by_items") or {}
         if "items" not in history:
             history["items"] = {}
+
+        trades_snap, _ = Storage.load_latest_trades()
+        trades_24h_items = (
+            (trades_snap or {}).get("periods", {}).get("24h", {}).get("items", {})
+        )
+
         for code in config.ITEM_PRETTY_NAMES:
             if code not in history["items"]:
                 history["items"][code] = {
-                    k: [0] * prev_len for k in ("companies", "pp_hr", "wages_hr")
+                    k: [0] * prev_len
+                    for k in ("companies", "pp_hr", "wages_hr", "traded_pct")
                 }
             ih = history["items"][code]
             it_snap = by_items.get(code) or {}
+
+            tr_24h = trades_24h_items.get(code) or {}
+            traded_units_24h = int(tr_24h.get("total_units", 0) or 0)
+            units_24h_val = float(it_snap.get("units_24h", 0.0) or 0.0)
+            traded_pct = (
+                round((traded_units_24h / units_24h_val) * 100, 1)
+                if units_24h_val > 0
+                else 0.0
+            )
+
             for k, val in (
                 ("companies", int(it_snap.get("companies", 0) or 0)),
                 ("pp_hr", round(float(it_snap.get("pp_hr", 0.0) or 0.0), 2)),
                 ("wages_hr", round(float(it_snap.get("wages_hr", 0.0) or 0.0), 4)),
+                ("traded_pct", traded_pct),
             ):
                 if k not in ih:
                     ih[k] = [0] * prev_len
@@ -1062,6 +1081,7 @@ class Storage:
 
         # 6. Build companies.json & companies_history.json
         comp_labels = comp_hist.get("labels", [])
+        hist_len = len(comp_labels)
         spark_labels_comp = comp_labels[-config.SPARKLINE_POINTS :]
         if len(spark_labels_comp) < 2:
             spark_labels_comp = [now_ts - 86400, now_ts]
@@ -1104,6 +1124,18 @@ class Storage:
             )
 
             ih = comp_hist.get("items", {}).get(code, {})
+
+            # Ensure traded_pct exists and matches hist_len in comp_hist
+            if "traded_pct" not in ih or len(ih["traded_pct"]) < hist_len:
+                existing_tp = list(ih.get("traded_pct") or [])
+                while len(existing_tp) < hist_len:
+                    existing_tp.insert(0, 0.0)
+                if hist_len > 0 and not existing_tp[-1]:
+                    existing_tp[-1] = market_vs_prod_pct
+                ih["traded_pct"] = existing_tp
+            elif hist_len > 0:
+                ih["traded_pct"][-1] = market_vs_prod_pct
+
             pp_series = [
                 x
                 for x in (ih.get("pp_hr") or [])[-config.SPARKLINE_POINTS :]
@@ -1119,6 +1151,11 @@ class Storage:
                 for x in (ih.get("wages_hr") or [])[-config.SPARKLINE_POINTS :]
                 if x is not None
             ]
+            traded_pct_series = [
+                x
+                for x in (ih.get("traded_pct") or [])[-config.SPARKLINE_POINTS :]
+                if x is not None
+            ]
 
             cur_pp = float(it_src.get("pp_hr", 0.0) or 0.0)
             cur_comp = int(it_src.get("companies", 0) or 0)
@@ -1130,6 +1167,8 @@ class Storage:
                 comp_series = [cur_comp, cur_comp]
             if len(wages_series) < 2:
                 wages_series = [cur_wages, cur_wages]
+            if len(traded_pct_series) < 2:
+                traded_pct_series = [market_vs_prod_pct, market_vs_prod_pct]
 
             first_pp = next((x for x in pp_series if x and x > 0), cur_pp)
             first_comp = next((x for x in comp_series if x and x > 0), cur_comp)
@@ -1152,6 +1191,7 @@ class Storage:
                     "pp_hr": pp_series,
                     "companies": comp_series,
                     "wages_hr": wages_series,
+                    "traded_pct": traded_pct_series,
                 },
             }
 
@@ -1250,6 +1290,7 @@ class Storage:
             compact=True,
         )
         Storage._write_json(config.FE_COMPANIES_HISTORY_FILE, comp_hist, compact=True)
+        Storage.save_companies_history(comp_hist)
 
         logger.info(f"Exported 10 static frontend JSON slices to {config.PUBLIC_DATA_DIR}")
 
