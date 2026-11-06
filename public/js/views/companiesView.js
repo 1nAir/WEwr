@@ -222,10 +222,15 @@ export class CompaniesView {
         ${this.subtab === 'items' ? this.renderItemsTableShell() : this.renderCountriesTableShell()}
       </div>
 
-      <!-- Historical Trends Chart -->
+      ${
+        this.subtab === 'items'
+          ? `
+      <!-- Historical Trends Chart (By Items only) -->
       <div id="companies-history-mount">
         <div class="skeleton-loader">Scroll to load Companies Historical Chart...</div>
-      </div>
+      </div>`
+          : ''
+      }
     `;
 
     this.renderActiveTableRows();
@@ -270,16 +275,21 @@ export class CompaniesView {
       <table class="terminal-table">
         <thead>
           <tr>
-            <th class="sortable ${sf === 'name' ? 'sorted' : ''}" data-sort-country="name" style="width:40%;text-align:left">
+            <th class="sortable ${sf === 'name' ? 'sorted' : ''}" data-sort-country="name" style="width:34%;text-align:left">
               Country &amp; Tax ${this.renderSortArrow(sf, 'name', sd)}
             </th>
-            <th class="sortable ${sf === 'companies' ? 'sorted' : ''}" data-sort-country="companies" style="width:28%;text-align:right">
+            <th class="sortable ${sf === 'companies' ? 'sorted' : ''}" data-sort-country="companies" style="width:22%;text-align:right">
               Companies ${this.renderSortArrow(sf, 'companies', sd)}
             </th>
-            <th class="sortable ${sf === 'wages_hr' ? 'sorted' : ''}" data-sort-country="wages_hr" style="width:32%;text-align:right">
-              <span class="desktop-only">Wages &amp; Tax (₿/hr)</span>
-              <span class="mobile-only">Wages &amp; Tax</span>
+            <th class="sortable ${sf === 'wages_hr' ? 'sorted' : ''}" data-sort-country="wages_hr" style="width:22%;text-align:right">
+              <span class="desktop-only">Wages (₿/hr)</span>
+              <span class="mobile-only">Wages</span>
               ${this.renderSortArrow(sf, 'wages_hr', sd)}
+            </th>
+            <th class="sortable ${sf === 'wage_tax_hr' ? 'sorted' : ''}" data-sort-country="wage_tax_hr" style="width:22%;text-align:right">
+              <span class="desktop-only">Tax (₿/hr)</span>
+              <span class="mobile-only">Tax</span>
+              ${this.renderSortArrow(sf, 'wage_tax_hr', sd)}
             </th>
           </tr>
         </thead>
@@ -476,6 +486,16 @@ export class CompaniesView {
   // SUBTAB 2: BY COUNTRIES (+ REGIONAL BREAKDOWN DRAWER)
   // ===========================================================================
 
+  getCountryWageTaxHr(c) {
+    const taxes = (c && c.taxes) || {};
+    const incRate = (Number(taxes.income) || 0) / 100;
+    const mgrRate = (Number(taxes.manager) || 0) / 100;
+    return (
+      (Number(c?.emp_wages_hr) || 0) * incRate +
+      (Number(c?.mgr_wages_hr) || 0) * mgrRate
+    );
+  }
+
   getSortedCountryCodes() {
     const countriesMap = (this.data && this.data.by_countries) || {};
     const q = this.countrySearchQuery.trim().toLowerCase();
@@ -496,8 +516,14 @@ export class CompaniesView {
           const cmp = (cA.name || a).localeCompare(cB.name || b);
           return this.countrySortDesc ? -cmp : cmp;
         }
-        const valA = Number(cA[this.countrySortField]) || 0;
-        const valB = Number(cB[this.countrySortField]) || 0;
+        const valA =
+          this.countrySortField === 'wage_tax_hr'
+            ? this.getCountryWageTaxHr(cA)
+            : Number(cA[this.countrySortField]) || 0;
+        const valB =
+          this.countrySortField === 'wage_tax_hr'
+            ? this.getCountryWageTaxHr(cB)
+            : Number(cB[this.countrySortField]) || 0;
         const cmp = valA - valB;
         return this.countrySortDesc ? -cmp : cmp;
       });
@@ -513,7 +539,7 @@ export class CompaniesView {
     if (!cKeys.length) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="3" class="text-center text-muted" style="padding:28px">
+          <td colspan="4" class="text-center text-muted" style="padding:28px">
             No matching countries found.
           </td>
         </tr>
@@ -526,12 +552,8 @@ export class CompaniesView {
       const c = countriesMap[cKey];
       const isExpanded = this.expandedCountries.has(cKey);
       const taxes = c.taxes || {};
-      const incRate = (Number(taxes.income) || 0) / 100;
-      const mgrRate = (Number(taxes.manager) || 0) / 100;
       const flagUrl = this.getCountryFlagUrl(c, cKey);
-      const wageTaxHr =
-        (Number(c.emp_wages_hr) || 0) * incRate +
-        (Number(c.mgr_wages_hr) || 0) * mgrRate;
+      const wageTaxHr = this.getCountryWageTaxHr(c);
 
       rowsHtml.push(`
         <tr class="item-row ${isExpanded ? 'expanded' : ''}" data-comp-country-row="${escapeHtml(cKey)}">
@@ -563,7 +585,9 @@ export class CompaniesView {
           </td>
           <td class="text-right">
             <span class="metric-primary text-btc">${formatMetric(c.wages_hr)} <span class="desktop-only">₿/h</span><span class="mobile-only">₿</span></span>
-            <span class="metric-sub">Tax: <span class="text-buy">+${formatMetric(wageTaxHr)} ₿/h</span></span>
+          </td>
+          <td class="text-right">
+            <span class="metric-primary text-buy">+${formatMetric(wageTaxHr)} <span class="desktop-only">₿/h</span><span class="mobile-only">₿</span></span>
           </td>
         </tr>
       `);
@@ -631,7 +655,7 @@ export class CompaniesView {
 
     return `
       <tr class="drawer-row">
-        <td colspan="3">
+        <td colspan="4">
           <div class="drawer-container">
             <!-- 3-Card Country Wage & Tax Breakdown Grid -->
             <div class="comp-country-cards-grid">
@@ -777,45 +801,14 @@ export class CompaniesView {
     });
   }
 
-  buildCountryEntitiesMap() {
-    const countriesMap = (this.data && this.data.by_countries) || {};
-    const sortedKeys = Object.keys(countriesMap).sort((a, b) => {
-      const wDiff =
-        (Number(countriesMap[b].wages_hr) || 0) -
-        (Number(countriesMap[a].wages_hr) || 0);
-      if (wDiff !== 0) return wDiff;
-      return (
-        (Number(countriesMap[b].companies) || 0) -
-        (Number(countriesMap[a].companies) || 0)
-      );
-    });
-
-    const out = {};
-    sortedKeys.forEach((cKey, idx) => {
-      const c = countriesMap[cKey];
-      const name = c.name || cKey.toUpperCase();
-      const short = name.length > 11 ? `${name.slice(0, 10)}.` : name;
-      out[cKey] = {
-        code: cKey,
-        name,
-        short,
-        iconUrl: this.getCountryFlagUrl(c, cKey),
-        badgeText: String(c.code || cKey).slice(0, 2).toUpperCase(),
-        color: COUNTRY_PALETTE[idx % COUNTRY_PALETTE.length],
-        pp: 1,
-      };
-    });
-    return out;
-  }
-
   setupLazyChart() {
-    const chartMount = this.mountEl.querySelector('#companies-history-mount');
-    if (!chartMount) return;
-
     if (this.chartWidget) {
       this.chartWidget.destroy();
       this.chartWidget = null;
     }
+
+    const chartMount = this.mountEl.querySelector('#companies-history-mount');
+    if (!chartMount || this.subtab !== 'items') return;
 
     observeOnce(chartMount, async () => {
       try {
@@ -823,59 +816,33 @@ export class CompaniesView {
           this.historyData = await store.fetchSlice('companies_history.json');
         }
 
-        if (this.subtab === 'items') {
-          this.chartWidget = new HistoryChartWidget({
-            mountEl: chartMount,
-            title: 'Companies History — By Items',
-            historyKey: 'items',
-            metrics: [
-              {
-                key: 'pp_hr',
-                label: 'Output (PP/hr)',
-                yFormatter: (v) => `${formatMetric(v)} PP`,
-                itemFormatter: (v) => `${formatMetric(v)} PP/h`,
-              },
-              {
-                key: 'companies',
-                label: 'Companies',
-                yFormatter: (v) => formatInt(v),
-                itemFormatter: (v) => formatInt(v),
-              },
-              {
-                key: 'wages_hr',
-                label: 'Wages (₿/hr)',
-                yFormatter: (v) => `${formatMetric(v)} ₿`,
-                itemFormatter: (v) => `${formatMetric(v)} ₿/h`,
-              },
-            ],
-            defaultMetric: 'pp_hr',
-            includeCases: false,
-          });
-        } else {
-          const countryEntities = this.buildCountryEntitiesMap();
-          this.chartWidget = new HistoryChartWidget({
-            mountEl: chartMount,
-            title: 'Companies History — By Countries',
-            historyKey: 'countries',
-            customEntities: countryEntities,
-            defaultVisibleCount: 5,
-            metrics: [
-              {
-                key: 'wages_hr',
-                label: 'Wages (₿/hr)',
-                yFormatter: (v) => `${formatMetric(v)} ₿`,
-                itemFormatter: (v) => `${formatMetric(v)} ₿/h`,
-              },
-              {
-                key: 'companies',
-                label: 'Companies',
-                yFormatter: (v) => formatInt(v),
-                itemFormatter: (v) => formatInt(v),
-              },
-            ],
-            defaultMetric: 'wages_hr',
-          });
-        }
+        this.chartWidget = new HistoryChartWidget({
+          mountEl: chartMount,
+          title: 'Companies History — By Items',
+          historyKey: 'items',
+          metrics: [
+            {
+              key: 'pp_hr',
+              label: 'Output (PP/hr)',
+              yFormatter: (v) => `${formatMetric(v)} PP`,
+              itemFormatter: (v) => `${formatMetric(v)} PP/h`,
+            },
+            {
+              key: 'companies',
+              label: 'Companies',
+              yFormatter: (v) => formatInt(v),
+              itemFormatter: (v) => formatInt(v),
+            },
+            {
+              key: 'wages_hr',
+              label: 'Wages (₿/hr)',
+              yFormatter: (v) => `${formatMetric(v)} ₿`,
+              itemFormatter: (v) => `${formatMetric(v)} ₿/h`,
+            },
+          ],
+          defaultMetric: 'pp_hr',
+          includeCases: false,
+        });
 
         this.chartWidget.setData(this.historyData);
       } catch (err) {
