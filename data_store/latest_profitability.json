@@ -1,0 +1,448 @@
+{
+  "timestamp": 1794080821,
+  "data": {
+    "lead": {
+      "pp": 1,
+      "bid": 0.098,
+      "avg": 0.101,
+      "ask": 0.099,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 0.098,
+      "max_net_profit": 0.099,
+      "min_pp": 0.098,
+      "avg_pp": 0.101,
+      "max_pp": 0.099,
+      "needs": {},
+      "ingredients": []
+    },
+    "cookedFish": {
+      "pp": 40,
+      "bid": 7.217,
+      "avg": 7.309,
+      "ask": 7.344,
+      "cost_min_scenario": 3.981,
+      "cost_max_scenario": 3.915,
+      "min_net_profit": 3.236,
+      "max_net_profit": 3.429,
+      "min_pp": 0.081,
+      "avg_pp": 0.084,
+      "max_pp": 0.086,
+      "needs": {
+        "fish": 1
+      },
+      "ingredients": [
+        {
+          "item": "fish",
+          "name": "Fish",
+          "qty": 1,
+          "bid_price": 3.915,
+          "avg_price": 3.935,
+          "ask_price": 3.981,
+          "cost_min_scenario": 3.981,
+          "cost_max_scenario": 3.915
+        }
+      ]
+    },
+    "iron": {
+      "pp": 1,
+      "bid": 0.091,
+      "avg": 0.092,
+      "ask": 0.092,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 0.091,
+      "max_net_profit": 0.092,
+      "min_pp": 0.091,
+      "avg_pp": 0.092,
+      "max_pp": 0.092,
+      "needs": {},
+      "ingredients": []
+    },
+    "lightAmmo": {
+      "pp": 1,
+      "bid": 0.201,
+      "avg": 0.194,
+      "ask": 0.202,
+      "cost_min_scenario": 0.099,
+      "cost_max_scenario": 0.098,
+      "min_net_profit": 0.102,
+      "max_net_profit": 0.104,
+      "min_pp": 0.102,
+      "avg_pp": 0.096,
+      "max_pp": 0.104,
+      "needs": {
+        "lead": 1
+      },
+      "ingredients": [
+        {
+          "item": "lead",
+          "name": "Lead",
+          "qty": 1,
+          "bid_price": 0.098,
+          "avg_price": 0.101,
+          "ask_price": 0.099,
+          "cost_min_scenario": 0.099,
+          "cost_max_scenario": 0.098
+        }
+      ]
+    },
+    "limestone": {
+      "pp": 1,
+      "bid": 0.094,
+      "avg": 0.095,
+      "ask": 0.095,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 0.094,
+      "max_net_profit": 0.095,
+      "min_pp": 0.094,
+      "avg_pp": 0.095,
+      "max_pp": 0.095,
+      "needs": {},
+      "ingredients": []
+    },
+    "steel": {
+      "pp": 10,
+      "bid": 1.67,
+      "avg": 1.716,
+      "ask": 1.725,
+      "cost_min_scenario": 0.92,
+      "cost_max_scenario": 0.91,
+      "min_net_profit": 0.75,
+      "max_net_profit": 0.815,
+      "min_pp": 0.075,
+      "avg_pp": 0.08,
+      "max_pp": 0.081,
+      "needs": {
+        "iron": 10
+      },
+      "ingredients": [
+        {
+          "item": "iron",
+          "name": "Iron",
+          "qty": 10,
+          "bid_price": 0.091,
+          "avg_price": 0.092,
+          "ask_price": 0.092,
+          "cost_min_scenario": 0.92,
+          "cost_max_scenario": 0.91
+        }
+      ]
+    },
+    "livestock": {
+      "pp": 20,
+      "bid": 1.48,
+      "avg": 1.513,
+      "ask": 1.52,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 1.48,
+      "max_net_profit": 1.52,
+      "min_pp": 0.074,
+      "avg_pp": 0.076,
+      "max_pp": 0.076,
+      "needs": {},
+      "ingredients": []
+    },
+    "concrete": {
+      "pp": 10,
+      "bid": 1.706,
+      "avg": 1.768,
+      "ask": 1.728,
+      "cost_min_scenario": 0.95,
+      "cost_max_scenario": 0.94,
+      "min_net_profit": 0.756,
+      "max_net_profit": 0.788,
+      "min_pp": 0.076,
+      "avg_pp": 0.082,
+      "max_pp": 0.079,
+      "needs": {
+        "limestone": 10
+      },
+      "ingredients": [
+        {
+          "item": "limestone",
+          "name": "Limestone",
+          "qty": 10,
+          "bid_price": 0.094,
+          "avg_price": 0.095,
+          "ask_price": 0.095,
+          "cost_min_scenario": 0.95,
+          "cost_max_scenario": 0.94
+        }
+      ]
+    },
+    "fish": {
+      "pp": 40,
+      "bid": 3.915,
+      "avg": 3.935,
+      "ask": 3.981,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 3.915,
+      "max_net_profit": 3.981,
+      "min_pp": 0.098,
+      "avg_pp": 0.098,
+      "max_pp": 0.1,
+      "needs": {},
+      "ingredients": []
+    },
+    "steak": {
+      "pp": 20,
+      "bid": 2.897,
+      "avg": 3.017,
+      "ask": 2.953,
+      "cost_min_scenario": 1.52,
+      "cost_max_scenario": 1.48,
+      "min_net_profit": 1.377,
+      "max_net_profit": 1.473,
+      "min_pp": 0.069,
+      "avg_pp": 0.076,
+      "max_pp": 0.074,
+      "needs": {
+        "livestock": 1
+      },
+      "ingredients": [
+        {
+          "item": "livestock",
+          "name": "Livestock",
+          "qty": 1,
+          "bid_price": 1.48,
+          "avg_price": 1.513,
+          "ask_price": 1.52,
+          "cost_min_scenario": 1.52,
+          "cost_max_scenario": 1.48
+        }
+      ]
+    },
+    "petroleum": {
+      "pp": 1,
+      "bid": 0.093,
+      "avg": 0.094,
+      "ask": 0.096,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 0.093,
+      "max_net_profit": 0.096,
+      "min_pp": 0.093,
+      "avg_pp": 0.094,
+      "max_pp": 0.096,
+      "needs": {},
+      "ingredients": []
+    },
+    "ammo": {
+      "pp": 4,
+      "bid": 0.692,
+      "avg": 0.683,
+      "ask": 0.7,
+      "cost_min_scenario": 0.396,
+      "cost_max_scenario": 0.392,
+      "min_net_profit": 0.296,
+      "max_net_profit": 0.308,
+      "min_pp": 0.074,
+      "avg_pp": 0.072,
+      "max_pp": 0.077,
+      "needs": {
+        "lead": 4
+      },
+      "ingredients": [
+        {
+          "item": "lead",
+          "name": "Lead",
+          "qty": 4,
+          "bid_price": 0.098,
+          "avg_price": 0.101,
+          "ask_price": 0.099,
+          "cost_min_scenario": 0.396,
+          "cost_max_scenario": 0.392
+        }
+      ]
+    },
+    "oil": {
+      "pp": 1,
+      "bid": 0.186,
+      "avg": 0.191,
+      "ask": 0.19,
+      "cost_min_scenario": 0.096,
+      "cost_max_scenario": 0.093,
+      "min_net_profit": 0.09,
+      "max_net_profit": 0.097,
+      "min_pp": 0.09,
+      "avg_pp": 0.097,
+      "max_pp": 0.097,
+      "needs": {
+        "petroleum": 1
+      },
+      "ingredients": [
+        {
+          "item": "petroleum",
+          "name": "Petroleum",
+          "qty": 1,
+          "bid_price": 0.093,
+          "avg_price": 0.094,
+          "ask_price": 0.096,
+          "cost_min_scenario": 0.096,
+          "cost_max_scenario": 0.093
+        }
+      ]
+    },
+    "coca": {
+      "pp": 1,
+      "bid": 0.086,
+      "avg": 0.1,
+      "ask": 0.088,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 0.086,
+      "max_net_profit": 0.088,
+      "min_pp": 0.086,
+      "avg_pp": 0.1,
+      "max_pp": 0.088,
+      "needs": {},
+      "ingredients": []
+    },
+    "cocain": {
+      "pp": 200,
+      "bid": 35.237,
+      "avg": 35.509,
+      "ask": 35.58,
+      "cost_min_scenario": 17.6,
+      "cost_max_scenario": 17.2,
+      "min_net_profit": 17.637,
+      "max_net_profit": 18.38,
+      "min_pp": 0.088,
+      "avg_pp": 0.091,
+      "max_pp": 0.092,
+      "needs": {
+        "coca": 200
+      },
+      "ingredients": [
+        {
+          "item": "coca",
+          "name": "Mysterious Plant",
+          "qty": 200,
+          "bid_price": 0.086,
+          "avg_price": 0.1,
+          "ask_price": 0.088,
+          "cost_min_scenario": 17.6,
+          "cost_max_scenario": 17.2
+        }
+      ]
+    },
+    "bread": {
+      "pp": 10,
+      "bid": 1.58,
+      "avg": 1.586,
+      "ask": 1.598,
+      "cost_min_scenario": 0.76,
+      "cost_max_scenario": 0.75,
+      "min_net_profit": 0.82,
+      "max_net_profit": 0.848,
+      "min_pp": 0.082,
+      "avg_pp": 0.083,
+      "max_pp": 0.085,
+      "needs": {
+        "grain": 10
+      },
+      "ingredients": [
+        {
+          "item": "grain",
+          "name": "Grain",
+          "qty": 10,
+          "bid_price": 0.075,
+          "avg_price": 0.075,
+          "ask_price": 0.076,
+          "cost_min_scenario": 0.76,
+          "cost_max_scenario": 0.75
+        }
+      ]
+    },
+    "heavyAmmo": {
+      "pp": 16,
+      "bid": 2.553,
+      "avg": 2.647,
+      "ask": 2.615,
+      "cost_min_scenario": 1.584,
+      "cost_max_scenario": 1.568,
+      "min_net_profit": 0.969,
+      "max_net_profit": 1.047,
+      "min_pp": 0.061,
+      "avg_pp": 0.067,
+      "max_pp": 0.065,
+      "needs": {
+        "lead": 16
+      },
+      "ingredients": [
+        {
+          "item": "lead",
+          "name": "Lead",
+          "qty": 16,
+          "bid_price": 0.098,
+          "avg_price": 0.101,
+          "ask_price": 0.099,
+          "cost_min_scenario": 1.584,
+          "cost_max_scenario": 1.568
+        }
+      ]
+    },
+    "grain": {
+      "pp": 1,
+      "bid": 0.075,
+      "avg": 0.075,
+      "ask": 0.076,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 0.075,
+      "max_net_profit": 0.076,
+      "min_pp": 0.075,
+      "avg_pp": 0.075,
+      "max_pp": 0.076,
+      "needs": {},
+      "ingredients": []
+    },
+    "wood": {
+      "pp": 1,
+      "bid": 0.095,
+      "avg": 0.101,
+      "ask": 0.1,
+      "cost_min_scenario": 0.0,
+      "cost_max_scenario": 0.0,
+      "min_net_profit": 0.095,
+      "max_net_profit": 0.1,
+      "min_pp": 0.095,
+      "avg_pp": 0.101,
+      "max_pp": 0.1,
+      "needs": {},
+      "ingredients": []
+    },
+    "paper": {
+      "pp": 1,
+      "bid": 0.181,
+      "avg": 0.174,
+      "ask": 0.183,
+      "cost_min_scenario": 0.1,
+      "cost_max_scenario": 0.095,
+      "min_net_profit": 0.081,
+      "max_net_profit": 0.088,
+      "min_pp": 0.081,
+      "avg_pp": 0.076,
+      "max_pp": 0.088,
+      "needs": {
+        "wood": 1
+      },
+      "ingredients": [
+        {
+          "item": "wood",
+          "name": "Wood",
+          "qty": 1,
+          "bid_price": 0.095,
+          "avg_price": 0.101,
+          "ask_price": 0.1,
+          "cost_min_scenario": 0.1,
+          "cost_max_scenario": 0.095
+        }
+      ]
+    }
+  }
+}
