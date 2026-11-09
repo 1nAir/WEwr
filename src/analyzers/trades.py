@@ -212,7 +212,7 @@ class MarketTradesAnalyzer:
                     item_s["money"] = round(item_s["money"] + money, 4)
                     item_s["pp"] += pp
 
-        cutoff_day_str = (now - timedelta(days=60)).strftime("%Y-%m-%d")
+        cutoff_day_str = (now - timedelta(days=90)).strftime("%Y-%m-%d")
         daily_stats["days"] = {
             d: val for d, val in days_dict.items() if d >= cutoff_day_str
         }

@@ -32,7 +32,7 @@ class Storage:
         return default
 
     @staticmethod
-    def _write_json(path: str, data: Any, compact: bool = False) -> None:
+    def _write_json(path: str, data: Any, compact: bool = True) -> None:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             if compact:
@@ -873,6 +873,17 @@ class Storage:
 
         comp_snap, comp_ts = Storage.load_latest_companies()
         comp_hist = Storage.load_companies_history()
+
+        # Compact legacy indented files in data_store if they exceed 45 MB
+        for large_file in (
+            config.DAILY_TRADER_STATS_FILE,
+            config.LATEST_TRADES_FILE,
+            config.MARKET_LEADERBOARDS_FILE,
+        ):
+            if os.path.exists(large_file) and os.path.getsize(large_file) > 45_000_000:
+                raw_data = Storage._read_json(large_file)
+                if raw_data is not None:
+                    Storage._write_json(large_file, raw_data, compact=True)
 
         # Determine line mapping per item
         item_to_line = {}
