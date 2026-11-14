@@ -1,0 +1,12 @@
+{
+  "outputDirectory": "public",
+  "git": {
+    "deploymentEnabled": false
+  },
+  "rewrites": [
+    {
+      "source": "/data/:file",
+      "destination": "https://raw.githubusercontent.com/1nAir/WEwr/data/public/data/:file"
+    }
+  ]
+}
