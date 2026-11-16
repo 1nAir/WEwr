@@ -18,6 +18,97 @@ class CompanyAnalyzer:
     def __init__(self, client: TRPCClient):
         self.client = client
 
+    def _fetch_eligible_level15_users(self, country_ids: list[str]) -> list[str]:
+        """
+        Fetches all active citizens across countries via `user.getUsersByCountry`
+        and filters players with `leveling.totalXp >= config.COMPANY_MIN_USER_XP`
+        via `user.getUserLite`.
+        """
+        logger.info(
+            f"Step 2/5: Fetching active players across {len(country_ids)} countries "
+            f"(filtering totalXp >= {config.COMPANY_MIN_USER_XP}, Level 15+)..."
+        )
+
+        all_user_ids: list[str] = []
+        seen_users: set[str] = set()
+        pending_calls: list[tuple[str, dict[str, Any]]] = [
+            ("user.getUsersByCountry", {"countryId": cid, "limit": 100})
+            for cid in country_ids
+        ]
+        pending_cids: list[str] = list(country_ids)
+
+        while pending_calls:
+            resps = self.client.batch_call(pending_calls, raise_on_error=False)
+            next_calls: list[tuple[str, dict[str, Any]]] = []
+            next_cids: list[str] = []
+            for idx, resp in enumerate(resps):
+                if not isinstance(resp, dict):
+                    continue
+                d = resp.get("result", {}).get("data", {})
+                if not isinstance(d, dict):
+                    continue
+                for entry in d.get("items") or []:
+                    uid = entry.get("_id") if isinstance(entry, dict) else entry
+                    if uid:
+                        uid_str = str(uid)
+                        if uid_str not in seen_users:
+                            seen_users.add(uid_str)
+                            all_user_ids.append(uid_str)
+                nxt = d.get("nextCursor")
+                if nxt and idx < len(pending_cids):
+                    cid = pending_cids[idx]
+                    next_calls.append(
+                        (
+                            "user.getUsersByCountry",
+                            {"countryId": cid, "limit": 100, "cursor": nxt},
+                        )
+                    )
+                    next_cids.append(cid)
+            pending_calls = next_calls
+            pending_cids = next_cids
+
+        logger.info(
+            f"Collected {len(all_user_ids)} active players from user.getUsersByCountry; verifying XP via user.getUserLite..."
+        )
+        if not all_user_ids:
+            raise RuntimeError(
+                "user.getUsersByCountry returned 0 users; aborting companies snapshot."
+            )
+
+        eligible_users: list[str] = []
+        seen_eligible: set[str] = set()
+        chunk_size = 5000
+        for start in range(0, len(all_user_ids), chunk_size):
+            sub_uids = all_user_ids[start : start + chunk_size]
+            calls = [("user.getUserLite", {"userId": uid}) for uid in sub_uids]
+            resps = self.client.batch_call(calls, raise_on_error=False)
+            for idx, resp in enumerate(resps):
+                if not isinstance(resp, dict):
+                    continue
+                u_data = resp.get("result", {}).get("data")
+                if not isinstance(u_data, dict):
+                    continue
+                xp_val = float((u_data.get("leveling") or {}).get("totalXp", 0) or 0)
+                uid = str(u_data.get("_id") or sub_uids[idx])
+                if xp_val >= config.COMPANY_MIN_USER_XP and uid not in seen_eligible:
+                    seen_eligible.add(uid)
+                    eligible_users.append(uid)
+
+            logger.info(
+                f"  Checked {min(start + chunk_size, len(all_user_ids))}/{len(all_user_ids)} users "
+                f"(Level 15+ eligible: {len(eligible_users)})..."
+            )
+
+        if not eligible_users:
+            raise RuntimeError(
+                "No Level 15+ players found after user.getUserLite checks; aborting companies snapshot."
+            )
+
+        logger.info(
+            f"Found {len(eligible_users)} players at Level 15+ (out of {len(all_user_ids)} active users)."
+        )
+        return eligible_users
+
     def analyze(self) -> dict[str, Any]:
         # ---------------------------------------------------------------------
         # 1. Fetch Countries & Regions (Taxes & Real Treasury Income)
@@ -92,43 +183,15 @@ class CompanyAnalyzer:
         logger.info(
             f"Loaded {len(countries_by_id)} countries and {len(regions_by_id)} regions."
         )
+        if not countries_by_id:
+            raise RuntimeError(
+                "country.getAllCountries returned 0 countries; aborting companies snapshot."
+            )
 
         # ---------------------------------------------------------------------
-        # 2. Fetch Level 15+ Players from userLevel Ranking
+        # 2. Fetch Level 15+ Active Players (getUsersByCountry + getUserLite)
         # ---------------------------------------------------------------------
-        logger.info(
-            f"Step 2/5: Fetching userLevel ranking (filtering XP >= {config.COMPANY_MIN_USER_XP}, Level 15+)..."
-        )
-        rank_resp = self.client.call(
-            "ranking.getRanking",
-            {"rankingType": "userLevel"},
-            raise_on_error=False,
-        )
-        rank_data = (
-            rank_resp.get("result", {}).get("data", {})
-            if isinstance(rank_resp, dict)
-            else {}
-        )
-        rank_items = (
-            rank_data
-            if isinstance(rank_data, list)
-            else (rank_data.get("items", []) if isinstance(rank_data, dict) else [])
-        )
-
-        eligible_users: list[str] = []
-        seen_users: set[str] = set()
-        for entry in rank_items:
-            if not isinstance(entry, dict):
-                continue
-            xp_val = float(entry.get("value", 0) or 0)
-            uid = entry.get("user")
-            if xp_val >= config.COMPANY_MIN_USER_XP and uid and uid not in seen_users:
-                seen_users.add(uid)
-                eligible_users.append(str(uid))
-
-        logger.info(
-            f"Found {len(eligible_users)} players at Level 15+ (out of {len(rank_items)} ranked users)."
-        )
+        eligible_users = self._fetch_eligible_level15_users(list(countries_by_id.keys()))
 
         # ---------------------------------------------------------------------
         # 3. Fetch Company IDs for Eligible Players

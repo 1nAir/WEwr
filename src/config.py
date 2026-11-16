@@ -109,7 +109,6 @@ MARKET_EXTRA_ITEMS = {
     "scraps": "Scraps",
     "case1": "Case",
     "case2": "Elite Case",
-    "woodenCase": "Wooden Case",
 }
 
 ALL_MARKET_ITEMS = {
@@ -122,7 +121,6 @@ ALL_ITEMS_PP = {
     "scraps": 0,
     "case1": 0,
     "case2": 0,
-    "woodenCase": 0,
 }
 
 ITEM_SHORT_NAMES = {
@@ -134,7 +132,6 @@ ITEM_SHORT_NAMES = {
     "petroleum": "Petrol.",
     "concrete": "Concr.",
     "livestock": "L.stock",
-    "woodenCase": "W. Case",
     "case2": "Elite C.",
 }
 
@@ -185,7 +182,6 @@ ITEM_COLORS = {
     "paper": "#22d3ee",
     "case1": "#ec4899",
     "case2": "#6366f1",
-    "woodenCase": "#d97706",
     "scraps": "#cbd5e1",
 }
 
@@ -199,6 +195,6 @@ PRODUCTION_LINES = {
     "Iron Works": ["iron", "steel"],
     "Quarry": ["limestone", "concrete"],
     "Lumber Mill": ["wood", "paper"],
-    "Cases & Scraps": ["case1", "case2", "woodenCase", "scraps"],
+    "Cases & Scraps": ["case1", "case2", "scraps"],
 }
 

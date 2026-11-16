@@ -555,6 +555,67 @@ class Storage:
             return raw, raw.get("timestamp")
         return None, None
 
+    # v0.28.3-beta capped ranking.getRanking at Top 100 (2026-11-16T13:59:40Z),
+    # recording corrupted snapshots (< 10k companies vs ~90k baseline).
+    _COMPANIES_INCIDENT_START_TS = 1794837000
+    _COMPANIES_INCIDENT_END_TS = 1794960000
+    _COMPANIES_INCIDENT_MIN_VALID = 10000
+
+    @staticmethod
+    def _prune_series_by_indices(
+        container: dict[str, Any], keep_indices: list[int]
+    ) -> None:
+        for key, series in container.items():
+            if isinstance(series, list):
+                container[key] = [
+                    series[i] if i < len(series) else 0 for i in keep_indices
+                ]
+
+    @classmethod
+    def clean_companies_history(cls, history: dict[str, Any]) -> dict[str, Any]:
+        """Removes corrupted companies snapshots captured during the v0.28.3-beta ranking outage."""
+        if not isinstance(history, dict):
+            return history
+        labels = history.get("labels")
+        glob = history.get("global")
+        if not isinstance(labels, list) or not isinstance(glob, dict):
+            return history
+        comp_series = glob.get("companies")
+        if not isinstance(comp_series, list) or not labels:
+            return history
+
+        keep_indices: list[int] = []
+        removed = 0
+        for idx, ts in enumerate(labels):
+            comp_val = comp_series[idx] if idx < len(comp_series) else None
+            is_corrupted = (
+                isinstance(ts, (int, float))
+                and cls._COMPANIES_INCIDENT_START_TS <= ts <= cls._COMPANIES_INCIDENT_END_TS
+                and isinstance(comp_val, (int, float))
+                and comp_val < cls._COMPANIES_INCIDENT_MIN_VALID
+            )
+            if is_corrupted:
+                removed += 1
+            else:
+                keep_indices.append(idx)
+
+        if removed == 0:
+            return history
+
+        history["labels"] = [labels[i] for i in keep_indices]
+        cls._prune_series_by_indices(glob, keep_indices)
+        for item_hist in (history.get("items") or {}).values():
+            if isinstance(item_hist, dict):
+                cls._prune_series_by_indices(item_hist, keep_indices)
+        for country_hist in (history.get("countries") or {}).values():
+            if isinstance(country_hist, dict):
+                cls._prune_series_by_indices(country_hist, keep_indices)
+
+        logger.info(
+            f"Cleaned {removed} corrupted companies history snapshot(s) from {config.HISTORY_COMPANIES_FILE}."
+        )
+        return history
+
     @staticmethod
     def load_companies_history() -> dict[str, Any]:
         raw = Storage._read_json(config.HISTORY_COMPANIES_FILE)
@@ -565,7 +626,7 @@ class Storage:
             and "countries" in raw
             and "global" in raw
         ):
-            return raw
+            return Storage.clean_companies_history(raw)
         return {
             "labels": [],
             "global": {
@@ -874,6 +935,25 @@ class Storage:
         comp_snap, comp_ts = Storage.load_latest_companies()
         comp_hist = Storage.load_companies_history()
 
+        allowed_market_items = set(config.ALL_MARKET_ITEMS.keys())
+        if isinstance(ob_hist.get("items"), dict) and any(
+            k not in allowed_market_items for k in ob_hist["items"]
+        ):
+            ob_hist["items"] = {
+                k: v for k, v in ob_hist["items"].items() if k in allowed_market_items
+            }
+            Storage.save_orderbook_history(ob_hist)
+
+        if isinstance(trades_hist.get("items"), dict) and any(
+            k not in allowed_market_items for k in trades_hist["items"]
+        ):
+            trades_hist["items"] = {
+                k: v
+                for k, v in trades_hist["items"].items()
+                if k in allowed_market_items
+            }
+            Storage.save_trades_history(trades_hist)
+
         # Compact legacy indented files in data_store if they exceed 45 MB
         for large_file in (
             config.DAILY_TRADER_STATS_FILE,
@@ -1035,6 +1115,29 @@ class Storage:
         frontend_trades = {
             k: v for k, v in (trades_snap or {}).items() if k != "raw_trades"
         }
+        if isinstance(frontend_trades.get("items"), dict):
+            frontend_trades["items"] = {
+                c: v
+                for c, v in frontend_trades["items"].items()
+                if c in allowed_market_items
+            }
+        if isinstance(frontend_trades.get("periods"), dict):
+            frontend_trades["periods"] = {
+                p_key: (
+                    {
+                        **p_block,
+                        "items": {
+                            c: dict(v)
+                            for c, v in p_block["items"].items()
+                            if c in allowed_market_items and isinstance(v, dict)
+                        },
+                    }
+                    if isinstance(p_block, dict)
+                    and isinstance(p_block.get("items"), dict)
+                    else p_block
+                )
+                for p_key, p_block in frontend_trades["periods"].items()
+            }
 
         # Ensure period-specific Top-3 buyers/sellers in 7d/30d/all are populated
         lb_by_item = leaderboards.get("by_item", {}) if isinstance(leaderboards, dict) else {}
@@ -1088,7 +1191,14 @@ class Storage:
         Storage._write_json(config.FE_TRADES_HISTORY_FILE, trades_hist, compact=True)
 
         # 5. Build leaderboards.json
-        Storage._write_json(config.FE_LEADERBOARDS_FILE, leaderboards, compact=True)
+        fe_leaderboards = dict(leaderboards)
+        if isinstance(fe_leaderboards.get("by_item"), dict):
+            fe_leaderboards["by_item"] = {
+                c: v
+                for c, v in fe_leaderboards["by_item"].items()
+                if c in allowed_market_items
+            }
+        Storage._write_json(config.FE_LEADERBOARDS_FILE, fe_leaderboards, compact=True)
 
         # 6. Build companies.json & companies_history.json
         comp_labels = comp_hist.get("labels", [])
@@ -1103,6 +1213,10 @@ class Storage:
 
         comp_items_out: dict[str, Any] = {}
         raw_comp_items = (comp_snap or {}).get("by_items") or {}
+        comp_snap_valid = (
+            int(((comp_snap or {}).get("summary") or {}).get("total_companies", 0) or 0)
+            >= Storage._COMPANIES_INCIDENT_MIN_VALID
+        )
         for code in config.ITEM_PRETTY_NAMES:
             pp_unit = max(1, int(config.ITEM_PRODUCTION_POINTS.get(code, 1) or 1))
             it_src = raw_comp_items.get(code) or {
@@ -1141,10 +1255,10 @@ class Storage:
                 existing_tp = list(ih.get("traded_pct") or [])
                 while len(existing_tp) < hist_len:
                     existing_tp.insert(0, 0.0)
-                if hist_len > 0 and not existing_tp[-1]:
+                if hist_len > 0 and not existing_tp[-1] and comp_snap_valid:
                     existing_tp[-1] = market_vs_prod_pct
                 ih["traded_pct"] = existing_tp
-            elif hist_len > 0:
+            elif hist_len > 0 and comp_snap_valid:
                 ih["traded_pct"][-1] = market_vs_prod_pct
 
             pp_series = [

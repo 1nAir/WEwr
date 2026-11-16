@@ -133,7 +133,7 @@ class TRPCClient:
         prices_resp = self.get_item_prices()
         prices_data = prices_resp.get("result", {}).get("data", {})
 
-        exclude_items = {"case1", "case2", "scraps", "woodenCase"}
+        exclude_items = {"case1", "case2", "scraps"}
         results = {}
 
         items_to_process = [
