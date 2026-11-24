@@ -116,6 +116,8 @@ class MarketLeaderboardAnalyzer:
                     }
 
         days_data = daily_stats.get("days", {})
+        archive = daily_stats.get("archive") or {}
+        archive_days_count = int(archive.get("days_count", 0) or 0)
         available_days = sorted(days_data.keys(), reverse=True)
         ref_dt = now
         if available_days and available_days[0] < today_str:
@@ -135,10 +137,17 @@ class MarketLeaderboardAnalyzer:
         for p_key, valid_dates in periods.items():
             valid_set = set(valid_dates)
             matched_days = sorted([d for d in available_days if d in valid_set])
-            target_days = 1 if p_key == "24h" else (7 if p_key == "7d" else (30 if p_key == "30d" else len(available_days)))
-            actual_cnt = 1 if p_key == "24h" else len(matched_days)
-            start_d = today_str if p_key == "24h" else (matched_days[0] if matched_days else today_str)
-            end_d = today_str if p_key == "24h" else (matched_days[-1] if matched_days else today_str)
+            include_arch = p_key == "all" and archive_days_count > 0
+            actual_cnt = 1 if p_key == "24h" else (len(matched_days) + (archive_days_count if include_arch else 0))
+            target_days = 1 if p_key == "24h" else (7 if p_key == "7d" else (30 if p_key == "30d" else actual_cnt))
+            if p_key == "24h":
+                start_d = today_str
+                end_d = today_str
+            else:
+                s_cands = [d for d in (archive.get("start_date") if include_arch else None, matched_days[0] if matched_days else None) if d]
+                e_cands = [d for d in (archive.get("end_date") if include_arch else None, matched_days[-1] if matched_days else None) if d]
+                start_d = min(s_cands) if s_cands else today_str
+                end_d = max(e_cands) if e_cands else today_str
             periods_info[p_key] = {
                 "days_count": actual_cnt,
                 "target_days": target_days,
@@ -217,8 +226,7 @@ class MarketLeaderboardAnalyzer:
                         seller_totals[sid]["by_item"][it]["money"] += mny
                         seller_totals[sid]["by_item"][it]["pp"] += pp_val
             else:
-                for day in matched_days:
-                    day_players = days_data.get(day, {})
+                def _accumulate_day_players(day_players: dict[str, Any]) -> None:
                     for eid, pdata in day_players.items():
                         b = pdata.get("buy", {})
                         buyer_totals[eid]["money"] += float(b.get("money", 0.0))
@@ -245,6 +253,11 @@ class MarketLeaderboardAnalyzer:
                                 iv.get("money", 0.0)
                             )
                             seller_totals[eid]["by_item"][it]["pp"] += int(iv.get("pp", 0))
+
+                for day in matched_days:
+                    _accumulate_day_players(days_data.get(day, {}))
+                if period_key == "all" and archive_days_count > 0:
+                    _accumulate_day_players(archive.get("players") or {})
 
             global_buyer_totals = defaultdict(
                 lambda: {"money": 0.0, "pp": 0, "units": 0, "by_item": {}}

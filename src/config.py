@@ -14,9 +14,12 @@ HISTORY_PROFITABILITY_FILE = os.path.join(DATA_STORE_DIR, "history_profitability
 LATEST_ORDERBOOK_FILE = os.path.join(DATA_STORE_DIR, "latest_orderbook.json")
 HISTORY_ORDERBOOK_FILE = os.path.join(DATA_STORE_DIR, "history_orderbook.json")
 
-LATEST_TRADES_FILE = os.path.join(DATA_STORE_DIR, "latest_trades.json")
+LATEST_TRADES_FILE = os.path.join(DATA_STORE_DIR, "latest_trades.json.gz")
+LEGACY_LATEST_TRADES_FILE = os.path.join(DATA_STORE_DIR, "latest_trades.json")
 HISTORY_TRADES_FILE = os.path.join(DATA_STORE_DIR, "history_trades.json")
-DAILY_TRADER_STATS_FILE = os.path.join(DATA_STORE_DIR, "daily_trader_stats.json")
+DAILY_TRADER_STATS_DIR = os.path.join(DATA_STORE_DIR, "daily_trader_stats")
+LEGACY_DAILY_TRADER_STATS_FILE = os.path.join(DATA_STORE_DIR, "daily_trader_stats.json")
+DAILY_STATS_RETENTION_DAYS = 31
 
 MARKET_LEADERBOARDS_FILE = os.path.join(DATA_STORE_DIR, "market_leaderboards.json")
 LATEST_COMPANIES_FILE = os.path.join(DATA_STORE_DIR, "latest_companies.json")

@@ -31,7 +31,7 @@ jobs:
     - name: Restore existing data store from data branch
       run: |
         mkdir -p data_store public/data
-        cp -f data_branch/data_store/*.json data_store/ 2>/dev/null || true
+        cp -rf data_branch/data_store/* data_store/ 2>/dev/null || true
         rm -f data_store/player_meta_cache.json data_branch/data_store/player_meta_cache.json 2>/dev/null || true
 
     - name: Set up Python
@@ -55,7 +55,7 @@ jobs:
         rm -f data_branch/*.json 2>/dev/null || true
         rm -rf data_branch/data_store data_branch/public
         mkdir -p data_branch/data_store data_branch/public
-        cp -f data_store/*.json data_branch/data_store/
+        cp -rf data_store/* data_branch/data_store/
         cp -rf public/* data_branch/public/
         cat << 'EOF' > data_branch/vercel.json
         {

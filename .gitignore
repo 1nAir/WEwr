@@ -5,5 +5,7 @@ __pycache__/
 
 # Raw data store and compiled frontend data slices (stored on 'data' branch)
 data_store/*.json
+data_store/*.json.gz
+data_store/daily_trader_stats/
 public/data/*.json
 

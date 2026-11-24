@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import gzip
 import json
 import logging
 import os
@@ -39,6 +40,22 @@ class Storage:
                 json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
             else:
                 json.dump(data, f, indent=2, ensure_ascii=False)
+
+    @staticmethod
+    def _read_json_gz(path: str, default: Any = None) -> Any:
+        if os.path.exists(path):
+            try:
+                with gzip.open(path, "rt", encoding="utf-8-sig") as f:
+                    return json.load(f)
+            except Exception as e:
+                logger.warning(f"Failed to read gzip JSON {path}: {e}")
+        return default
+
+    @staticmethod
+    def _write_json_gz(path: str, data: Any, compresslevel: int = 6) -> None:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with gzip.open(path, "wt", encoding="utf-8", compresslevel=compresslevel) as f:
+            json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
 
     # =========================================================================
     # 1. PROFITABILITY STORAGE
@@ -453,7 +470,11 @@ class Storage:
 
     @staticmethod
     def load_latest_trades() -> tuple[dict[str, Any] | None, int | None]:
-        raw = Storage._read_json(config.LATEST_TRADES_FILE)
+        raw = None
+        if os.path.exists(config.LATEST_TRADES_FILE):
+            raw = Storage._read_json_gz(config.LATEST_TRADES_FILE)
+        elif os.path.exists(config.LEGACY_LATEST_TRADES_FILE):
+            raw = Storage._read_json(config.LEGACY_LATEST_TRADES_FILE)
         if isinstance(raw, dict):
             return raw, raw.get("timestamp")
         return None, None
@@ -462,7 +483,12 @@ class Storage:
     def save_latest_trades(data: dict[str, Any]) -> None:
         if "timestamp" not in data:
             data["timestamp"] = int(datetime.now(timezone.utc).timestamp())
-        Storage._write_json(config.LATEST_TRADES_FILE, data)
+        Storage._write_json_gz(config.LATEST_TRADES_FILE, data)
+        if os.path.exists(config.LEGACY_LATEST_TRADES_FILE):
+            try:
+                os.remove(config.LEGACY_LATEST_TRADES_FILE)
+            except OSError as e:
+                logger.warning(f"Failed to remove legacy {config.LEGACY_LATEST_TRADES_FILE}: {e}")
 
     @staticmethod
     def load_trades_history() -> dict[str, Any]:
@@ -488,15 +514,137 @@ class Storage:
         Storage._write_json(config.HISTORY_TRADES_FILE, history)
 
     @staticmethod
+    def empty_daily_archive() -> dict[str, Any]:
+        return {
+            "days_count": 0,
+            "start_date": None,
+            "end_date": None,
+            "archived_days": [],
+            "tx_count": 0,
+            "players": {},
+            "item_profiles": {},
+            "item_daily_vwap": {},
+        }
+
+    @staticmethod
     def load_daily_trader_stats() -> dict[str, Any]:
-        raw = Storage._read_json(config.DAILY_TRADER_STATS_FILE)
-        if isinstance(raw, dict) and "days" in raw:
-            return raw
-        return {"last_updated": 0, "days": {}}
+        stats_dir = config.DAILY_TRADER_STATS_DIR
+        if os.path.isdir(stats_dir):
+            entries = sorted(os.listdir(stats_dir))
+            shard_files = [
+                f for f in entries if f.endswith(".json.gz") and f != "archive.json.gz"
+            ]
+            meta_path = os.path.join(stats_dir, "meta.json")
+            archive_path = os.path.join(stats_dir, "archive.json.gz")
+            if shard_files or os.path.exists(meta_path) or os.path.exists(archive_path):
+                meta = Storage._read_json(meta_path, default={}) or {}
+                archive = Storage._read_json_gz(archive_path)
+                if not isinstance(archive, dict):
+                    archive = Storage.empty_daily_archive()
+
+                days: dict[str, Any] = {}
+                day_item_profiles: dict[str, Any] = {}
+                day_tx_counts: dict[str, int] = {}
+                for fname in shard_files:
+                    shard = Storage._read_json_gz(os.path.join(stats_dir, fname))
+                    if not isinstance(shard, dict):
+                        continue
+                    day_key = str(shard.get("day") or fname[:-8])
+                    days[day_key] = shard.get("players") or {}
+                    day_item_profiles[day_key] = shard.get("item_profiles") or {}
+                    day_tx_counts[day_key] = int(shard.get("tx_count", 0) or 0)
+
+                return {
+                    "last_updated": int(meta.get("last_updated", 0) or 0),
+                    "days": days,
+                    "day_item_profiles": day_item_profiles,
+                    "day_tx_counts": day_tx_counts,
+                    "archive": archive,
+                }
+
+        # Fallback: migrate seamlessly from legacy monolithic daily_trader_stats.json
+        if os.path.exists(config.LEGACY_DAILY_TRADER_STATS_FILE):
+            raw = Storage._read_json(config.LEGACY_DAILY_TRADER_STATS_FILE)
+            if isinstance(raw, dict) and "days" in raw:
+                raw.setdefault("day_item_profiles", {})
+                raw.setdefault("day_tx_counts", {})
+                if not isinstance(raw.get("archive"), dict):
+                    raw["archive"] = Storage.empty_daily_archive()
+                return raw
+
+        return {
+            "last_updated": 0,
+            "days": {},
+            "day_item_profiles": {},
+            "day_tx_counts": {},
+            "archive": Storage.empty_daily_archive(),
+        }
 
     @staticmethod
     def save_daily_trader_stats(stats: dict[str, Any]) -> None:
-        Storage._write_json(config.DAILY_TRADER_STATS_FILE, stats)
+        stats_dir = config.DAILY_TRADER_STATS_DIR
+        os.makedirs(stats_dir, exist_ok=True)
+
+        dirty_days = stats.get("_dirty_days")
+        archive_dirty = bool(stats.get("_archive_dirty", False))
+
+        days = stats.get("days") or {}
+        profiles = stats.get("day_item_profiles") or {}
+        tx_counts = stats.get("day_tx_counts") or {}
+        archive = stats.get("archive") or Storage.empty_daily_archive()
+
+        Storage._write_json(
+            os.path.join(stats_dir, "meta.json"),
+            {
+                "last_updated": int(
+                    stats.get("last_updated")
+                    or datetime.now(timezone.utc).timestamp()
+                )
+            },
+            compact=True,
+        )
+
+        archive_path = os.path.join(stats_dir, "archive.json.gz")
+        if archive_dirty or (
+            archive.get("days_count", 0) > 0 and not os.path.exists(archive_path)
+        ):
+            Storage._write_json_gz(archive_path, archive)
+
+        for day_key, players_data in days.items():
+            shard_path = os.path.join(stats_dir, f"{day_key}.json.gz")
+            if (
+                dirty_days is None
+                or day_key in dirty_days
+                or not os.path.exists(shard_path)
+            ):
+                shard_payload = {
+                    "day": day_key,
+                    "players": players_data,
+                    "item_profiles": profiles.get(day_key) or {},
+                    "tx_count": int(tx_counts.get(day_key, 0) or 0),
+                }
+                Storage._write_json_gz(shard_path, shard_payload)
+
+        # Prune rolled-off daily shard files no longer present in `days`
+        active_shards = {f"{d}.json.gz" for d in days}
+        for fname in os.listdir(stats_dir):
+            if (
+                fname.endswith(".json.gz")
+                and fname != "archive.json.gz"
+                and fname not in active_shards
+            ):
+                try:
+                    os.remove(os.path.join(stats_dir, fname))
+                except OSError as e:
+                    logger.warning(f"Failed to remove obsolete shard {fname}: {e}")
+
+        if os.path.exists(config.LEGACY_DAILY_TRADER_STATS_FILE):
+            try:
+                os.remove(config.LEGACY_DAILY_TRADER_STATS_FILE)
+            except OSError as e:
+                logger.warning(
+                    f"Failed to remove legacy {config.LEGACY_DAILY_TRADER_STATS_FILE}: {e}"
+                )
 
     @staticmethod
     def load_market_leaderboards() -> dict[str, Any] | None:
@@ -954,16 +1102,22 @@ class Storage:
             }
             Storage.save_trades_history(trades_hist)
 
+        # Migrate legacy monolithic trade caches to gzip / sharded format before push
+        if os.path.exists(config.LEGACY_DAILY_TRADER_STATS_FILE):
+            Storage.save_daily_trader_stats(Storage.load_daily_trader_stats())
+        if os.path.exists(config.LEGACY_LATEST_TRADES_FILE) and trades_snap is not None:
+            Storage.save_latest_trades(trades_snap)
+
         # Compact legacy indented files in data_store if they exceed 45 MB
-        for large_file in (
-            config.DAILY_TRADER_STATS_FILE,
-            config.LATEST_TRADES_FILE,
-            config.MARKET_LEADERBOARDS_FILE,
+        if (
+            os.path.exists(config.MARKET_LEADERBOARDS_FILE)
+            and os.path.getsize(config.MARKET_LEADERBOARDS_FILE) > 45_000_000
         ):
-            if os.path.exists(large_file) and os.path.getsize(large_file) > 45_000_000:
-                raw_data = Storage._read_json(large_file)
-                if raw_data is not None:
-                    Storage._write_json(large_file, raw_data, compact=True)
+            raw_data = Storage._read_json(config.MARKET_LEADERBOARDS_FILE)
+            if raw_data is not None:
+                Storage._write_json(
+                    config.MARKET_LEADERBOARDS_FILE, raw_data, compact=True
+                )
 
         # Determine line mapping per item
         item_to_line = {}

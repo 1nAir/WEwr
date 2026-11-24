@@ -6,6 +6,7 @@ from typing import Any
 from src import config
 from src.api_client import TRPCClient
 from src.entity_resolver import EntityResolver
+from src.storage import Storage
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +14,140 @@ logger = logging.getLogger(__name__)
 class MarketTradesAnalyzer:
     """
     Analyzes global completed trading transactions (transactionType="trading").
-    Uses incremental delta polling via `last_tx_id`, maintains `daily_trader_stats`,
+    Uses incremental delta polling via `last_tx_id`, maintains sharded `daily_trader_stats`
+    (with rolling 31-day daily shards + cumulative All-Time archive),
     24h/7d/30d/all multi-window summaries, POC Volume Profiles, and hourly history.
     """
+
+    @staticmethod
+    def _merge_player_records(
+        target_players: dict[str, Any], source_players: dict[str, Any]
+    ) -> None:
+        for pid, prec in source_players.items():
+            if not isinstance(prec, dict):
+                continue
+            dst = target_players.setdefault(
+                pid,
+                {
+                    "buy": {"money": 0.0, "pp": 0, "units": 0, "by_item": {}},
+                    "sell": {"money": 0.0, "pp": 0, "units": 0, "by_item": {}},
+                },
+            )
+            for side in ("buy", "sell"):
+                src_side = prec.get(side)
+                if not isinstance(src_side, dict):
+                    continue
+                dst_side = dst[side]
+                dst_side["money"] = round(
+                    float(dst_side.get("money", 0.0)) + float(src_side.get("money", 0.0)),
+                    4,
+                )
+                dst_side["units"] = int(dst_side.get("units", 0)) + int(
+                    src_side.get("units", 0)
+                )
+                dst_side["pp"] = int(dst_side.get("pp", 0)) + int(src_side.get("pp", 0))
+                dst_items = dst_side.setdefault("by_item", {})
+                for item_code, idata in (src_side.get("by_item") or {}).items():
+                    if not isinstance(idata, dict):
+                        continue
+                    dst_it = dst_items.setdefault(
+                        item_code, {"units": 0, "money": 0.0, "pp": 0}
+                    )
+                    dst_it["units"] = int(dst_it.get("units", 0)) + int(
+                        idata.get("units", 0)
+                    )
+                    dst_it["money"] = round(
+                        float(dst_it.get("money", 0.0)) + float(idata.get("money", 0.0)),
+                        4,
+                    )
+                    dst_it["pp"] = int(dst_it.get("pp", 0)) + int(idata.get("pp", 0))
+
+    @classmethod
+    def _rollup_old_days(cls, daily_stats: dict[str, Any], cutoff_day_str: str) -> bool:
+        """
+        Rolls calendar days older than `cutoff_day_str` from per-day shards into
+        `daily_stats["archive"]` so All-Time metrics stay exact without unbounded daily growth.
+        """
+        days_dict = daily_stats.setdefault("days", {})
+        day_profiles_dict = daily_stats.setdefault("day_item_profiles", {})
+        day_tx_map = daily_stats.setdefault("day_tx_counts", {})
+        archive = daily_stats.get("archive")
+        if not isinstance(archive, dict):
+            archive = Storage.empty_daily_archive()
+            daily_stats["archive"] = archive
+
+        all_day_keys = set(days_dict.keys()) | set(day_profiles_dict.keys())
+        old_days = sorted(d for d in all_day_keys if d < cutoff_day_str)
+        if not old_days:
+            return False
+
+        archived_set = set(archive.get("archived_days") or [])
+        arch_players = archive.setdefault("players", {})
+        arch_profiles = archive.setdefault("item_profiles", {})
+        arch_vwap = archive.setdefault("item_daily_vwap", {})
+        arch_tx_count = int(archive.get("tx_count", 0) or 0)
+
+        for d in old_days:
+            d_players = days_dict.pop(d, {}) or {}
+            d_profs = day_profiles_dict.pop(d, {}) or {}
+            d_tx_stored = int(day_tx_map.pop(d, 0) or 0)
+
+            if d in archived_set:
+                continue
+
+            cls._merge_player_records(arch_players, d_players)
+
+            # Capture per-item daily VWAP for All-Time chronological sparklines
+            day_item_totals: dict[str, list[float]] = {}
+            for prec in d_players.values():
+                if not isinstance(prec, dict):
+                    continue
+                for it_code, idata in ((prec.get("buy") or {}).get("by_item") or {}).items():
+                    u = int(idata.get("units", 0) or 0)
+                    m = float(idata.get("money", 0.0) or 0.0)
+                    if u > 0:
+                        acc = day_item_totals.setdefault(it_code, [0, 0.0])
+                        acc[0] += u
+                        acc[1] += m
+            for it_code, (u_tot, m_tot) in day_item_totals.items():
+                if u_tot > 0:
+                    arch_vwap.setdefault(it_code, {})[d] = round(m_tot / u_tot, 3)
+
+            d_prof_tx = 0
+            for it_code, tiers_dict in d_profs.items():
+                dst_it = arch_profiles.setdefault(it_code, {})
+                for p_str, t_info in tiers_dict.items():
+                    cnt = int(t_info.get("count", 1) or 0)
+                    d_prof_tx += cnt
+                    dst_tier = dst_it.setdefault(
+                        p_str, {"units": 0, "money": 0.0, "count": 0}
+                    )
+                    dst_tier["units"] = int(dst_tier.get("units", 0)) + int(
+                        t_info.get("units", 0) or 0
+                    )
+                    dst_tier["money"] = round(
+                        float(dst_tier.get("money", 0.0))
+                        + float(t_info.get("money", 0.0) or 0.0),
+                        4,
+                    )
+                    dst_tier["count"] = int(dst_tier.get("count", 0)) + cnt
+
+            arch_tx_count += d_prof_tx if d_prof_tx > 0 else d_tx_stored
+            archived_set.add(d)
+
+        sorted_archived = sorted(archived_set)
+        archive["archived_days"] = sorted_archived
+        archive["days_count"] = len(sorted_archived)
+        archive["start_date"] = sorted_archived[0] if sorted_archived else None
+        archive["end_date"] = sorted_archived[-1] if sorted_archived else None
+        archive["tx_count"] = arch_tx_count
+        daily_stats["_archive_dirty"] = True
+
+        logger.info(
+            f"Rolled up {len(old_days)} day(s) older than {cutoff_day_str} into All-Time archive "
+            f"(archived total: {archive['days_count']} day(s))."
+        )
+        return True
 
     @staticmethod
     def get_trade_buyer_id(tx: dict[str, Any]) -> str | None:
@@ -140,10 +272,14 @@ class MarketTradesAnalyzer:
         daily_stats = existing_daily_stats or {
             "last_updated": int(now.timestamp()),
             "days": {},
+            "day_item_profiles": {},
+            "day_tx_counts": {},
+            "archive": Storage.empty_daily_archive(),
         }
         daily_stats["last_updated"] = int(now.timestamp())
         days_dict = daily_stats.setdefault("days", {})
         day_profiles_dict = daily_stats.setdefault("day_item_profiles", {})
+        dirty_days: set[str] = set()
 
         for tx in new_trades:
             created_str = tx.get("createdAt", "")
@@ -152,6 +288,7 @@ class MarketTradesAnalyzer:
                 if len(created_str) >= 10
                 else now.strftime("%Y-%m-%d")
             )
+            dirty_days.add(day_key)
             day_entry = days_dict.setdefault(day_key, {})
 
             buyer_id = self.get_trade_buyer_id(tx)
@@ -212,13 +349,11 @@ class MarketTradesAnalyzer:
                     item_s["money"] = round(item_s["money"] + money, 4)
                     item_s["pp"] += pp
 
-        cutoff_day_str = (now - timedelta(days=90)).strftime("%Y-%m-%d")
-        daily_stats["days"] = {
-            d: val for d, val in days_dict.items() if d >= cutoff_day_str
-        }
-        daily_stats["day_item_profiles"] = {
-            d: val for d, val in day_profiles_dict.items() if d >= cutoff_day_str
-        }
+        cutoff_day_str = (
+            now - timedelta(days=config.DAILY_STATS_RETENTION_DAYS)
+        ).strftime("%Y-%m-%d")
+        self._rollup_old_days(daily_stats, cutoff_day_str)
+        daily_stats["_dirty_days"] = {d for d in dirty_days if d in days_dict}
 
         # Group 24h trades by itemCode
         all_target_items = list(config.ALL_MARKET_ITEMS.keys())
@@ -461,7 +596,10 @@ class MarketTradesAnalyzer:
             except Exception:
                 ref_dt = now
 
-        periods_config = {"24h": 1, "7d": 7, "30d": 30, "all": 365}
+        archive = daily_stats.get("archive") or {}
+        archive_days_count = int(archive.get("days_count", 0) or 0)
+
+        periods_config = {"24h": 1, "7d": 7, "30d": 30, "all": 0}
         periods_summary = {}
 
         for p_key, days_count in periods_config.items():
@@ -479,8 +617,12 @@ class MarketTradesAnalyzer:
                     "items": items_summary,
                 }
             else:
-                p_cutoff_day = (ref_dt - timedelta(days=days_count)).strftime("%Y-%m-%d")
-                matching_days = sorted([d for d in days_dict.keys() if d >= p_cutoff_day])
+                if p_key == "all":
+                    matching_days = sorted(days_dict.keys())
+                else:
+                    p_cutoff_day = (ref_dt - timedelta(days=days_count)).strftime("%Y-%m-%d")
+                    matching_days = sorted([d for d in days_dict.keys() if d >= p_cutoff_day])
+                include_archive = p_key == "all" and archive_days_count > 0
 
                 p_item_stats = defaultdict(
                     lambda: {"units": 0, "money": 0.0, "pp": 0}
@@ -501,25 +643,35 @@ class MarketTradesAnalyzer:
                 p_market_pp = 0
                 p_market_units = 0
                 p_market_tx = sum(day_tx_map.get(d, 0) for d in matching_days)
+                if include_archive:
+                    p_market_tx += int(archive.get("tx_count", 0) or 0)
                 if p_market_tx < len(merged_raw_trades):
                     p_market_tx = max(p_market_tx, len(merged_raw_trades))
 
                 p_item_prices = defaultdict(list)
-                for day in matching_days:
-                    d_players = days_dict.get(day, {})
-                    d_prof_for_day = day_profiles_dict.get(day, {})
-                    for it_code, tiers_dict in d_prof_for_day.items():
+
+                def _merge_profiles_block(profs_map: dict[str, Any], record_prices: bool = False) -> None:
+                    for it_code, tiers_dict in profs_map.items():
                         for p_str, t_info in tiers_dict.items():
                             try:
                                 p_val = round(float(p_str), 3)
                             except Exception:
                                 continue
+                            u_tier = int(t_info.get("units", 0))
                             entry = p_profile_map[it_code][p_val]
-                            entry["units"] += int(t_info.get("units", 0))
+                            entry["units"] += u_tier
                             entry["money"] = round(entry["money"] + float(t_info.get("money", 0.0)), 3)
                             entry["count"] += int(t_info.get("count", 1))
+                            if record_prices and u_tier > 0 and p_val > 0:
+                                p_item_prices[it_code].append(p_val)
 
-                    for pid, prec in d_players.items():
+                def _merge_players_block(
+                    players_map: dict[str, Any],
+                    day_key_for_series: str | None = None,
+                    known_prof_items: set[str] | None = None,
+                ) -> None:
+                    nonlocal p_market_units, p_market_money, p_market_pp
+                    for pid, prec in players_map.items():
                         b_rec = prec.get("buy", {})
                         for it, idata in b_rec.get("by_item", {}).items():
                             u = int(idata.get("units", 0))
@@ -530,15 +682,16 @@ class MarketTradesAnalyzer:
                             p_item_stats[it]["pp"] += pp
                             p_buyer_stats[it][pid]["units"] += u
                             p_buyer_stats[it][pid]["money"] += m
-                            p_day_series[it][day]["units"] += u
-                            p_day_series[it][day]["money"] += m
+                            if day_key_for_series is not None:
+                                p_day_series[it][day_key_for_series]["units"] += u
+                                p_day_series[it][day_key_for_series]["money"] += m
                             p_market_units += u
                             p_market_money += m
                             p_market_pp += pp
                             if u > 0 and m > 0:
                                 unit_p = round(m / u, 3)
                                 p_item_prices[it].append(unit_p)
-                                if it not in d_prof_for_day:
+                                if known_prof_items is not None and it not in known_prof_items:
                                     entry = p_profile_map[it][unit_p]
                                     entry["units"] += u
                                     entry["money"] = round(entry["money"] + m, 3)
@@ -552,6 +705,25 @@ class MarketTradesAnalyzer:
                             p_seller_stats[it][pid]["money"] += m
                             if u > 0 and m > 0:
                                 p_item_prices[it].append(round(m / u, 3))
+
+                if include_archive:
+                    arch_profs = archive.get("item_profiles") or {}
+                    _merge_profiles_block(arch_profs, record_prices=True)
+                    _merge_players_block(
+                        archive.get("players") or {},
+                        day_key_for_series=None,
+                        known_prof_items=set(arch_profs.keys()),
+                    )
+
+                for day in matching_days:
+                    d_players = days_dict.get(day, {})
+                    d_prof_for_day = day_profiles_dict.get(day, {})
+                    _merge_profiles_block(d_prof_for_day)
+                    _merge_players_block(
+                        d_players,
+                        day_key_for_series=day,
+                        known_prof_items=set(d_prof_for_day.keys()),
+                    )
 
                 # Collect top-3 buyers/sellers across all items for this period to resolve metadata
                 period_top_buyers_raw = {}
@@ -634,6 +806,12 @@ class MarketTradesAnalyzer:
 
                     # Build period-specific chronological VWAP sparkline
                     p_spark = []
+                    if include_archive:
+                        arch_item_vwap = (archive.get("item_daily_vwap") or {}).get(code) or {}
+                        for d_key in sorted(arch_item_vwap.keys()):
+                            val = float(arch_item_vwap[d_key] or 0.0)
+                            if val > 0:
+                                p_spark.append(round(val, 3))
                     for d_key in matching_days:
                         ds = p_day_series[code].get(d_key)
                         if ds and ds["units"] > 0:
@@ -714,8 +892,24 @@ class MarketTradesAnalyzer:
                         "recent_trades": base_item.get("recent_trades", []),
                     }
 
-                target = days_count if p_key != "all" else len(days_dict.keys())
-                actual_cnt = len(matching_days)
+                actual_cnt = len(matching_days) + (archive_days_count if include_archive else 0)
+                target = actual_cnt if p_key == "all" else days_count
+                start_candidates = [
+                    d
+                    for d in (
+                        archive.get("start_date") if include_archive else None,
+                        matching_days[0] if matching_days else None,
+                    )
+                    if d
+                ]
+                end_candidates = [
+                    d
+                    for d in (
+                        archive.get("end_date") if include_archive else None,
+                        matching_days[-1] if matching_days else None,
+                    )
+                    if d
+                ]
                 periods_summary[p_key] = {
                     "total_market_money": round(p_market_money, 2),
                     "total_market_pp": p_market_pp,
@@ -723,8 +917,8 @@ class MarketTradesAnalyzer:
                     "total_market_tx": p_market_tx,
                     "days_count": actual_cnt,
                     "target_days": target,
-                    "start_date": matching_days[0] if matching_days else now.strftime("%Y-%m-%d"),
-                    "end_date": matching_days[-1] if matching_days else now.strftime("%Y-%m-%d"),
+                    "start_date": min(start_candidates) if start_candidates else now.strftime("%Y-%m-%d"),
+                    "end_date": max(end_candidates) if end_candidates else now.strftime("%Y-%m-%d"),
                     "is_partial": actual_cnt < target if p_key not in ("24h", "all") else False,
                     "items": p_items_formatted,
                 }
