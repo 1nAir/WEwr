@@ -1,0 +1,61 @@
+/**
+ * Declarative Configuration & Extensible Section Registry for Wealthrate v2.0.
+ * To add a new top-level section in the future (e.g. Companies after game patch),
+ * simply register it in NAV_SECTIONS.
+ */
+export const NAV_SECTIONS = [
+  {
+    id: 'profitability',
+    label: 'Profitability',
+    dataSlice: 'profitability.json',
+    historySlice: 'profitability_history.json',
+  },
+  {
+    id: 'market',
+    label: 'Market',
+    subtabs: ['orderbook', 'trades', 'leaderboards'],
+  },
+  {
+    id: 'companies',
+    label: 'Companies',
+    subtabs: ['items', 'countries'],
+    dataSlice: 'companies.json',
+    historySlice: 'companies_history.json',
+  },
+];
+
+export const GUIDE_CONTENT = {
+  profitability: `
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem">
+      <div><strong class="text-pp">Min ₿/PP (Fast Trade)</strong> — Net profit per 1 PP when buying raw materials from Top-3 Sell orders (Ask) and selling product into Top-3 Buy orders (Bid).</div>
+      <div><strong class="text-buy">Max ₿/PP (Own Orders)</strong> — Net profit per 1 PP when buying raw materials via Top-3 Buy orders (Bid) and selling product via Top-3 Sell orders (Ask).</div>
+    </div>
+  `,
+  orderbook: `
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem">
+      <div><strong class="text-buy">🟢 Buy Depth (Bids)</strong> — Active buy orders sorted by total ₿ locked on the market. Click any price row to simulate selling into buy orders down to that price.</div>
+      <div><strong class="text-sell">🔴 Sell Depth (Asks)</strong> — Active sell orders sorted by total PP listed on the market. Click any price row to simulate buying out the market up to that price.</div>
+      <div class="text-muted" style="font-size:0.78rem">Extreme orders (≥2x Ask or ≤0.5x Bid) are grouped at the bottom of the ladder.</div>
+    </div>
+  `,
+  trades: `
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem">
+      <div><strong>VWAP (₿)</strong> — Volume-Weighted Average Price (<code>Total ₿ Turnover ÷ Total Units</code>).</div>
+      <div><strong class="text-btc">★ POC</strong> — Point of Control: the price tier with the largest traded volume.</div>
+    </div>
+  `,
+  leaderboards: `
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem">
+      <div><strong class="text-pp">Live Sell / Live Buy</strong> — Top-25 holders of active market orders right now.</div>
+      <div><strong class="text-btc">Top Buyers / Top Sellers (₿)</strong> — Top-25 traders by completed trade volume (₿) for the selected time window.</div>
+    </div>
+  `,
+  companies: `
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem">
+      <div><strong>Scope</strong> — Includes all active (non-disabled) companies owned by players of <strong>Level 15+</strong>.</div>
+      <div><strong class="text-pp">Output (PP/hr)</strong> — Hourly production in Production Points (<code>Automated Engine + Employees</code>).</div>
+      <div><strong class="text-btc">Wages (₿/hr)</strong> — Hourly payroll paid to Employees and Managers.</div>
+      <div><strong class="text-buy">Tax (₿/hr)</strong> — Hourly tax collected from payrolls (<code>Emp Wages × Inc Tax % + Mgr Wages × Mgr Tax %</code>).</div>
+    </div>
+  `,
+};
